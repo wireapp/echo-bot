@@ -1,8 +1,10 @@
+Wire bot API is currently in alpha.
+
 1. Clone https://github/wireapp/hello-bot
 
 2. Run make
 
-3. Go to wire.com/b/don
+3. Go to https://wire.com/b/don (not supported by mobile yet)
 
 4. Register (multiple steps)
   - Email
@@ -13,7 +15,7 @@
   - Account approved email
 
 5. Create new bot (with Don) (multiple steps)
-  - Name
+  - Name - name of the bot, will also be used as the URL for the bot
   - Base URL
   - Description
   - RSA key (from /certs/privatekey.pem)
@@ -23,4 +25,3 @@
 7. Deploy service to cloud
 
 8. Enable bot (with Don)
-
