@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <wbotz.version>0.2.3</wbotz.version>
+        <wbotz.version>0.2.7</wbotz.version>
     </properties>
 
     <repositories>
