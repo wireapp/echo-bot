@@ -6,7 +6,7 @@ Wire bot API is currently in alpha.
 
 3. Go to https://wire.com/b/don (not supported by mobile yet)
 
-4. Register (multiple steps)
+4. Register
   - Email
   - Website
   - Developer description (e.g. “Yahoo”)
@@ -14,7 +14,7 @@ Wire bot API is currently in alpha.
   - Account review by Wire
   - Account approved email
 
-5. Create new bot (with Don) (multiple steps)
+5. Create new bot (with Don)
   - Name - name of the bot, will also be used as the URL for the bot
   - Base URL
   - Description
