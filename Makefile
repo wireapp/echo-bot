@@ -1,23 +1,35 @@
 SHELL := /usr/bin/env bash
 BOT   := hello
+OS    := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
-CERTS_DIR			:= certs
-CSR_COUNTRY			:= DE
-CSR_STATE			:= Berlin
+CERTS_DIR		    := certs
+CSR_COUNTRY		    := DE
+CSR_STATE		    := Berlin
 CSR_LOCALITY		:= Berlin
 CSR_ORGANISATION	:= My Company GmbH
-CSR_COMMON			:= company.com
+CSR_COMMON		    := company.com
 KEYSTORE_PASSWORD	:= 123456
 KEYSTORE_FILE		:= keystore.jks
+
+ifeq ($(OS), darwin)
+PLATFORM := darwin
+else
+PLATFORM := linux
+endif
 
 default: all
 
 .PHONY: all
-all: compile generate_cert generate_keystore
+all: generate_cert generate_keystore
+	mvn -P$(PLATFORM) package
 
-.PHONY: compile
-compile:
+.PHONY: linux
+linux: generate_cert generate_keystore
 	mvn -Plinux package
+
+.PHONY: darwin
+darwin: generate_cert generate_keystore
+	mvn -Pdarwin package
 
 .PHONY: generate_cert
 generate_cert: | $(CERTS_DIR)
@@ -41,5 +53,6 @@ clean:
 	mvn clean
 	rm -rf $(CERTS_DIR)
 
+.PHONY: run
 run:
 	java -jar target/hello.jar server hello.yaml
