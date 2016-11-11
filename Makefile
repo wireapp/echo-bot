@@ -1,19 +1,19 @@
 SHELL := /usr/bin/env bash
 BOT   := hello
 
-CERTS_DIR		:= certs
-CSR_COUNTRY		:= CH
-CSR_STATE		:= Zug
-CSR_LOCALITY		:= Zug
-CSR_ORGANISATION	:= Wire Swiss GmbH
-CSR_COMMON		:= wire.com
+CERTS_DIR			:= certs
+CSR_COUNTRY			:= DE
+CSR_STATE			:= Berlin
+CSR_LOCALITY		:= Berlin
+CSR_ORGANISATION	:= My Company GmbH
+CSR_COMMON			:= company.com
 KEYSTORE_PASSWORD	:= 123456
 KEYSTORE_FILE		:= keystore.jks
 
 default: all
 
 .PHONY: all
-all: compile generate_cert generate_keystore container
+all: compile generate_cert generate_keystore
 
 .PHONY: compile
 compile:
@@ -33,14 +33,8 @@ $(CERTS_DIR):
 generate_keystore: | $(CERTS_DIR)/$(KEYSTORE_FILE)
 
 $(CERTS_DIR)/$(KEYSTORE_FILE):
-	openssl pkcs12 -export -name myservercert -in $(CERTS_DIR)/cert.pem -inkey $(CERTS_DIR)/privkey.pem -out $(CERTS_DIR)/keystore.p12
-	keytool -noprompt -importkeystore -destkeystore $(CERTS_DIR)/$(KEYSTORE_FILE) -srckeystore $(CERTS_DIR)/keystore.p12 -storepass $(KEYSTORE_PASSWORD) -srcstoretype pkcs12 -alias myservercert
-	
-.PHONY: container
-container: $(addprefix container-, $(BOT))
-
-container-%:
-	docker build --tag wire/$* -f Dockerfile .
+	openssl pkcs12 -export -name myservercert -in $(CERTS_DIR)/cert.pem -inkey $(CERTS_DIR)/privkey.pem -out $(CERTS_DIR)/keystore.p12 -passout pass:$(KEYSTORE_PASSWORD)
+	keytool -importkeystore -noprompt -destkeystore $(CERTS_DIR)/$(KEYSTORE_FILE) -srckeystore $(CERTS_DIR)/keystore.p12 -srcstorepass $(KEYSTORE_PASSWORD) -storepass $(KEYSTORE_PASSWORD) -srcstoretype pkcs12 -alias myservercert
 
 .PHONY: clean
 clean:

@@ -4,7 +4,7 @@ server:
       port: 8049
     - type: https
       port: 8050
-      keyStorePath: keystore.jks
+      keyStorePath: certs/keystore.jks
       keyStorePassword: 123456
       certAlias: myservercert
       validateCerts: false
@@ -20,4 +20,4 @@ auth: Bearer your_auth_token
 name: Hellobot
 accent: 2
 profiles:
-- 3-2-12cab0ae-c1ab-4133-bda6-1a857257df14
+    - 3-2-12cab0ae-c1ab-4133-bda6-1a857257df14
