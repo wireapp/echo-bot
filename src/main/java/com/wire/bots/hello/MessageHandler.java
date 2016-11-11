@@ -71,8 +71,7 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onMessage(BotClient client, Message msg) {
         try {
-            Logger.info(String.format("onMessage: %s, bot: %s from: %s",
-                    msg.getMessageType(),
+            Logger.info(String.format("onMessage: bot: %s from: %s",
                     client.getBotId(),
                     msg.getUserId()));
 

@@ -1,2 +1,4 @@
 target/
 certs/
+crypto/identities
+crypto/version
