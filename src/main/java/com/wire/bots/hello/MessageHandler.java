@@ -63,6 +63,8 @@ public class MessageHandler extends MessageHandlerBase {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
+        } finally {
+            client.close();
         }
     }
 
@@ -83,6 +85,8 @@ public class MessageHandler extends MessageHandlerBase {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
+        } finally {
+            client.close();
         }
     }
 
@@ -102,11 +106,17 @@ public class MessageHandler extends MessageHandlerBase {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
+        } finally {
+            client.close();
         }
     }
 
     @Override
     public void onMemberLeave(BotClient client, ArrayList<String> userIds) {
+        try {
 
+        } finally {
+            client.close();
+        }
     }
 }

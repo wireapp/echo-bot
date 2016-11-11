@@ -40,3 +40,6 @@ $(CERTS_DIR)/$(KEYSTORE_FILE):
 clean:
 	mvn clean
 	rm -rf $(CERTS_DIR)
+
+run:
+	java -jar target/hello.jar server hello.yaml
