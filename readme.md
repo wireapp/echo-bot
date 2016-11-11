@@ -4,7 +4,7 @@ Wire bot API is currently in alpha.
 
 2. Run make
 
-3. Go to https://wire.com/b/don (not supported by mobile yet)
+3. Go to https://wire.com/b/don (not supported on mobile yet)
 
 4. Register
   - Email
