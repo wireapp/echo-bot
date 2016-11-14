@@ -18,7 +18,7 @@ Wire bot API is currently in alpha.
   - Name - name of the bot, will also be used as the URL for the bot
   - Base URL
   - Description
-  - RSA key (from /certs/privatekey.pem)
+  - RSA key (from ./hello-bot/certs/pubkey.pem)
 
 6. Update config file (with auth_token from Don)
 
