@@ -25,6 +25,40 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
+    public void onMessage(BotClient client, Message msg) {
+        try {
+            Logger.info(String.format("onMessage: bot: %s from: %s",
+                    client.getBotId(),
+                    msg.getUserId()));
+
+            // send echo back to user
+            if (msg.getContent() != null) {
+                client.sendText("You wrote: " + msg.getContent());
+            }
+
+            Message.ImageData imageData = msg.getImageData();
+            if (imageData != null) {
+                Logger.info(String.format("Received an Image\nname: %s\ntype: %s\nsize: %,d KB\nh: %d\nw: %d\ntag: %s",
+                        msg.getName(),
+                        msg.getMimeType(),
+                        msg.getSize() / 1024,
+                        imageData.getHeight(),
+                        imageData.getWidth(),
+                        imageData.getTag()
+                ));
+
+                // echo this image back to user
+                byte[] img = client.downloadAsset(msg);
+                client.sendPicture(img, msg.getMimeType());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.error(e.getMessage());
+        }
+    }
+
+    @Override
     public String getName() {
         return config.getName();
     }
@@ -46,6 +80,7 @@ public class MessageHandler extends MessageHandlerBase {
                 newBot.origin.name,
                 newBot.locale));
 
+        // return false in case you don't want to allow this user to open new conv with your bot
         return true;
     }
 
@@ -63,31 +98,9 @@ public class MessageHandler extends MessageHandlerBase {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
-        } finally {
-            client.close();
         }
     }
 
-    @Override
-    public void onMessage(BotClient client, Message msg) {
-        try {
-            Logger.info(String.format("onMessage: bot: %s from: %s",
-                    client.getBotId(),
-                    msg.getUserId()));
-
-            // send echo back to user
-            if (msg.getContent() != null)
-                client.sendText("You wrote: " + msg.getContent());
-
-            // send user some nice picture
-            client.sendPicture("http://i.imgur.com/eGzcZih.png");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
-        } finally {
-            client.close();
-        }
-    }
 
     @Override
     public void onMemberJoin(BotClient client, ArrayList<String> userIds) {
@@ -105,17 +118,11 @@ public class MessageHandler extends MessageHandlerBase {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
-        } finally {
-            client.close();
         }
     }
 
     @Override
     public void onMemberLeave(BotClient client, ArrayList<String> userIds) {
-        try {
 
-        } finally {
-            client.close();
-        }
     }
 }
