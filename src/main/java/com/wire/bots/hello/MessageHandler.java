@@ -24,6 +24,12 @@ public class MessageHandler extends MessageHandlerBase {
         this.config = config;
     }
 
+    /**
+     * This callback method is called every time somebody posts something into the conversation
+     *
+     * @param client BotClient object that can be used to post new content into this conversation
+     * @param msg    Message object containing the actual post. All the data is already decrypted.
+     */
     @Override
     public void onMessage(BotClient client, Message msg) {
         try {
@@ -58,21 +64,11 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
-    @Override
-    public String getName() {
-        return config.getName();
-    }
-
-    @Override
-    public int getAccentColour() {
-        return config.getAccent();
-    }
-
-    @Override
-    public String[] getProfilePictures() {
-        return config.getProfiles();
-    }
-
+    /**
+     * @param newBot NewBot object containing info about the conversation this bot is being added to
+     *               This method is called when the User adds this bot into existing conversation.
+     * @return True if this user is entitled to create new conversation with this bot
+     */
     @Override
     public boolean onNewBot(NewBot newBot) {
         Logger.info(String.format("onNewBot: user: %s/%s, locale: %s",
@@ -84,6 +80,11 @@ public class MessageHandler extends MessageHandlerBase {
         return true;
     }
 
+    /**
+     * This method is called when bot is added into new conversation and it's ready to posts into it.
+     *
+     * @param client BotClient object that can be used to post new content into this conversation
+     */
     @Override
     public void onNewConversation(BotClient client) {
         try {
@@ -102,6 +103,12 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
 
+    /**
+     * This method is called when new participant joins the conversation
+     *
+     * @param client  BotClient object that can be used to post new content into this conversation
+     * @param userIds List of New participants that were just added into the conv.
+     */
     @Override
     public void onMemberJoin(BotClient client, ArrayList<String> userIds) {
         try {
@@ -121,8 +128,43 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
+    /**
+     * This method is called when somebody leaves the conversation
+     *
+     * @param client  BotClient object that can be used to post new content into this conversation
+     * @param userIds List of participants that just left the conv (or being kicked out of it :-p).
+     */
     @Override
     public void onMemberLeave(BotClient client, ArrayList<String> userIds) {
 
     }
+
+    /**
+     * Overrides default bot name.
+     *
+     * @return Bot name
+     */
+    @Override
+    public String getName() {
+        return config.getName();
+    }
+
+    /**
+     * Overrides default bot's accent colour.
+     *
+     * @return accent colour id [0-7]
+     */
+    @Override
+    public int getAccentColour() {
+        return config.getAccent();
+    }
+
+    /**
+     * @return Array of picture keys
+     */
+    @Override
+    public String[] getProfilePictures() {
+        return config.getProfiles();
+    }
+
 }
