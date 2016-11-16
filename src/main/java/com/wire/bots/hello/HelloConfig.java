@@ -22,16 +22,4 @@ public class HelloConfig extends com.wire.wbotz.Configuration {
     public String[] getProfiles() {
         return profiles;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAccent(int accent) {
-        this.accent = accent;
-    }
-
-    public void setProfiles(String[] profiles) {
-        this.profiles = profiles;
-    }
 }

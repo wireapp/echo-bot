@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <wbotz.version>0.2.10</wbotz.version>
+        <wbotz.version>0.2.12</wbotz.version>
     </properties>
 
     <repositories>
@@ -29,32 +29,32 @@
                     <family>mac</family>
                 </os>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.wire.wbotz</groupId>
-                    <artifactId>wbotz</artifactId>
-                    <version>${wbotz.version}</version>
-                    <classifier>darwin-x86_64</classifier>
-                </dependency>
-            </dependencies>
+            <properties>
+                <classifier>darwin-x86_64</classifier>
+                <exclude>linux-x86_64</exclude>
+            </properties>
         </profile>
         <profile>
             <id>linux</id>
             <activation>
                 <os>
-                    <name>Linux</name>
+                    <family>Linux</family>
                 </os>
             </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.wire.wbotz</groupId>
-                    <artifactId>wbotz</artifactId>
-                    <version>${wbotz.version}</version>
-                    <classifier>linux-x86_64</classifier>
-                </dependency>
-            </dependencies>
+            <properties>
+                <classifier>linux-x86_64</classifier>
+                <exclude>darwin-x86_64</exclude>
+            </properties>
         </profile>
     </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wire.wbotz</groupId>
+            <artifactId>wbotz</artifactId>
+            <version>${wbotz.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -82,6 +82,11 @@
                 <configuration>
                     <finalName>hello</finalName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.wire.cryptobox:cryptobox-jni:jar:${exclude}</exclude>
+                        </excludes>
+                    </artifactSet>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
