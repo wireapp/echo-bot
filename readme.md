@@ -1,6 +1,6 @@
 Wire bot API is currently in alpha.
 
-1. Clone https://github/wireapp/hello-bot
+1. Clone [https://github/wireapp/hello-bot](https://github/wireapp/hello-bot)
 
 2. Run make
 
