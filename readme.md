@@ -1,5 +1,7 @@
-###Wire bot API is currently in alpha.
+#hello-bot
 
+##Wire bot API is currently in alpha.  
+  
 1. Clone this repository: [https://github/wireapp/hello-bot](https://github/wireapp/hello-bot)
 
 2. Install [Maven](http://maven.apache.org/install.html) and make sure it is added to `PATH`
@@ -34,7 +36,7 @@
   - $ java -jar hello.jar server hello.yaml
   - $ curl -i http://localhost:8049/bots/status
   - $ curl -ikv https://localhost:8050/bots/status
-  - $ curl -XPOST https://localhost:8051/healthcheck
+  - $ curl http://localhost:8051/healthcheck
   - Expose port 8050
 ```  
 9. Enable bot (with DevBot) - one of DevBot's commands to activate a bot. 
