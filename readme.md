@@ -29,9 +29,10 @@
 8. Deploy the service online - You'll need to host it on your own servers.
   - Please download the strong cryptography policies for Java from:
 	  http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
-    and unpack the content into `${JAVA_HOME}/jre/lib/security/`
+    and unpack the content into `${JAVA_HOME}/jre/lib/security/`  
 ```  
-  - Create a new directory and copy the following files with that exact directory structure: ./target/hello.jar, ./hello.yaml, ./certs/keystore.jks
+  - Create a new directory and copy the following files with that exact directory structure:  
+  ./target/hello.jar, ./hello.yaml, ./certs/keystore.jks
   - $ mkdir crypto
   - $ java -jar hello.jar server hello.yaml
   - $ curl -i http://localhost:8049/bots/status
@@ -39,4 +40,4 @@
   - $ curl http://localhost:8051/healthcheck
   - Expose port 8050
 ```  
-9. Enable bot (with DevBot) - one of DevBot's commands to activate a bot. 
+Enable bot (with DevBot) - one of DevBot's commands to activate a bot. 
