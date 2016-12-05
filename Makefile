@@ -6,8 +6,8 @@ CERTS_DIR		    := certs
 CSR_COUNTRY		    := DE
 CSR_STATE		    := Berlin
 CSR_LOCALITY		:= Berlin
-CSR_ORGANISATION	:= My Company GmbH
-CSR_COMMON		    := company.com
+CSR_ORGANISATION	:= Propeller GmbH
+CSR_COMMON		    := propeller.rocks
 KEYSTORE_PASSWORD	:= 123456
 KEYSTORE_FILE		:= keystore.jks
 
