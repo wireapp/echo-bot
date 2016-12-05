@@ -1,4 +1,4 @@
-package com.wire.bots.hello;
+package com.wire.bots.propeller;
 
 import com.wire.wbotz.MessageHandlerBase;
 import com.wire.wbotz.Server;

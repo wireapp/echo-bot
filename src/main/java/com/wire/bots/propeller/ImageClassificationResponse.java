@@ -1,4 +1,4 @@
-package com.wire.bots.hello;
+package com.wire.bots.propeller;
 
 /**
  *

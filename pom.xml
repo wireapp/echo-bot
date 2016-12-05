@@ -124,5 +124,5 @@
             </plugin>
         </plugins>
     </build>
-
+    <name>Propeller</name>
 </project>
