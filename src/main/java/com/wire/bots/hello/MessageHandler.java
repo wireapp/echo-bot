@@ -159,12 +159,13 @@ public class MessageHandler extends MessageHandlerBase {
         return config.getAccent();
     }
 
-    /**
-     * @return Array of picture keys
-     */
-    @Override
-    public String[] getProfilePictures() {
-        return config.getProfiles();
+     @Override
+    public String getSmallProfilePicture() {
+        return config.getSmallProfile();
     }
 
+    @Override
+    public String getBigProfilePicture() {
+        return config.getBigProfile();
+    }
 }

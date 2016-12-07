@@ -9,7 +9,8 @@ package com.wire.bots.hello;
 public class HelloConfig extends com.wire.wbotz.Configuration {
     public String name;
     public int accent;
-    public String[] profiles;
+    private String smallProfile;
+    private String bigProfile;
 
     public String getName() {
         return name;
@@ -19,7 +20,12 @@ public class HelloConfig extends com.wire.wbotz.Configuration {
         return accent;
     }
 
-    public String[] getProfiles() {
-        return profiles;
+
+    public String getSmallProfile() {
+        return smallProfile;
+    }
+
+    public String getBigProfile() {
+        return bigProfile;
     }
 }

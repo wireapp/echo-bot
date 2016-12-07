@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <wbotz.version>0.2.12</wbotz.version>
+        <wbotz.version>0.2.15</wbotz.version>
     </properties>
 
     <repositories>
@@ -44,6 +44,19 @@
             <properties>
                 <classifier>linux-x86_64</classifier>
                 <exclude>darwin-x86_64</exclude>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <classifier>win-x86_64</classifier>
+                <exclude1>darwin-x86_64</exclude1>
+                <exclude2>linux-x86_64</exclude2>
             </properties>
         </profile>
     </profiles>

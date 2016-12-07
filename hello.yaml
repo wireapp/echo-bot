@@ -17,7 +17,7 @@ server:
 #    appenders: []
 
 auth: Bearer your_auth_token
-name: Hellobot
+name: Echo
 accent: 2
-profiles:
-    - 3-2-12cab0ae-c1ab-4133-bda6-1a857257df14
+smallProfile: 3-2-e9556c2d-e920-47a8-88a0-e0e3b3eb671a
+bigProfile: 3-2-3f348d93-56ad-4fb0-b8f9-35a158be6e67
