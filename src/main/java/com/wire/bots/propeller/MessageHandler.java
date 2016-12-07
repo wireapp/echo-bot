@@ -61,8 +61,15 @@ public class MessageHandler extends MessageHandlerBase {
                 // call image recognition API
                 ImageClassificationRequest request = new ImageClassificationRequest();
                 request.setImage(img);
-                ImageClassificationResponse response = recognition.doPost(request);
-                client.sendText(response.getConfidences());
+                
+                try {
+                    ImageClassificationResponse response = recognition.doPost(request);
+                    client.sendText(response.getClassification());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Logger.error(e.getMessage());
+                    client.sendText("Sorry something went wrong :( ");
+                }
             }
 
         } catch (Exception e) {
@@ -102,7 +109,7 @@ public class MessageHandler extends MessageHandlerBase {
                     conversation.id,
                     conversation.name));
 
-            client.sendText("Hello");
+            client.sendText("Hello, send me some pictures to recognize objects for you :) ");
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
@@ -127,7 +134,7 @@ public class MessageHandler extends MessageHandlerBase {
                         client.getBotId()));
 
                 // say Hi to new participant
-                client.sendText("Hi there " + user.name);
+                client.sendText("Hi there " + user.name + " send me some pictures :) ");
             }
         } catch (Exception e) {
             e.printStackTrace();

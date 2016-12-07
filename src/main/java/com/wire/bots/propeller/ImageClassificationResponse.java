@@ -24,7 +24,11 @@ public class ImageClassificationResponse {
         return categories;
     }
 
-    public String getConfidences() {
+    public Float[] getConfidences() {
+        return confidences;
+    }
+    
+    public String getClassification() {
         String category = "No classification results";
         if (confidences != null && confidences.length > 0) {
             Float largest = confidences[0];
@@ -39,6 +43,6 @@ public class ImageClassificationResponse {
             category = getCategories()[index];
         }
          
-        return category;
+        return "I think in this image is " + category;
     }
 }

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.wire.wbotz.Logger;
+
 /**
  *
  * @author Propeller.ai
@@ -46,6 +48,7 @@ public class ImageRecognitionClient {
             return objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
         } catch ( IOException e) {
             e.printStackTrace();
+            Logger.error(e.getMessage());
         }
         return null;
     }
