@@ -30,6 +30,10 @@ linux: generate_cert generate_keystore
 .PHONY: darwin
 darwin: generate_cert generate_keystore
 	mvn -Pdarwin package
+	
+PHONY: windows
+windows: generate_cert generate_keystore
+	mvn -Pwindows package
 
 .PHONY: generate_cert
 generate_cert: | $(CERTS_DIR)
