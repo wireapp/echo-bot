@@ -22,7 +22,7 @@ import com.wire.wbotz.Logger;
  * http://propeller.rocks
  */
 public class ImageRecognitionClient {
-    
+
     private ObjectMapper objectMapper;
     private CloseableHttpClient client;
     private final static int SO_TIMEOUT = 60 * 1000;
@@ -35,21 +35,15 @@ public class ImageRecognitionClient {
         client = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
         objectMapper = new ObjectMapper();
     }
-    
-    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws URISyntaxException {
+
+    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws Exception {
         HttpPost httpRequest = new HttpPost();
         httpRequest.setURI(new URI(this.apiUrl));
         String requestBody;
-        try {
-            requestBody = objectMapper.writeValueAsString(request);
-            httpRequest.setEntity(new StringEntity(requestBody));
-            HttpResponse response = client.execute(httpRequest);
+        requestBody = objectMapper.writeValueAsString(request);
+        httpRequest.setEntity(new StringEntity(requestBody));
+        HttpResponse response = client.execute(httpRequest);
 
-            return objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
-        } catch ( IOException e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
-        }
-        return null;
+        return objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
     }
 }

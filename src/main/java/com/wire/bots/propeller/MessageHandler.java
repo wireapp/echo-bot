@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * 
+ *
  * @author Propeller.ai
  * http://propeller.rocks
  */
 public class MessageHandler extends MessageHandlerBase {
     private HelloConfig config;
     private ImageRecognitionClient recognition;
-    
+
     public MessageHandler(HelloConfig config) {
         this.config = config;
         this.recognition = new ImageRecognitionClient();
@@ -56,18 +56,18 @@ public class MessageHandler extends MessageHandlerBase {
 
                 // echo this image back to user
                 byte[] img = client.downloadAsset(msg);
-                
+
                 // call image recognition API
                 ImageClassificationRequest request = new ImageClassificationRequest();
                 request.setImage(img);
-                
+
                 try {
                     ImageClassificationResponse response = recognition.doPost(request);
                     client.sendText(response.getClassification());
                 } catch (Exception e) {
                     e.printStackTrace();
                     Logger.error(e.getMessage());
-                    client.sendText("Sorry something went wrong :( ");
+                    client.sendText("Sorry, something went wrong :( ");
                 }
             }
 
