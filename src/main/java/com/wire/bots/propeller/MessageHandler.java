@@ -10,19 +10,16 @@ import com.wire.wbotz.server.model.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.net.URI;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dejankovacevic
- * Date: 06/09/16
- * Time: 14:01
+ * 
+ * @author Propeller.ai
+ * http://propeller.rocks
  */
 public class MessageHandler extends MessageHandlerBase {
     private HelloConfig config;
     private ImageRecognitionClient recognition;
-    private String apiUrl = "http://104.196.212.163:8000/api/classify/image";
-
+    
     public MessageHandler(HelloConfig config) {
         this.config = config;
         this.recognition = new ImageRecognitionClient();
@@ -64,8 +61,8 @@ public class MessageHandler extends MessageHandlerBase {
                 // call image recognition API
                 ImageClassificationRequest request = new ImageClassificationRequest();
                 request.setImage(img);
-                ImageClassificationResponse response = recognition.doPost(new URI(this.apiUrl), request);
-                client.sendText(response.getCategories()[0] + ": " + response.getConfidences()[0]);
+                ImageClassificationResponse response = recognition.doPost(request);
+                client.sendText(response.getConfidences());
             }
 
         } catch (Exception e) {

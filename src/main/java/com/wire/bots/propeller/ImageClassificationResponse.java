@@ -24,7 +24,21 @@ public class ImageClassificationResponse {
         return categories;
     }
 
-    public Float[] getConfidences() {
-        return confidences;
+    public String getConfidences() {
+        String category = "No classification results";
+        if (confidences != null && confidences.length > 0) {
+            Float largest = confidences[0];
+            int index = 0;
+            for (int i = 1; i < confidences.length; i++) {
+                    if (confidences[i] > largest) {
+                            largest = confidences[i];
+                            index = i;
+                    }
+            }
+            
+            category = getCategories()[index];
+        }
+         
+        return category;
     }
 }
