@@ -38,11 +38,15 @@ public class ImageClassificationResponse {
                             largest = confidences[i];
                             index = i;
                     }
-            }
-            
+            }            
             category = getCategories()[index];
-        }
-         
+        }        
+        // temp. fix to remove ugly ID
+        String[] parts = category.split(" ");
+        category = "";
+        for(int i=1; i < parts.length; i++)
+            category += " "+ parts[i];
+        
         return "I think in this image is " + category;
     }
 }
