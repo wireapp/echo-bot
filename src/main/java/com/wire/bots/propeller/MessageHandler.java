@@ -56,7 +56,6 @@ public class MessageHandler extends MessageHandlerBase {
 
                 // echo this image back to user
                 byte[] img = client.downloadAsset(msg);
-                client.sendPicture(img, msg.getMimeType());
                 
                 // call image recognition API
                 ImageClassificationRequest request = new ImageClassificationRequest();
