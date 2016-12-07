@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>propeller</artifactId>
-    <groupId>com.wire.bots</groupId>
+    <groupId>ai.propeller</groupId>
     <version>0.1.0</version>
 
     <properties>
@@ -85,7 +85,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                    <finalName>hello</finalName>
+                    <finalName>propeller</finalName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <excludes>
