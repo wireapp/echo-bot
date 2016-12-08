@@ -23,7 +23,7 @@ import com.wire.wbotz.Logger;
  * http://propeller.rocks
  */
 public class ImageRecognitionClient {
-    
+
     private ObjectMapper objectMapper;
     private CloseableHttpClient client;
     private final static int SO_TIMEOUT = 60 * 1000;
@@ -36,14 +36,14 @@ public class ImageRecognitionClient {
         client = HttpClientBuilder.create().setConnectionManager(connectionManager).build();
         objectMapper = new ObjectMapper();
     }
-    
-    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws IOException {
+
+    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws Exception {
         HttpPost httpRequest = new HttpPost();
         httpRequest.setURI(new URI(this.apiUrl));
         String requestBody = objectMapper.writeValueAsString(request);
         httpRequest.setEntity(new StringEntity(requestBody));
         CloseableHttpResponse response = client.execute(httpRequest);
-        ImageClassificationResponse classification = 
+        ImageClassificationResponse classification =
                 objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
         response.close();
 
