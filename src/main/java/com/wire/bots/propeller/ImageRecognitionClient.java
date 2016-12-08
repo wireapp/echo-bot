@@ -37,24 +37,16 @@ public class ImageRecognitionClient {
         objectMapper = new ObjectMapper();
     }
     
-    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws URISyntaxException {
+    public ImageClassificationResponse doPost (ImageClassificationRequest request) throws IOException {
         HttpPost httpRequest = new HttpPost();
         httpRequest.setURI(new URI(this.apiUrl));
-        String requestBody;
-        try {
-            requestBody = objectMapper.writeValueAsString(request);
-            httpRequest.setEntity(new StringEntity(requestBody));
-            CloseableHttpResponse response = client.execute(httpRequest);
-            ImageClassificationResponse classification = 
-                    objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
-            response.close();
+        String requestBody = objectMapper.writeValueAsString(request);
+        httpRequest.setEntity(new StringEntity(requestBody));
+        CloseableHttpResponse response = client.execute(httpRequest);
+        ImageClassificationResponse classification = 
+                objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
+        response.close();
 
-            return classification;
-            
-        } catch ( IOException e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
-        }
-        return null;
+        return classification;
     }
 }
