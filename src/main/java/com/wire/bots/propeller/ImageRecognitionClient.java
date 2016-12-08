@@ -3,6 +3,7 @@ package com.wire.bots.propeller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.StringEntity;
@@ -43,9 +44,13 @@ public class ImageRecognitionClient {
         try {
             requestBody = objectMapper.writeValueAsString(request);
             httpRequest.setEntity(new StringEntity(requestBody));
-            HttpResponse response = client.execute(httpRequest);
+            CloseableHttpResponse response = client.execute(httpRequest);
+            ImageClassificationResponse classification = 
+                    objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
+            response.close();
 
-            return objectMapper.readValue(response.getEntity().getContent(), ImageClassificationResponse.class);
+            return classification;
+            
         } catch ( IOException e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
