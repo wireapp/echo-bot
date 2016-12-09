@@ -1,19 +1,17 @@
 package com.wire.bots.propeller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
+import org.apache.http.HttpHost;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 /**
  *
@@ -28,14 +26,12 @@ public class ImageRecognitionClient {
     private final String apiUrl = "http://104.196.212.163:8000/api/classify/image";
 
     public ImageRecognitionClient() {
-        HttpParams params = new BasicHttpParams();
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 8000));
-        ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(params, registry);
-        cm.setDefaultMaxPerRoute(10);
-        cm.setMaxTotal(100);
-        cm.closeIdleConnections(SO_TIMEOUT, TimeUnit.SECONDS);
-        CloseableHttpClient client = new DefaultHttpClient(cm, params);
+        SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SO_TIMEOUT).build();
+	HttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager();
+	((BasicHttpClientConnectionManager) connectionManager).setSocketConfig(socketConfig);
+	PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setSocketConfig(new HttpHost("104.196.212.163", 8000), socketConfig);
+        CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
         objectMapper = new ObjectMapper();
     }
 
