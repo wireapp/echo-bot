@@ -22,7 +22,7 @@ public class ImageRecognitionClient {
 
     private ObjectMapper objectMapper;
     private CloseableHttpClient client;
-    private final static int SO_TIMEOUT = 60;
+    private final static int SO_TIMEOUT = 60 * 1000;
     private final String apiUrl = "http://104.196.212.163:8000/api/classify/image";
 
     public ImageRecognitionClient() {
