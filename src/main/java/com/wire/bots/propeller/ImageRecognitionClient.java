@@ -31,7 +31,7 @@ public class ImageRecognitionClient {
 	((BasicHttpClientConnectionManager) connectionManager).setSocketConfig(socketConfig);
 	PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setSocketConfig(new HttpHost("104.196.212.163", 8000), socketConfig);
-        CloseableHttpClient client = HttpClients.custom().setConnectionManager(cm).build();
+        client = HttpClients.custom().setConnectionManager(cm).build();
         objectMapper = new ObjectMapper();
     }
 
