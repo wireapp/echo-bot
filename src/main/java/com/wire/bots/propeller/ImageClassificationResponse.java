@@ -29,7 +29,7 @@ public class ImageClassificationResponse {
     }
     
     public String getClassification() {
-        String category = "No classification results";
+        String category = "I am not sure what this is...";
         if (confidences != null && confidences.length > 0) {
             Float largest = confidences[0];
             int index = 0;
@@ -40,13 +40,13 @@ public class ImageClassificationResponse {
                     }
             }            
             category = getCategories()[index];
+            // temp. fix to remove ugly ID
+            String[] parts = category.split(" ");
+            category = "I think in this image is";
+            for(int i =1 ; i < parts.length; i++)
+                category += " "+ parts[i];
         }        
-        // temp. fix to remove ugly ID
-        String[] parts = category.split(" ");
-        category = "";
-        for(int i=1; i < parts.length; i++)
-            category += " "+ parts[i];
         
-        return "I think in this image is " + category;
+        return category;
     }
 }
