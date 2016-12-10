@@ -8,9 +8,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.HttpHost;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 /**
@@ -27,11 +25,9 @@ public class ImageRecognitionClient {
 
     public ImageRecognitionClient() {
         SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SO_TIMEOUT).build();
-	HttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager();
-	((BasicHttpClientConnectionManager) connectionManager).setSocketConfig(socketConfig);
-	PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-        cm.setSocketConfig(new HttpHost("104.196.212.163", 8000), socketConfig);
-        client = HttpClients.custom().setConnectionManager(cm).build();
+	PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setSocketConfig(new HttpHost("104.196.212.163", 8000), socketConfig);
+        client = HttpClients.custom().setConnectionManager(connectionManager).build();
         objectMapper = new ObjectMapper();
     }
 
