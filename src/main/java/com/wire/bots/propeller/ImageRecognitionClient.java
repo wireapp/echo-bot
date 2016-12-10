@@ -21,12 +21,12 @@ public class ImageRecognitionClient {
     private ObjectMapper objectMapper;
     private CloseableHttpClient client;
     private final static int SO_TIMEOUT = 60 * 1000;
-    private final String apiUrl = "http://104.196.212.163:8000/api/classify/image";
+    private final String apiUrl = "http://104.196.212.163:8001/api/classify/image";
 
     public ImageRecognitionClient() {
         SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SO_TIMEOUT).build();
 	PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setSocketConfig(new HttpHost("104.196.212.163", 8000), socketConfig);
+        connectionManager.setSocketConfig(new HttpHost("104.196.212.163", 8001), socketConfig);
         client = HttpClients.custom().setConnectionManager(connectionManager).build();
         objectMapper = new ObjectMapper();
     }
