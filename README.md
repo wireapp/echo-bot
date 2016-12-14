@@ -2,7 +2,7 @@
 
 ##Wire bot API is currently in alpha.  
   
-1. Clone this repository: [https://github/wireapp/hello-bot](https://github/wireapp/hello-bot)
+1. Clone this repository: [https://github.com/wireapp/wire-bot-java](https://github.com/wireapp/wire-bot-java)
 
 2. Install [Maven](http://maven.apache.org/install.html) and make sure it is added to `PATH`
 
