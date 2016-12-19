@@ -1,8 +1,8 @@
 package com.wire.bots.propeller;
 
-import com.wire.wbotz.BotClient;
 import com.wire.wbotz.Logger;
 import com.wire.wbotz.MessageHandlerBase;
+import com.wire.wbotz.WireClient;
 import com.wire.wbotz.models.Message;
 import com.wire.wbotz.server.model.Conversation;
 import com.wire.wbotz.server.model.NewBot;
@@ -32,10 +32,10 @@ public class MessageHandler extends MessageHandlerBase {
      * @param msg    Message object containing the actual post. All the data is already decrypted.
      */
     @Override
-    public void onMessage(BotClient client, Message msg) {
+    public void onMessage(WireClient client, Message msg) {
         try {
             Logger.info(String.format("onMessage: bot: %s from: %s",
-                    client.getBotId(),
+                    client.getId(),
                     msg.getUserId()));
 
             // send echo back to user
@@ -99,12 +99,12 @@ public class MessageHandler extends MessageHandlerBase {
      * @param client BotClient object that can be used to post new content into this conversation
      */
     @Override
-    public void onNewConversation(BotClient client) {
+    public void onNewConversation(WireClient client) {
         try {
             Conversation conversation = client.getConversation();
 
             Logger.info(String.format("onNewConversation: bot: %s, conv: %s, name: %s",
-                    client.getBotId(),
+                    client.getId(),
                     conversation.id,
                     conversation.name));
 
@@ -123,14 +123,14 @@ public class MessageHandler extends MessageHandlerBase {
      * @param userIds List of New participants that were just added into the conv.
      */
     @Override
-    public void onMemberJoin(BotClient client, ArrayList<String> userIds) {
+    public void onMemberJoin(WireClient client, ArrayList<String> userIds) {
         try {
             Collection<User> users = client.getUsers(userIds);
             for (User user : users) {
                 Logger.info(String.format("onMemberJoin: user: %s/%s, bot: %s",
                         user.id,
                         user.name,
-                        client.getBotId()));
+                        client.getId()));
 
                 // say Hi to new participant
                 client.sendText("Hi there " + user.name + " send me some pictures :) ");
@@ -148,7 +148,7 @@ public class MessageHandler extends MessageHandlerBase {
      * @param userIds List of participants that just left the conv (or being kicked out of it :-p).
      */
     @Override
-    public void onMemberLeave(BotClient client, ArrayList<String> userIds) {
+    public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
 
     }
 
