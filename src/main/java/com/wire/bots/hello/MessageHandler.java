@@ -1,8 +1,26 @@
+//
+//Wire
+//Copyright (C) 2016 Wire Swiss GmbH
+//
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
 package com.wire.bots.hello;
 
-import com.wire.wbotz.BotClient;
 import com.wire.wbotz.Logger;
 import com.wire.wbotz.MessageHandlerBase;
+import com.wire.wbotz.WireClient;
 import com.wire.wbotz.models.Message;
 import com.wire.wbotz.server.model.Conversation;
 import com.wire.wbotz.server.model.NewBot;
@@ -31,10 +49,10 @@ public class MessageHandler extends MessageHandlerBase {
      * @param msg    Message object containing the actual post. All the data is already decrypted.
      */
     @Override
-    public void onMessage(BotClient client, Message msg) {
+    public void onMessage(WireClient client, Message msg) {
         try {
             Logger.info(String.format("onMessage: bot: %s from: %s",
-                    client.getBotId(),
+                    client.getId(),
                     msg.getUserId()));
 
             // send echo back to user
@@ -86,12 +104,12 @@ public class MessageHandler extends MessageHandlerBase {
      * @param client BotClient object that can be used to post new content into this conversation
      */
     @Override
-    public void onNewConversation(BotClient client) {
+    public void onNewConversation(WireClient client) {
         try {
             Conversation conversation = client.getConversation();
 
             Logger.info(String.format("onNewConversation: bot: %s, conv: %s, name: %s",
-                    client.getBotId(),
+                    client.getId(),
                     conversation.id,
                     conversation.name));
 
@@ -102,7 +120,6 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
-
     /**
      * This method is called when new participant joins the conversation
      *
@@ -110,14 +127,14 @@ public class MessageHandler extends MessageHandlerBase {
      * @param userIds List of New participants that were just added into the conv.
      */
     @Override
-    public void onMemberJoin(BotClient client, ArrayList<String> userIds) {
+    public void onMemberJoin(WireClient client, ArrayList<String> userIds) {
         try {
             Collection<User> users = client.getUsers(userIds);
             for (User user : users) {
                 Logger.info(String.format("onMemberJoin: user: %s/%s, bot: %s",
                         user.id,
                         user.name,
-                        client.getBotId()));
+                        client.getId()));
 
                 // say Hi to new participant
                 client.sendText("Hi there " + user.name);
@@ -135,7 +152,7 @@ public class MessageHandler extends MessageHandlerBase {
      * @param userIds List of participants that just left the conv (or being kicked out of it :-p).
      */
     @Override
-    public void onMemberLeave(BotClient client, ArrayList<String> userIds) {
+    public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
 
     }
 
