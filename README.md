@@ -41,3 +41,5 @@
   - Expose port 8050
 ```  
 Enable bot (with DevBot) - one of DevBot's commands to activate a bot. 
+
+Full Terms and Conditions are in the making.
