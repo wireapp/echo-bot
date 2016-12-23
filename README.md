@@ -16,7 +16,7 @@ For clarity, if you compile the open source software that we make available from
 
 No license is granted to the Wire trademark and its associated logos, all of which will continue to be owned exclusively by Wire Swiss GmbH. Any use of the Wire trademark and/or its associated logos is expressly prohibited without the express prior written consent of Wire Swiss GmbH.
 
-## wire-java-bot
+## wire-bot-java
 
 ### Wire bot API is currently in alpha.
 
