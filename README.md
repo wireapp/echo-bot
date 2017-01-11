@@ -26,7 +26,7 @@ No license is granted to the Wire trademark and its associated logos, all of whi
 
 3. Run: `$make linux`
 
-4. Go to https://wire.com/b/devbot (not supported on mobile browsers yet) and log in with your Wire credentials - "DevBot" is a bot to set up your developer account and create your own bots.
+4. Go to https://wire.com/b/devbot (not supported on mobile browsers, or Safari yet) and log in with your Wire credentials - "DevBot" is a bot to set up your developer account and create your own bots.
 
 5. Register to the bot service:
   - Email - This is a separate developer account, you can reuse the same email (if you've added an email to your Wire account)
