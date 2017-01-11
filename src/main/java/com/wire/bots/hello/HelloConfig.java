@@ -24,11 +24,9 @@ package com.wire.bots.hello;
  * Date: 22/10/16
  * Time: 14:56
  */
-public class HelloConfig extends com.wire.wbotz.Configuration {
+public class HelloConfig extends com.wire.bots.sdk.Configuration {
     public String name;
     public int accent;
-    private String smallProfile;
-    private String bigProfile;
 
     public String getName() {
         return name;
@@ -38,11 +36,4 @@ public class HelloConfig extends com.wire.wbotz.Configuration {
         return accent;
     }
 
-    public String getSmallProfile() {
-        return smallProfile;
-    }
-
-    public String getBigProfile() {
-        return bigProfile;
-    }
 }

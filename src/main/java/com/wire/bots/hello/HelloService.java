@@ -18,9 +18,14 @@
 
 package com.wire.bots.hello;
 
-import com.wire.wbotz.MessageHandlerBase;
-import com.wire.wbotz.Server;
+import com.google.common.collect.ImmutableMultimap;
+import com.wire.bots.sdk.Logger;
+import com.wire.bots.sdk.MessageHandlerBase;
+import com.wire.bots.sdk.Server;
+import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
+
+import java.io.PrintWriter;
 
 public class HelloService extends Server<HelloConfig> {
     public static void main(String[] args) throws Exception {
@@ -33,7 +38,13 @@ public class HelloService extends Server<HelloConfig> {
     }
 
     @Override
-    protected void onRun(HelloConfig helloConfig, Environment environment) {
-
+    protected void onRun(HelloConfig helloConfig, Environment env) {
+        addTask(new Task("hello_task") {
+            @Override
+            public void execute(ImmutableMultimap<String, String> stringStringImmutableMultimap, PrintWriter printWriter) throws Exception {
+                printWriter.println("This is hello task!");
+                Logger.info("Executed Hello task");
+            }
+        }, env);
     }
 }

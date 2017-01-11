@@ -18,14 +18,18 @@
 
 package com.wire.bots.hello;
 
-import com.wire.wbotz.Logger;
-import com.wire.wbotz.MessageHandlerBase;
-import com.wire.wbotz.WireClient;
-import com.wire.wbotz.models.Message;
-import com.wire.wbotz.server.model.Conversation;
-import com.wire.wbotz.server.model.NewBot;
-import com.wire.wbotz.server.model.User;
+import com.wire.bots.sdk.Logger;
+import com.wire.bots.sdk.MessageHandlerBase;
+import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.models.AttachmentMessage;
+import com.wire.bots.sdk.models.AudioMessage;
+import com.wire.bots.sdk.models.ImageMessage;
+import com.wire.bots.sdk.models.TextMessage;
+import com.wire.bots.sdk.server.model.NewBot;
+import com.wire.bots.sdk.server.model.User;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -42,51 +46,96 @@ public class MessageHandler extends MessageHandlerBase {
         this.config = config;
     }
 
-    /**
-     * This callback method is called every time somebody posts something into the conversation
-     *
-     * @param client BotClient object that can be used to post new content into this conversation
-     * @param msg    Message object containing the actual post. All the data is already decrypted.
-     */
     @Override
-    public void onMessage(WireClient client, Message msg) {
+    public void onText(WireClient client, TextMessage msg) {
         try {
-            Logger.info(String.format("onMessage: bot: %s from: %s",
-                    client.getId(),
-                    msg.getUserId()));
+            Logger.info(String.format("Received Text from: %s", msg.getUserId()));
 
             // send echo back to user
-            if (msg.getContent() != null) {
-                client.sendText("You wrote: " + msg.getContent());
-            }
-
-            Message.ImageData imageData = msg.getImageData();
-            if (imageData != null) {
-                Logger.info(String.format("Received an Image\nname: %s\ntype: %s\nsize: %,d KB\nh: %d\nw: %d\ntag: %s",
-                        msg.getName(),
-                        msg.getMimeType(),
-                        msg.getSize() / 1024,
-                        imageData.getHeight(),
-                        imageData.getWidth(),
-                        imageData.getTag()
-                ));
-
-                // echo this image back to user
-                byte[] img = client.downloadAsset(msg);
-                client.sendPicture(img, msg.getMimeType());
-            }
-
+            client.sendText("You wrote: " + msg.getText());
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.error(e.getMessage());
         }
     }
 
-    /**
-     * @param newBot NewBot object containing info about the conversation this bot is being added to
-     *               This method is called when the User adds this bot into existing conversation.
-     * @return True if this user is entitled to create new conversation with this bot
-     */
+    @Override
+    public void onImage(WireClient client, ImageMessage msg) {
+        try {
+            Logger.info(String.format("Received Image: type: %s, size: %,d KB, h: %d, w: %d, tag: %s",
+                    msg.getMimeType(),
+                    msg.getSize() / 1024,
+                    msg.getHeight(),
+                    msg.getWidth(),
+                    msg.getTag()
+            ));
+
+            // echo this image back to user
+            byte[] img = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            client.sendPicture(img, msg.getMimeType());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onAudio(WireClient client, AudioMessage msg) {
+        try {
+            Logger.info(String.format("Received Audio: name: %s, type: %s, size: %,d KB, duration: %,d sec",
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getSize() / 1024,
+                    msg.getDuration() / 1000
+            ));
+
+            // echo this audio back to user
+            byte[] audio = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            client.sendAudio(audio, msg.getName(), msg.getMimeType(), (int) msg.getSize(), msg.getDuration());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onAttachment(WireClient client, AttachmentMessage msg) {
+        try {
+            Logger.info(String.format("Received Attachment: name: %s, type: %s, size: %,d KB",
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getSize() / 1024
+            ));
+
+            // echo this file back to user
+            byte[] bytes = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            File tempFile = File.createTempFile("hello-bot", "attachment", null);
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.write(bytes);
+            }
+            client.sendFile(tempFile, "application/pdf");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getName() {
+        return config.getName();
+    }
+
+    @Override
+    public int getAccentColour() {
+        return config.getAccent();
+    }
+
+    @Override
+    public String getSmallProfilePicture() {
+        return null;
+    }
+
+    @Override
+    public String getBigProfilePicture() {
+        return null;
+    }
+
     @Override
     public boolean onNewBot(NewBot newBot) {
         Logger.info(String.format("onNewBot: user: %s/%s, locale: %s",
@@ -94,38 +143,22 @@ public class MessageHandler extends MessageHandlerBase {
                 newBot.origin.name,
                 newBot.locale));
 
-        // return false in case you don't want to allow this user to open new conv with your bot
-        return true;
+        return true;  // return false in case you don't want to allow this user to open new conv with your bot
     }
 
-    /**
-     * This method is called when bot is added into new conversation and it's ready to posts into it.
-     *
-     * @param client BotClient object that can be used to post new content into this conversation
-     */
     @Override
     public void onNewConversation(WireClient client) {
         try {
-            Conversation conversation = client.getConversation();
+            Logger.info(String.format("onNewConversation: conv: %s",
+                    client.getId()));
 
-            Logger.info(String.format("onNewConversation: bot: %s, conv: %s, name: %s",
-                    client.getId(),
-                    conversation.id,
-                    conversation.name));
-
-            client.sendText("Hello");
+            client.sendText("Hello! I am Echo. I echo everything you write");
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
         }
     }
 
-    /**
-     * This method is called when new participant joins the conversation
-     *
-     * @param client  BotClient object that can be used to post new content into this conversation
-     * @param userIds List of New participants that were just added into the conv.
-     */
     @Override
     public void onMemberJoin(WireClient client, ArrayList<String> userIds) {
         try {
@@ -145,44 +178,15 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
-    /**
-     * This method is called when somebody leaves the conversation
-     *
-     * @param client  BotClient object that can be used to post new content into this conversation
-     * @param userIds List of participants that just left the conv (or being kicked out of it :-p).
-     */
     @Override
     public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
-
-    }
-
-    /**
-     * Overrides default bot name.
-     *
-     * @return Bot name
-     */
-    @Override
-    public String getName() {
-        return config.getName();
-    }
-
-    /**
-     * Overrides default bot's accent colour.
-     *
-     * @return accent colour id [0-7]
-     */
-    @Override
-    public int getAccentColour() {
-        return config.getAccent();
-    }
-
-     @Override
-    public String getSmallProfilePicture() {
-        return config.getSmallProfile();
+        Logger.info(String.format("onMemberLeave: users: %s, bot: %s",
+                userIds,
+                client.getId()));
     }
 
     @Override
-    public String getBigProfilePicture() {
-        return config.getBigProfile();
+    public void onBotRemoved(String botId) {
+        Logger.info("This bot got removed from the conversation :(. BotId: " + botId);
     }
 }

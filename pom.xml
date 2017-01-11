@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <wbotz.version>0.2.21</wbotz.version>
+        <bot.version>0.3.1</bot.version>
     </properties>
 
     <repositories>
@@ -63,9 +63,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.wire.wbotz</groupId>
-            <artifactId>wbotz</artifactId>
-            <version>${wbotz.version}</version>
+            <groupId>com.wire.bots</groupId>
+            <artifactId>bot-sdk</artifactId>
+            <version>${bot.version}</version>
         </dependency>
     </dependencies>
 
