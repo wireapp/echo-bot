@@ -70,7 +70,7 @@ public class MessageHandler extends MessageHandlerBase {
             ));
 
             // echo this image back to user
-            byte[] img = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            byte[] img = client.downloadAsset(msg);
             client.sendPicture(img, msg.getMimeType());
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,7 +88,7 @@ public class MessageHandler extends MessageHandlerBase {
             ));
 
             // echo this audio back to user
-            byte[] audio = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            byte[] audio = client.downloadAsset(msg);
             client.sendAudio(audio, msg.getName(), msg.getMimeType(), (int) msg.getSize(), msg.getDuration());
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,7 +105,7 @@ public class MessageHandler extends MessageHandlerBase {
             ));
 
             // echo this file back to user
-            byte[] bytes = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
+            byte[] bytes = client.downloadAsset(msg);
             File tempFile = File.createTempFile("hello-bot", "attachment", null);
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(bytes);
