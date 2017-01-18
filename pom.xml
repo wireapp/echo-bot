@@ -6,7 +6,7 @@
 
     <artifactId>hello</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 
     <properties>
         <bot.version>0.3.2</bot.version>
