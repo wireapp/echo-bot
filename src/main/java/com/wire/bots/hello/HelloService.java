@@ -33,8 +33,8 @@ public class HelloService extends Server<HelloConfig> {
     }
 
     @Override
-    protected MessageHandlerBase createHandler(HelloConfig config) {
-        return new MessageHandler(config);
+    protected MessageHandlerBase createHandler(HelloConfig config, Environment env) {
+        return new MessageHandler(config, env);
     }
 
     @Override

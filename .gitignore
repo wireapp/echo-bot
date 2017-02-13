@@ -1,5 +1,6 @@
 target/
 certs/
-crypto/identities
-crypto/version
+crypto/
 hello.iml
+*.log
+*.lck

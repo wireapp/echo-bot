@@ -18,6 +18,8 @@
 
 package com.wire.bots.hello;
 
+import com.codahale.metrics.MetricRegistry;
+import com.waz.model.Messages;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
@@ -27,29 +29,46 @@ import com.wire.bots.sdk.models.ImageMessage;
 import com.wire.bots.sdk.models.TextMessage;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
+import io.dropwizard.setup.Environment;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created with IntelliJ IDEA.
- * User: dejankovacevic
- * Date: 06/09/16
- * Time: 14:01
- */
 public class MessageHandler extends MessageHandlerBase {
-    private HelloConfig config;
+    private final HelloConfig config;
+    private final MetricRegistry metrics;
 
-    public MessageHandler(HelloConfig config) {
+    public MessageHandler(HelloConfig config, Environment env) {
         this.config = config;
+        metrics = env.metrics();
+    }
+
+    /**
+     * @param newBot Initialization object for new Bot instance
+     *               -  id          : The unique user ID for the bot.
+     *               -  client      : The client ID for the bot.
+     *               -  origin      : The profile of the user who requested the bot, as it is returned from GET /bot/users.
+     *               -  conversation: The conversation as seen by the bot and as returned from GET /bot/conversation.
+     *               -  token       : The bearer token that the bot must use on inbound requests.
+     *               -  locale      : The preferred locale for the bot to use, in form of an IETF language tag.
+     * @return If TRUE is returned new bot instance is created for this conversation
+     * If FALSE is returned this service declines to create new bot instance for this conversation
+     */
+    @Override
+    public boolean onNewBot(NewBot newBot) {
+        Logger.info(String.format("onNewBot: bot: %s, origin: %s",
+                newBot.id,
+                newBot.origin.id));
+
+        return true;
     }
 
     @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
-            Logger.info(String.format("Received Text from: %s", msg.getUserId()));
+            Logger.info(String.format("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId()));
 
             // send echo back to user
             client.sendText("You wrote: " + msg.getText());
@@ -127,30 +146,11 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public String getSmallProfilePicture() {
-        return null;
-    }
-
-    @Override
-    public String getBigProfilePicture() {
-        return null;
-    }
-
-    @Override
-    public boolean onNewBot(NewBot newBot) {
-        Logger.info(String.format("onNewBot: user: %s/%s, locale: %s",
-                newBot.origin.id,
-                newBot.origin.name,
-                newBot.locale));
-
-        return true;  // return false in case you don't want to allow this user to open new conv with your bot
-    }
-
-    @Override
     public void onNewConversation(WireClient client) {
         try {
-            Logger.info(String.format("onNewConversation: conv: %s",
-                    client.getId()));
+            Logger.info(String.format("onNewConversation: bot: %s, conv: %s",
+                    client.getId(),
+                    client.getConversationId()));
 
             client.sendText("Hello! I am Echo. I echo everything you write");
         } catch (Exception e) {
@@ -164,10 +164,11 @@ public class MessageHandler extends MessageHandlerBase {
         try {
             Collection<User> users = client.getUsers(userIds);
             for (User user : users) {
-                Logger.info(String.format("onMemberJoin: user: %s/%s, bot: %s",
+                Logger.info(String.format("onMemberJoin: bot: %s, user: %s/%s",
+                        client.getId(),
                         user.id,
-                        user.name,
-                        client.getId()));
+                        user.name
+                ));
 
                 // say Hi to new participant
                 client.sendText("Hi there " + user.name);
@@ -188,5 +189,22 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onBotRemoved(String botId) {
         Logger.info("This bot got removed from the conversation :(. BotId: " + botId);
+    }
+
+    /**
+     * This is generic method that is called every time something is posted to this conversation.
+     *
+     * @param client         Thread safe wire client that can be used to post back to this conversation
+     * @param userId         User Id for the sender
+     * @param genericMessage Generic message as it comes from the BE
+     */
+    @Override
+    public void onEvent(WireClient client, String userId, Messages.GenericMessage genericMessage) {
+        if (genericMessage.hasConfirmation()) {
+            metrics.meter("engagement.delivery").mark();
+        }
+        if (genericMessage.hasText()) {
+            metrics.meter("engagement.txt.received").mark();
+        }
     }
 }
