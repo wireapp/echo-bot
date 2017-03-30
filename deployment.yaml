@@ -1,0 +1,57 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: echo
+    spec:
+      restartPolicy: Always
+
+      containers:
+        - name: echo
+          image: eu.gcr.io/wire-bot/echo:latest
+
+          resources:
+            requests:
+              memory: "50Mi"
+            limits:
+              memory: "500Mi"
+
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: echo-knows
+                  key: token
+
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: echo-knows
+                  key: keystore_password
+
+
+          volumeMounts:
+            - mountPath: /opt/echo/crypto
+              name: cryptobox-echo
+
+          command:
+            - "/usr/bin/java"
+            - "-Ddw.auth=$(TOKEN)"
+            - "-Ddw.cryptoDir=/opt/echo/crypto"
+            - "-Ddw.server.applicationConnectors[1].keyStorePassword=$(KEYSTORE_PASSWORD)"
+            - "-jar"
+            - "/opt/echo/hello.jar"
+            - "server"
+            - "/opt/echo/hello.yaml"
+
+      volumes:
+        - name: cryptobox-echo
+          gcePersistentDisk:
+            pdName: cryptobox-echo
+            fsType: ext4

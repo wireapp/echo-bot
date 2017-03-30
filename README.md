@@ -1,6 +1,6 @@
 # Wire™
 
-![Wire logo](https://github.com/wireapp/wire/blob/master/assets/logo.png?raw=true)
+[![Wire logo](https://github.com/wireapp/wire/blob/master/assets/header-small.png?raw=true)](https://wire.com/jobs/)
 
 This repository is part of the source code of Wire. You can find more information at [wire.com](https://wire.com) or by contacting opensource@wire.com.
 
@@ -18,17 +18,13 @@ No license is granted to the Wire trademark and its associated logos, all of whi
 
 ## wire-bot-java
 
-### Wire bot API is currently in alpha.
+1. Fork this repository: [https://github.com/wireapp/wire-bot-java](https://github.com/wireapp/wire-bot-java)
 
-1. Clone this repository: [https://github.com/wireapp/wire-bot-java](https://github.com/wireapp/wire-bot-java)
+2. Run: `$make linux`
 
-2. Install [Maven](http://maven.apache.org/install.html) and make sure it is added to `PATH`
+3. Go to https://wire.com/b/devbot and log in with your Wire credentials - "DevBot" is a bot to set up your developer account and create your own bots.
 
-3. Run: `$make linux`
-
-4. Go to https://wire.com/b/devbot (not supported on mobile browsers, or Safari yet) and log in with your Wire credentials - "DevBot" is a bot to set up your developer account and create your own bots.
-
-5. Register to the bot service:
+4. Register to the bot service:
   - Email - This is a separate developer account, you can reuse the same email (if you've added an email to your Wire account)
   - Website (you can leave it blank: `https://`)
   - Developer description (e.g. “Pied Piper”)
@@ -36,15 +32,15 @@ No license is granted to the Wire trademark and its associated logos, all of whi
   - Account review by Wire
   - Account approved email
 
-6. Create a new bot (with DevBot, type `/help` for available commands)
+5. Create a new bot (with DevBot, type `/help` for available commands)
   - Name - name of the bot, will also be used as the URL for the bot
   - Base URL (you can put: `https://[Your_Public_IP]:8050`)
   - Description
   - Copy and paste the RSA key (found in `./hello-bot/certs/pubkey.pem`)
 
-7. Update the `hello.yaml` file (with the *auth_token* you received from DevBot)
+6. Update the `hello.yaml` file (with the *auth_token* you received from DevBot)
 
-8. Deploy the service online - You'll need to host it on your own servers.
+7. Deploy the service online - You'll need to host it on your own servers.
   - Please download the strong cryptography policies for Java from:
 	  http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
     and unpack the content into `${JAVA_HOME}/jre/lib/security/`
@@ -60,3 +56,38 @@ No license is granted to the Wire trademark and its associated logos, all of whi
 ```
 
 Enable bot (with DevBot) - one of DevBot's commands to activate a bot.
+
+# Build Docker images
+	docker build --tag wire/bots.runtime -f Dockerfile.runtime .
+
+	docker build --tag wire/echo -f Dockerfile .
+
+# Tag images (assuming you have created *wire-bot* proj with gcloud already)
+    docker tag wire/bots.runtime:latest eu.gcr.io/wire-bot/bots.runtime
+
+    docker tag wire/echo:latest eu.gcr.io/wire-bot/echo
+
+# Push images
+    gcloud docker -- push eu.gcr.io/wire-bot/bots.runtime
+
+    gcloud docker -- push eu.gcr.io/wire-bot/echo
+
+# Create GCE secrets
+```
+$ kubectl create secret generic echo-knows \
+>  --from-literal=token=$AUTH_TOKEN \
+>  --from-literal=keystore_password=$KEYSTORE_PASSWORD
+```                                                     
+$AUTH_TOKEN must have *Bearer* prefix!
+
+# Create GCE Persistent Disk
+```
+$ gcloud compute disks create cryptobox-echo \
+>  --zone europe-west1-c \
+>  --size 1GB \
+>  --type pd-ssd
+```
+
+# Deploy to GCE
+`$ kubectl create -f service.yaml`
+`$ kubectl create -f deployment.yaml`
