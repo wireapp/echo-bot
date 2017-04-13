@@ -63,7 +63,7 @@ files to your server. Notice that you will need a **Public IP** to serve as endp
 ## Start your Bot Service
 Run:
 ```
-java -jar hello.jar server hello.yaml
+java -jar /path/to/hello.jar server /path/to/hello.yaml
 ```
 
 ## Enable your bot
@@ -90,7 +90,6 @@ $ kubectl create secret generic echo-knows \
 >  --from-literal=token=$AUTH_TOKEN \
 >  --from-literal=keystore_password=$KEYSTORE_PASSWORD
 ```                                                     
-$AUTH_TOKEN must have *Bearer* prefix!
 
 # Create GCE Persistent Disk
 ```
