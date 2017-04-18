@@ -84,6 +84,11 @@ Enable bot (with DevBot) - one of DevBot's commands to activate a bot.
 
     gcloud docker -- push eu.gcr.io/wire-bot/echo
 
+# Create ConfigMap from files in `conf` folder
+```
+$ kubectl create configmap echo-config --from-file=conf
+```                                                     
+
 # Create GCE secrets
 ```
 $ kubectl create secret generic echo-knows \
@@ -100,5 +105,4 @@ $ gcloud compute disks create cryptobox-echo \
 ```
 
 # Deploy to GCE
-`$ kubectl create -f service.yaml`
-`$ kubectl create -f deployment.yaml`
+`$ kubectl create -f kubernetes/deployment.yaml`

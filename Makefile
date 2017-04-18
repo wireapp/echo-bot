@@ -59,4 +59,4 @@ clean:
 
 .PHONY: run
 run:
-	java -jar target/hello.jar server hello.yaml
+	java -jar target/echo.jar server conf/echo.yaml

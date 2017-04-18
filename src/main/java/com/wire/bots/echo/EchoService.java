@@ -16,7 +16,7 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-package com.wire.bots.hello;
+package com.wire.bots.echo;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.wire.bots.sdk.Logger;
@@ -27,18 +27,18 @@ import io.dropwizard.setup.Environment;
 
 import java.io.PrintWriter;
 
-public class HelloService extends Server<HelloConfig> {
+public class EchoService extends Server<EchoConfig> {
     public static void main(String[] args) throws Exception {
-        new HelloService().run(args);
+        new EchoService().run(args);
     }
 
     @Override
-    protected MessageHandlerBase createHandler(HelloConfig config, Environment env) {
+    protected MessageHandlerBase createHandler(EchoConfig config, Environment env) {
         return new MessageHandler(config, env);
     }
 
     @Override
-    protected void onRun(HelloConfig helloConfig, Environment env) {
+    protected void onRun(EchoConfig echoConfig, Environment env) {
         addTask(new Task("hello_task") {
             @Override
             public void execute(ImmutableMultimap<String, String> stringStringImmutableMultimap, PrintWriter printWriter) throws Exception {

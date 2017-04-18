@@ -16,7 +16,7 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-package com.wire.bots.hello;
+package com.wire.bots.echo;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +24,7 @@ package com.wire.bots.hello;
  * Date: 22/10/16
  * Time: 14:56
  */
-public class HelloConfig extends com.wire.bots.sdk.Configuration {
+public class EchoConfig extends com.wire.bots.sdk.Configuration {
     public String name;
     public int accent;
 

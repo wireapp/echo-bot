@@ -16,7 +16,7 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-package com.wire.bots.hello;
+package com.wire.bots.echo;
 
 import com.codahale.metrics.MetricRegistry;
 import com.waz.model.Messages;
@@ -37,10 +37,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final HelloConfig config;
+    private final EchoConfig config;
     private final MetricRegistry metrics;
 
-    public MessageHandler(HelloConfig config, Environment env) {
+    public MessageHandler(EchoConfig config, Environment env) {
         this.config = config;
         metrics = env.metrics();
     }
@@ -152,7 +152,8 @@ public class MessageHandler extends MessageHandlerBase {
                     client.getId(),
                     client.getConversationId()));
 
-            client.sendText("Hello! I am Echo. I echo everything you write");
+            String label = String.format("Hello! I am %s. I echo everything you write", getName());
+            client.sendText(label);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
