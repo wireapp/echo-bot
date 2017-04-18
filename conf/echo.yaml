@@ -4,7 +4,7 @@ server:
       port: 8049
     - type: https
       port: 8050
-      keyStorePath: ../cert/keystore.jks
+      keyStorePath: certs/keystore.jks
       keyStorePassword: your_secret
       certAlias: myservercert
       validateCerts: false

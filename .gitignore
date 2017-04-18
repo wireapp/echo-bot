@@ -1,6 +1,6 @@
 target/
 certs/
 crypto/
-hello.iml
+*.iml
 *.log
 *.lck

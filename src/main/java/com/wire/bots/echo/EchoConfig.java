@@ -18,12 +18,6 @@
 
 package com.wire.bots.echo;
 
-/**
- * Created with IntelliJ IDEA.
- * User: dejankovacevic
- * Date: 22/10/16
- * Time: 14:56
- */
 public class EchoConfig extends com.wire.bots.sdk.Configuration {
     public String name;
     public int accent;
