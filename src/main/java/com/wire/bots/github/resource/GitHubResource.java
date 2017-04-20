@@ -89,6 +89,16 @@ public class GitHubResource {
                     }
                 }
             }
+            case "pull_request_review": {
+                switch (response.action) {
+                    case "submitted": {
+                        String title = String.format("[%s] %s reviewed PR #%s: %s", response.repository.fullName,
+                                response.review.user, response.pr.number, response.review.body);
+                        sendLinkPreview(client, response.pr.url, title, response.sender.avatarUrl);
+                        break;
+                    }
+                }
+            }
             case "push": {
                 switch (response.action) {
                     case "created": {

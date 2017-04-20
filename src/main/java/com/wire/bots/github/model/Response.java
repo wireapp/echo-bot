@@ -28,6 +28,9 @@ public class Response {
     @JsonProperty("compare")
     public String compare;
 
+    @JsonProperty("review")
+    public Review review;
+
     @JsonProperty("repository")
     public Repository repository;
 }
