@@ -64,14 +64,14 @@ public class GitHubResource {
                     case "opened": {
                         String title = String.format("[%s] New PR #%s: %s", response.repository.fullName,
                                 response.pr.number, response.pr.title);
-                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
+                        sendLinkPreview(client, response.pr.url, title, event + "_" + response.action);
                         break;
                     }
                     case "closed": {
                         String mergedOrClosed = response.pr.merged ? "merged" : "closed";
                         String title = String.format("[%s] PR #%s %s: %s", response.repository.fullName,
                                 response.pr.number, mergedOrClosed, response.pr.title);
-                        sendLinkPreview(client, title, response.pr.url, event + "_" + mergedOrClosed);
+                        sendLinkPreview(client, response.pr.url, title, event + "_" + mergedOrClosed);
                         break;
                     }
                 }
@@ -82,7 +82,7 @@ public class GitHubResource {
                     case "created": {
                         String title = String.format("[%s] %s added a comment to PR #: %s", response.repository.fullName,
                                 response.comment.user.login, response.pr.number, response.comment.body);
-                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
+                        sendLinkPreview(client, response.pr.url, title, event + "_" + response.action);
                         break;
                     }
                 }
@@ -93,13 +93,13 @@ public class GitHubResource {
                     case "reopened": {
                         String title = String.format("[%s] New Issue #%s: %s", response.repository.fullName,
                                 response.issue.number, response.issue.title);
-                        sendLinkPreview(client, title, response.issue.url, event + "_" + response.action);
+                        sendLinkPreview(client, response.issue.url, title, event + "_" + response.action);
                         break;
                     }
                     case "closed": {
                         String title = String.format("[%s] Issue #%s closed: %s", response.repository.fullName,
                                 response.issue.number, response.issue.title);
-                        sendLinkPreview(client, title, response.issue.url, event + "_" + response.action);
+                        sendLinkPreview(client, response.issue.url, title, event + "_" + response.action);
                         break;
                     }
                 }
