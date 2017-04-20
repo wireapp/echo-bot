@@ -12,10 +12,9 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wire.bots.github.model.GitHubPullRequest;
+import com.wire.bots.github.model.Response;
 import com.wire.bots.github.BotConfig;
 import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.Logger;
@@ -26,6 +25,7 @@ import com.wire.bots.sdk.models.AssetKey;
 
 @Path("/github")
 public class GitHubResource {
+
     private final BotConfig conf;
     //private final Executor exec;
     private ClientRepo repo;
@@ -37,11 +37,11 @@ public class GitHubResource {
 
     @POST
     @Path("/{botId}")
-    public Response broadcast(@PathParam("botId") String botId,
-                              @HeaderParam("X-GitHub-Event") String event,
-                              @HeaderParam("X-Hub-Signature") String signature,
-                              @HeaderParam("X-GitHub-Delivery") String delivery,
-                              String payload) throws Exception {
+    public javax.ws.rs.core.Response broadcast(@PathParam("botId") String botId,
+                                               @HeaderParam("X-GitHub-Event") String event,
+                                               @HeaderParam("X-Hub-Signature") String signature,
+                                               @HeaderParam("X-GitHub-Delivery") String delivery,
+                                               String payload) throws Exception {
 
         Logger.info("Event: %s, Signature: %s, Delivery: %s", event, signature, delivery);
 
@@ -49,7 +49,7 @@ public class GitHubResource {
         String challenge = getSha(payload, secret);
         if (!challenge.equals(signature)) {
             Logger.warning("Invalid sha");
-            return Response.
+            return javax.ws.rs.core.Response.
                     status(403).
                     build();
         }
@@ -58,20 +58,19 @@ public class GitHubResource {
 
         switch (event) {
             case "pull_request": {
-                GitHubPullRequest gitHubPullRequest = mapper.readValue(payload, GitHubPullRequest.class);
+                Response response = mapper.readValue(payload, Response.class);
                 WireClient client = repo.getWireClient(botId);
-                switch (gitHubPullRequest.action) {
+                switch (response.action) {
                     case "opened": {
-                        final String title = "New PR: " + gitHubPullRequest.pr.title;
-                        Picture preview = new Picture(gitHubPullRequest.pr.user.avatarUrl);
-                        preview.setPublic(true);
-                        AssetKey assetKey = client.uploadAsset(preview);
-                        preview.setAssetKey(assetKey.key);
-                        client.sendLinkPreview(gitHubPullRequest.pr.url, title, preview);
+                        String title = String.format("[%s] NEW PULL REQUEST: %s", response.repository.fullName, response.pr
+                                .title);
+                        sendLinkPreview(client, title, response.pr.url, response.pr.user.avatarUrl);
                         break;
                     }
                     case "closed": {
-                        client.sendText(String.format("PR closed: " + gitHubPullRequest.pr.title));
+                        String merged = response.pr.merged ? "merged" : "closed without merging";
+                        String title = String.format("[%s] PR %s: %s", response.repository.fullName, merged, response.pr.title);
+                        sendLinkPreview(client, title, response.pr.url, response.pr.user.avatarUrl);
                         break;
                     }
                 }
@@ -79,9 +78,17 @@ public class GitHubResource {
             }
         }
 
-        return Response.
+        return javax.ws.rs.core.Response.
                 ok().
                 build();
+    }
+
+    private void sendLinkPreview(WireClient client, String url, String title, String pictureUrl) throws Exception {
+        Picture preview = new Picture(pictureUrl);
+        preview.setPublic(true);
+        AssetKey assetKey = client.uploadAsset(preview);
+        preview.setAssetKey(assetKey.key);
+        client.sendLinkPreview(url, title, preview);
     }
 
     private String getSha(String payload, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
