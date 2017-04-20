@@ -17,12 +17,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import java.io.File;
+import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -105,17 +102,11 @@ public class GitHubResource {
     }
 
     private void sendLinkPreview(WireClient client, String url, String title, String resourceImageName) throws Exception {
-        Picture preview = null;
-        URL imageUrl = GitHubResource.class.getResource("/images/" + resourceImageName + ".png");
-        if (imageUrl != null) {
-            URI uri = new URI(imageUrl.toString());
-            String path = uri.getPath();
-            byte[] encoded = Files.readAllBytes(Paths.get(path));
-            preview = new Picture(encoded);
-            preview.setPublic(true);
-            AssetKey assetKey = client.uploadAsset(preview);
-            preview.setAssetKey(assetKey.key);
-        }
+        InputStream in = GitHubResource.class.getClassLoader().getResourceAsStream("/images/" + resourceImageName + ".png");
+        Picture preview = new Picture(Util.toByteArray(in));
+        preview.setPublic(true);
+        AssetKey assetKey = client.uploadAsset(preview);
+        preview.setAssetKey(assetKey.key);
         client.sendLinkPreview(url, title, preview);
     }
 
