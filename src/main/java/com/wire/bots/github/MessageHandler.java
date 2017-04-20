@@ -26,6 +26,7 @@ import com.wire.bots.sdk.models.TextMessage;
 
 import java.io.File;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class MessageHandler extends MessageHandlerBase {
     private final BotConfig config;
@@ -42,7 +43,7 @@ public class MessageHandler extends MessageHandlerBase {
             String botId = client.getId();
 
             Util.writeLine(secret, new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
-            client.sendText(getHelp(host, secret, botId));
+            client.sendText(getHelp(host, secret, botId), TimeUnit.MINUTES.toMillis(15));
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
@@ -57,7 +58,7 @@ public class MessageHandler extends MessageHandlerBase {
                 String botId = client.getId();
                 String secret = Util.readLine(new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
 
-                client.sendText(getHelp(host, secret, botId));
+                client.sendText(getHelp(host, secret, botId), TimeUnit.SECONDS.toMillis(60));
             }
         } catch (Exception e) {
             e.printStackTrace();
