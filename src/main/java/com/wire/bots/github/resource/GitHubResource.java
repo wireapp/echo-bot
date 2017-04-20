@@ -103,8 +103,8 @@ public class GitHubResource {
                 switch (response.action) {
                     case "created": {
                         List<Commit> commits = response.commits;
-                        String title = String.format("[%s] %s pushed %s", response.repository.fullName,
-                                response.sender.login);
+                        String title = String.format("[%s] %s pushed %d commits", response.repository.fullName,
+                                response.sender.login, commits.size());
                         sendLinkPreview(client, response.compare, title, response.sender.avatarUrl);
                         StringBuilder builder = new StringBuilder();
                         for(Commit commit: commits) {
