@@ -2,6 +2,7 @@ package com.wire.bots.github.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wire.bots.github.BotConfig;
+import com.wire.bots.github.model.Commit;
 import com.wire.bots.github.model.Response;
 import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.Logger;
@@ -22,6 +23,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Path("/github")
 public class GitHubResource {
@@ -82,7 +84,23 @@ public class GitHubResource {
                     case "created": {
                         String title = String.format("[%s] %s added a comment to PR #: %s", response.repository.fullName,
                                 response.comment.user.login, response.pr.number, response.comment.body);
-                        sendLinkPreview(client, response.pr.url, title, event + "_" + response.action);
+                        sendLinkPreview(client, response.pr.url, title, response.sender.avatarUrl);
+                        break;
+                    }
+                }
+            }
+            case "push": {
+                switch (response.action) {
+                    case "created": {
+                        List<Commit> commits = response.commits;
+                        String title = String.format("[%s] %s pushed %s", response.repository.fullName,
+                                response.sender.login);
+                        sendLinkPreview(client, response.compare, title, response.sender.avatarUrl);
+                        StringBuilder builder = new StringBuilder();
+                        for(Commit commit: commits) {
+                            builder.append("* ");
+                            builder.append(commit.message);
+                        }
                         break;
                     }
                 }
@@ -112,14 +130,19 @@ public class GitHubResource {
                 build();
     }
 
-    private void sendLinkPreview(WireClient client, String url, String title, String resourceImageName) throws Exception {
-        try (InputStream in = GitHubResource.class.getClassLoader().getResourceAsStream("images/" + resourceImageName + ".png")) {
-            Picture preview = new Picture(Util.toByteArray(in));
-            preview.setPublic(true);
-            AssetKey assetKey = client.uploadAsset(preview);
-            preview.setAssetKey(assetKey.key);
-            client.sendLinkPreview(url, title, preview);
+    private void sendLinkPreview(WireClient client, String url, String title, String imageName) throws Exception {
+        Picture preview = null;
+        if(imageName.startsWith("http")) {
+            preview = new Picture(imageName);
+        } else {
+            try (InputStream in = GitHubResource.class.getClassLoader().getResourceAsStream("images/" + imageName + ".png")) {
+                preview = new Picture(Util.toByteArray(in));
+            }
         }
+        preview.setPublic(true);
+        AssetKey assetKey = client.uploadAsset(preview);
+        preview.setAssetKey(assetKey.key);
+        client.sendLinkPreview(url, title, preview);
     }
 
     private String getSha(String payload, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
