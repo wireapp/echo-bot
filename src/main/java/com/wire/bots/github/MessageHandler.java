@@ -18,46 +18,33 @@
 
 package com.wire.bots.github;
 
-import com.codahale.metrics.MetricRegistry;
-import com.waz.model.Messages;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Util;
 import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.models.AttachmentMessage;
-import com.wire.bots.sdk.models.AudioMessage;
-import com.wire.bots.sdk.models.ImageMessage;
-import com.wire.bots.sdk.models.TextMessage;
-import com.wire.bots.sdk.server.model.Conversation;
-import com.wire.bots.sdk.server.model.NewBot;
-import com.wire.bots.sdk.server.model.User;
-import io.dropwizard.setup.Environment;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.UUID;
 
 public class MessageHandler extends MessageHandlerBase {
     private final BotConfig config;
-    private final MetricRegistry metrics;
 
-    public MessageHandler(BotConfig config, Environment env) {
+    public MessageHandler(BotConfig config) {
         this.config = config;
-        metrics = env.metrics();
     }
 
     @Override
     public void onNewConversation(WireClient client) {
         try {
-            String host = "[host]";
-            String secret = "random";
+            String host = config.host;
+            String secret = UUID.randomUUID().toString();
+
             Util.writeLine(secret, new File(String.format("%s/%s/secret", config.getCryptoDir(), client.getId())));
             client.sendText(String.format("Hi, I'm GitHub-Bot. Here is how to set me up:\n\n"
-                            + "1. Go to the repository that you want to connect to\n\n"
-                            + "2. Go to Settings / Webhooks / Add webhook\n\n"
-                            + "3. Add Payload URL: https://%s/%s\n\n"
-                            + "4. Set Content-Type: application/json\n\n"
+                            + "1. Go to the repository that you want to connect to\n"
+                            + "2. Go to Settings / Webhooks / Add webhook\n"
+                            + "3. Add Payload URL: https://%s/%s\n"
+                            + "4. Set Content-Type: application/json\n"
                             + "5. Set Secret: %s",
                     host,
                     client.getId(),

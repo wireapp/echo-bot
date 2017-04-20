@@ -18,15 +18,10 @@
 
 package com.wire.bots.github;
 
-import com.google.common.collect.ImmutableMultimap;
 import com.wire.bots.github.resource.GitHubResource;
-import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
-import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Environment;
-
-import java.io.PrintWriter;
 
 public class BotService extends Server<BotConfig> {
     public static void main(String[] args) throws Exception {
@@ -35,19 +30,11 @@ public class BotService extends Server<BotConfig> {
 
     @Override
     protected MessageHandlerBase createHandler(BotConfig config, Environment env) {
-        return new MessageHandler(config, env);
+        return new MessageHandler(config);
     }
 
     @Override
     protected void onRun(BotConfig botConfig, Environment env) {
         addResource(new GitHubResource(repo, config), env);
-
-        addTask(new Task("hello_task") {
-            @Override
-            public void execute(ImmutableMultimap<String, String> stringStringImmutableMultimap, PrintWriter printWriter) throws Exception {
-                printWriter.println("This is hello task!");
-                Logger.info("Executed Hello task");
-            }
-        }, env);
     }
 }

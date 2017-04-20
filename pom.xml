@@ -93,7 +93,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                    <finalName>echo</finalName>
+                    <finalName>github</finalName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <excludes>

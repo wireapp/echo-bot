@@ -3,8 +3,8 @@ server:
     - type: http
       port: 8049
     - type: https
-      port: 8050
-      keyStorePath: certs/keystore.jks
+      port: 443
+      keyStorePath: keystore.jks
       keyStorePassword: your_secret
       certAlias: myservercert
       validateCerts: false
@@ -16,7 +16,6 @@ server:
 #  requestLog:
 #    appenders: []
 
-auth: your_auth_token   # obtained from DevBot when running: show bot <name>
-name: Echo
-accent: 2
-
+name: github
+host: 35.187.99.125
+cryptoDir: /var/lib/github/crypto  # path to dir where to story crypto box files - directory must exists!
