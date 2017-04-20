@@ -87,8 +87,9 @@ public class GitHubResource {
                         break;
                     }
                     case "closed": {
-                        String title = String.format("[%s] Issue #%s closed: %s", response.repository.fullName, response.pr.number, response.pr.title);
-                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
+                        String title = String.format("[%s] Issue #%s closed: %s", response.repository.fullName,
+                                response.issue.number, response.issue.title);
+                        sendLinkPreview(client, title, response.issue.url, event + "_" + response.action);
                         break;
                     }
                 }
