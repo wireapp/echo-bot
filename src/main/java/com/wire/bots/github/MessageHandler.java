@@ -22,6 +22,7 @@ import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Util;
 import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.models.TextMessage;
 
 import java.io.File;
 import java.util.UUID;
@@ -38,21 +39,42 @@ public class MessageHandler extends MessageHandlerBase {
         try {
             String host = config.host;
             String secret = UUID.randomUUID().toString();
+            String botId = client.getId();
 
-            Util.writeLine(secret, new File(String.format("%s/%s/secret", config.getCryptoDir(), client.getId())));
-            client.sendText(String.format("Hi, I'm GitHub-Bot. Here is how to set me up:\n\n"
-                            + "1. Go to the repository that you want to connect to\n"
-                            + "2. Go to Settings / Webhooks / Add webhook\n"
-                            + "3. Add Payload URL: https://%s/github/%s\n"
-                            + "4. Set Content-Type: application/json\n"
-                            + "5. Set Secret: %s",
-                    host,
-                    client.getId(),
-                    secret));
+            Util.writeLine(secret, new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
+            client.sendText(getHelp(host, secret, botId));
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error(e.getMessage());
         }
+    }
+
+    @Override
+    public void onText(WireClient client, TextMessage msg) {
+        try {
+            String host = config.host;
+            String botId = client.getId();
+            String secret = Util.readLine(new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
+
+            if (msg.getText().contains("help")) {
+                client.sendText(getHelp(host, secret, botId));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.error(e.getLocalizedMessage());
+        }
+    }
+
+    private String getHelp(String host, String secret, String botId) {
+        return String.format("Hi, I'm GitHub-Bot. Here is how to set me up:\n\n"
+                        + "1. Go to the repository that you want to connect to\n"
+                        + "2. Go to Settings / Webhooks / Add webhook\n"
+                        + "3. Add Payload URL: https://%s/github/%s\n"
+                        + "4. Set Content-Type: application/json\n"
+                        + "5. Set Secret: %s",
+                host,
+                botId,
+                secret);
     }
 
     @Override
