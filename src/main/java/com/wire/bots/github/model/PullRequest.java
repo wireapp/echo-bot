@@ -5,18 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PullRequest {
-        @JsonProperty("html_url")
-        public String url;
+    @JsonProperty("html_url")
+    public String url;
 
-        @JsonProperty("title")
-        public String title;
+    @JsonProperty("title")
+    public String title;
 
-        @JsonProperty("user")
-        public User user;
+    @JsonProperty("user")
+    public User user;
 
-        @JsonProperty("merged")
-        public Boolean merged;
+    @JsonProperty("merged")
+    public Boolean merged;
 
-        @JsonProperty("number")
-        public Integer number;
+    @JsonProperty("number")
+    public Integer number;
 }

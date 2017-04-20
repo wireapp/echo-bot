@@ -52,11 +52,11 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
-            String host = config.host;
-            String botId = client.getId();
-            String secret = Util.readLine(new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
+            if (msg.getText().equalsIgnoreCase("/help")) {
+                String host = config.host;
+                String botId = client.getId();
+                String secret = Util.readLine(new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
 
-            if (msg.getText().contains("help")) {
                 client.sendText(getHelp(host, secret, botId));
             }
         } catch (Exception e) {

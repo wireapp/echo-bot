@@ -102,12 +102,13 @@ public class GitHubResource {
     }
 
     private void sendLinkPreview(WireClient client, String url, String title, String resourceImageName) throws Exception {
-        InputStream in = GitHubResource.class.getClassLoader().getResourceAsStream("/images/" + resourceImageName + ".png");
-        Picture preview = new Picture(Util.toByteArray(in));
-        preview.setPublic(true);
-        AssetKey assetKey = client.uploadAsset(preview);
-        preview.setAssetKey(assetKey.key);
-        client.sendLinkPreview(url, title, preview);
+        try (InputStream in = GitHubResource.class.getClassLoader().getResourceAsStream("images/" + resourceImageName + ".png")) {
+            Picture preview = new Picture(Util.toByteArray(in));
+            preview.setPublic(true);
+            AssetKey assetKey = client.uploadAsset(preview);
+            preview.setAssetKey(assetKey.key);
+            client.sendLinkPreview(url, title, preview);
+        }
     }
 
     private String getSha(String payload, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
