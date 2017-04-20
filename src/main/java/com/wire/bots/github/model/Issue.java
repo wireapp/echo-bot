@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PullRequest {
+public class Issue {
         @JsonProperty("html_url")
         public String url;
 
@@ -13,9 +13,6 @@ public class PullRequest {
 
         @JsonProperty("user")
         public User user;
-
-        @JsonProperty("merged")
-        public Boolean merged;
 
         @JsonProperty("number")
         public Integer number;

@@ -1,10 +1,14 @@
 package com.wire.bots.github.resource;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wire.bots.github.BotConfig;
+import com.wire.bots.github.model.Response;
+import com.wire.bots.sdk.ClientRepo;
+import com.wire.bots.sdk.Logger;
+import com.wire.bots.sdk.Util;
+import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.assets.Picture;
+import com.wire.bots.sdk.models.AssetKey;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,16 +16,15 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wire.bots.github.model.Response;
-import com.wire.bots.github.BotConfig;
-import com.wire.bots.sdk.ClientRepo;
-import com.wire.bots.sdk.Logger;
-import com.wire.bots.sdk.Util;
-import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.assets.Picture;
-import com.wire.bots.sdk.models.AssetKey;
+import java.io.File;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Path("/github")
 public class GitHubResource {
@@ -55,22 +58,40 @@ public class GitHubResource {
         }
 
         ObjectMapper mapper = new ObjectMapper();
+        WireClient client = repo.getWireClient(botId);
+        Response response = mapper.readValue(payload, Response.class);
 
         switch (event) {
             case "pull_request": {
-                Response response = mapper.readValue(payload, Response.class);
-                WireClient client = repo.getWireClient(botId);
                 switch (response.action) {
                     case "opened": {
-                        String title = String.format("[%s] NEW PULL REQUEST: %s", response.repository.fullName, response.pr
-                                .title);
-                        sendLinkPreview(client, title, response.pr.url, response.pr.user.avatarUrl);
+                        String title = String.format("[%s] New PR #%s: %s", response.repository.fullName,
+                                response.pr.number, response.pr.title);
+                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
                         break;
                     }
                     case "closed": {
-                        String merged = response.pr.merged ? "merged" : "closed without merging";
-                        String title = String.format("[%s] PR %s: %s", response.repository.fullName, merged, response.pr.title);
-                        sendLinkPreview(client, title, response.pr.url, response.pr.user.avatarUrl);
+                        String mergedOrClosed = response.pr.merged ? "merged" : "closed";
+                        String title = String.format("[%s] PR #%s %s: %s", response.repository.fullName,
+                                response.pr.number, mergedOrClosed, response.pr.title);
+                        sendLinkPreview(client, title, response.pr.url, event + "_" + mergedOrClosed);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "issues": {
+                switch (response.action) {
+                    case "opened":
+                    case "reopened": {
+                        String title = String.format("[%s] New Issue #%s: %s", response.repository.fullName,
+                                response.issue.number, response.issue.title);
+                        sendLinkPreview(client, title, response.issue.url, event + "_" + response.action);
+                        break;
+                    }
+                    case "closed": {
+                        String title = String.format("[%s] Issue #%s closed: %s", response.repository.fullName, response.pr.number, response.pr.title);
+                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
                         break;
                     }
                 }
@@ -83,11 +104,18 @@ public class GitHubResource {
                 build();
     }
 
-    private void sendLinkPreview(WireClient client, String url, String title, String pictureUrl) throws Exception {
-        Picture preview = new Picture(pictureUrl);
-        preview.setPublic(true);
-        AssetKey assetKey = client.uploadAsset(preview);
-        preview.setAssetKey(assetKey.key);
+    private void sendLinkPreview(WireClient client, String url, String title, String resourceImageName) throws Exception {
+        Picture preview = null;
+        URL imageUrl = GitHubResource.class.getResource("/images/" + resourceImageName + ".png");
+        if (imageUrl != null) {
+            URI uri = new URI(imageUrl.toString());
+            String path = uri.getPath();
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            preview = new Picture(encoded);
+            preview.setPublic(true);
+            AssetKey assetKey = client.uploadAsset(preview);
+            preview.setAssetKey(assetKey.key);
+        }
         client.sendLinkPreview(url, title, preview);
     }
 
