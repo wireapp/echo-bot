@@ -16,9 +16,9 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-package com.wire.bots.echo;
+package com.wire.bots.github;
 
-public class EchoConfig extends com.wire.bots.sdk.Configuration {
+public class BotConfig extends com.wire.bots.sdk.Configuration {
     public String name;
     public int accent;
 

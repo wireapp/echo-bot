@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>echo</artifactId>
+    <artifactId>github-bot</artifactId>
     <groupId>com.wire.bots</groupId>
     <version>0.1.4</version>
 
     <properties>
-        <bot.version>0.3.6</bot.version>
+        <bot.version>0.3.8</bot.version>
     </properties>
 
     <repositories>
@@ -123,7 +123,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.wire.bots.echo.EchoService</mainClass>
+                                    <mainClass>com.wire.bots.github.BotService</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
