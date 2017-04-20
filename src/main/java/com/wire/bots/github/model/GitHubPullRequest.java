@@ -19,7 +19,7 @@ public class GitHubPullRequest {
         @JsonProperty("title")
         public String title;
 
-        @JsonProperty("pull_request")
+        @JsonProperty("user")
         public User user;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
