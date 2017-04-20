@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:xhtml="http://www.w3.org/1999/xhtml"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="mysvg"
+   aria-label="issues"
+   class="octicon octicon-issue-opened type-icon type-icon-state-open"
+   height="16"
+   role="img"
+   version="1.1"
+   viewBox="0 0 16 16"
+   width="16"
+   sodipodi:docname="issue opened.svg"
+   inkscape:version="0.92.1 r"
+   inkscape:export-filename="/home/cooper/Downloads/issue opened.png"
+   inkscape:export-xdpi="241"
+   inkscape:export-ydpi="241">
+  <metadata
+     id="metadata9">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1490"
+     inkscape:window-height="920"
+     id="namedview7"
+     showgrid="false"
+     inkscape:zoom="14.75"
+     inkscape:cx="-14.881356"
+     inkscape:cy="7.7288136"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="mysvg" />
+  <defs
+     id="defs2">
+    <xhtml:style>.type-icon-state-open { color: rgb(40, 167, 69); }
+</xhtml:style>
+  </defs>
+  <path
+     d="m 8,2.3 c 3.14,0 5.7,2.56 5.7,5.7 0,3.14 -2.56,5.7 -5.7,5.7 A 5.71,5.71 0 0 1 2.3,8 C 2.3,4.86 4.86,2.3 8,2.3 Z M 8,1 C 4.14,1 1,4.14 1,8 c 0,3.86 3.14,7 7,7 3.86,0 7,-3.14 7,-7 C 15,4.14 11.86,1 8,1 Z M 9,4 H 7 v 5 h 2 z m 0,6 H 7 v 2 h 2 z"
+     id="path4"
+     inkscape:connector-curvature="0"
+     style="fill-rule:evenodd;fill:#28a745;fill-opacity:1" />
+</svg>
