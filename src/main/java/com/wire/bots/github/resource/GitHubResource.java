@@ -21,6 +21,8 @@ import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.Util;
 import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.assets.Picture;
+import com.wire.bots.sdk.models.AssetKey;
 
 @Path("/github")
 public class GitHubResource {
@@ -58,7 +60,21 @@ public class GitHubResource {
             case "pull_request": {
                 GitHubPullRequest gitHubPullRequest = mapper.readValue(payload, GitHubPullRequest.class);
                 WireClient client = repo.getWireClient(botId);
-                client.sendText(gitHubPullRequest.pr.url);
+                switch (gitHubPullRequest.action) {
+                    case "opened": {
+                        final String title = "New PR: " + gitHubPullRequest.pr.title;
+                        Picture preview = new Picture(gitHubPullRequest.pr.user.avatarUrl);
+                        preview.setPublic(true);
+                        AssetKey assetKey = client.uploadAsset(preview);
+                        preview.setAssetKey(assetKey.key);
+                        client.sendLinkPreview(gitHubPullRequest.pr.url, title, preview);
+                        break;
+                    }
+                    case "closed": {
+                        client.sendText(String.format("PR closed: " + gitHubPullRequest.pr.title));
+                        break;
+                    }
+                }
                 break;
             }
         }
