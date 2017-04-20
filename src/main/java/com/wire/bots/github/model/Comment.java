@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User {
+public class Comment {
+    @JsonProperty("body")
+    public String body;
 
-    @JsonProperty("avatar_url")
-    public String avatarUrl;
-
-    @JsonProperty("login")
-    public String login;
+    @JsonProperty("user")
+    public User user;
 }

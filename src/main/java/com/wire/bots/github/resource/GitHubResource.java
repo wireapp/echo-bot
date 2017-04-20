@@ -77,6 +77,16 @@ public class GitHubResource {
                 }
                 break;
             }
+            case "pull_request_review_comment": {
+                switch (response.action) {
+                    case "created": {
+                        String title = String.format("[%s] %s added a comment to PR #: %s", response.repository.fullName,
+                                response.comment.user.login, response.pr.number, response.comment.body);
+                        sendLinkPreview(client, title, response.pr.url, event + "_" + response.action);
+                        break;
+                    }
+                }
+            }
             case "issues": {
                 switch (response.action) {
                     case "opened":

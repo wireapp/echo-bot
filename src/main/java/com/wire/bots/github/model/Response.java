@@ -11,6 +11,9 @@ public class Response {
     @JsonProperty("pull_request")
     public PullRequest pr;
 
+    @JsonProperty("comment")
+    public Comment comment;
+
     @JsonProperty("issue")
     public Issue issue;
 
