@@ -13,8 +13,8 @@ server:
   adminConnectors:
     - type: http
       port: 8051
-#  requestLog:
-#    appenders: []
+  requestLog:
+    appenders: []
 
 name: github
 host: 35.187.99.125

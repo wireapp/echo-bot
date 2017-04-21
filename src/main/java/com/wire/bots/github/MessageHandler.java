@@ -18,6 +18,7 @@
 
 package com.wire.bots.github;
 
+import com.wire.bots.github.utils.SessionIdentifierGenerator;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Util;
@@ -25,11 +26,11 @@ import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.models.TextMessage;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class MessageHandler extends MessageHandlerBase {
     private final BotConfig config;
+    private final SessionIdentifierGenerator sesGen = new SessionIdentifierGenerator();
 
     public MessageHandler(BotConfig config) {
         this.config = config;
@@ -39,7 +40,7 @@ public class MessageHandler extends MessageHandlerBase {
     public void onNewConversation(WireClient client) {
         try {
             String host = config.host;
-            String secret = UUID.randomUUID().toString();
+            String secret = sesGen.next(6);
             String botId = client.getId();
 
             Util.writeLine(secret, new File(String.format("%s/%s/secret", config.getCryptoDir(), botId)));
