@@ -82,8 +82,18 @@ public class GitHubResource {
             case "pull_request_review_comment": {
                 switch (response.action) {
                     case "created": {
-                        String title = String.format("[%s] %s added a comment to PR #: %s", response.repository.fullName,
+                        String title = String.format("[%s] %s added a comment to PR #%s: %s", response.repository.fullName,
                                 response.comment.user.login, response.pr.number, response.comment.body);
+                        sendLinkPreview(client, response.pr.url, title, response.sender.avatarUrl);
+                        break;
+                    }
+                }
+            }
+            case "pull_request_review": {
+                switch (response.action) {
+                    case "submitted": {
+                        String title = String.format("[%s] %s reviewed PR #%s: %s", response.repository.fullName,
+                                response.review.user, response.pr.number, response.review.body);
                         sendLinkPreview(client, response.pr.url, title, response.sender.avatarUrl);
                         break;
                     }
@@ -93,8 +103,8 @@ public class GitHubResource {
                 switch (response.action) {
                     case "created": {
                         List<Commit> commits = response.commits;
-                        String title = String.format("[%s] %s pushed %s", response.repository.fullName,
-                                response.sender.login);
+                        String title = String.format("[%s] %s pushed %d commits", response.repository.fullName,
+                                response.sender.login, commits.size());
                         sendLinkPreview(client, response.compare, title, response.sender.avatarUrl);
                         StringBuilder builder = new StringBuilder();
                         for(Commit commit: commits) {
