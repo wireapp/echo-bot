@@ -22,12 +22,13 @@ you send it.
 
 
 ## Build the project
+ Modify the `Makefile` before the run in order to better reflect your company's name/country...
+
  Run:
  ```
  make
  ```
  *linux*, *windows* and *darwin* are supported. Running `make` for the first time will generate *self signed certificate* (stored in `./certs` folder). 
- Modify the `Makefile` before the run in order to better reflect your company's name/country...
 
 ## Register as Bot Developer and create some bots
  Go to https://wire.com/b/devbot and log in with your Wire credentials - "DevBot" is the bot to help you setup your developer account and create your own bots.
@@ -44,7 +45,7 @@ you send it.
   - Description
   - Copy and paste the RSA key (found in `certs/pubkey.pem`)
 
-- Update the `hello.yaml` file (with the *auth_token* you received from DevBot)
+- Update the `conf/echo.yaml` file (with the *auth_token* you received from DevBot)
 
 - Deploy the service online - You'll need to host it on your own servers.
   Please download the strong cryptography policies for Java from:
@@ -54,16 +55,16 @@ you send it.
 ## Deployment
 Deploy:
 ```
-hello.jar
-hello.yaml
-keystore.jks
+target/echo.jar
+conf/echo.yaml
+certs/keystore.jks
 ```
 files to your server. Notice that you will need a **Public IP** to serve as endpoint that will be called by the Wire Backend
 
 ## Start your Bot Service
 Run:
 ```
-java -jar /path/to/hello.jar server /path/to/hello.yaml
+java -jar /path/to/echo.jar server /path/to/echo.yaml
 ```
 
 ## Enable your bot
