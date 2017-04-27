@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="cryptobox-echo"
+NAME="github-disk"
 
 gcloud compute disks create $NAME \
     --zone europe-west1-c \

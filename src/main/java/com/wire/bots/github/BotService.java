@@ -16,18 +16,25 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-package com.wire.bots.echo;
+package com.wire.bots.github;
 
-public class EchoConfig extends com.wire.bots.sdk.Configuration {
-    public String name;
-    public int accent;
+import com.wire.bots.github.resource.GitHubResource;
+import com.wire.bots.sdk.MessageHandlerBase;
+import com.wire.bots.sdk.Server;
+import io.dropwizard.setup.Environment;
 
-    public String getName() {
-        return name;
+public class BotService extends Server<BotConfig> {
+    public static void main(String[] args) throws Exception {
+        new BotService().run(args);
     }
 
-    public int getAccent() {
-        return accent;
+    @Override
+    protected MessageHandlerBase createHandler(BotConfig config, Environment env) {
+        return new MessageHandler(config);
     }
 
+    @Override
+    protected void onRun(BotConfig botConfig, Environment env) {
+        addResource(new GitHubResource(repo, config), env);
+    }
 }
