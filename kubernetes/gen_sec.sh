@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="echo-knows"
+NAME="github-knows"
 
 AUTH_TOKEN="your_token"
 KEYSTORE_PASSWORD="your_secret"

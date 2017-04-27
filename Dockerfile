@@ -1,8 +1,7 @@
 FROM wire/bots.runtime:latest
 
-COPY target/echo.jar      /opt/echo/echo.jar
-COPY certs/keystore.jks    /opt/echo/keystore.jks
+COPY target/github.jar      /opt/github/github.jar
+COPY certs/keystore.jks    /opt/github/keystore.jks
 
-WORKDIR /opt/echo
-EXPOSE  8050
+WORKDIR /opt/github
 
