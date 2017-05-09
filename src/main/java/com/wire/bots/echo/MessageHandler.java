@@ -27,6 +27,7 @@ import com.wire.bots.sdk.models.AttachmentMessage;
 import com.wire.bots.sdk.models.AudioMessage;
 import com.wire.bots.sdk.models.ImageMessage;
 import com.wire.bots.sdk.models.TextMessage;
+import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
 import io.dropwizard.setup.Environment;
@@ -62,13 +63,21 @@ public class MessageHandler extends MessageHandlerBase {
                 newBot.id,
                 newBot.origin.id));
 
+        for (Member member : newBot.conversation.members) {
+            if (member.service != null) {
+                Logger.warning("Rejecting NewBot. Provider: %s service: %s",
+                        member.service.provider,
+                        member.service.id);
+                return false; // we don't want to be in a conv if other bots are there.
+            }
+        }
         return true;
     }
 
     @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
-            Logger.info(String.format("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId()));
+            Logger.info("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId());
 
             // send echo back to user
             client.sendText("You wrote: " + msg.getText());
@@ -80,13 +89,13 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
         try {
-            Logger.info(String.format("Received Image: type: %s, size: %,d KB, h: %d, w: %d, tag: %s",
+            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d, tag: %s",
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
                     msg.getWidth(),
                     msg.getTag()
-            ));
+            );
 
             // echo this image back to user
             byte[] img = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
@@ -99,12 +108,12 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onAudio(WireClient client, AudioMessage msg) {
         try {
-            Logger.info(String.format("Received Audio: name: %s, type: %s, size: %,d KB, duration: %,d sec",
+            Logger.info("Received Audio: name: %s, type: %s, size: %,d KB, duration: %,d sec",
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getDuration() / 1000
-            ));
+            );
 
             // echo this audio back to user
             byte[] audio = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
@@ -117,11 +126,11 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onAttachment(WireClient client, AttachmentMessage msg) {
         try {
-            Logger.info(String.format("Received Attachment: name: %s, type: %s, size: %,d KB",
+            Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getSize() / 1024
-            ));
+            );
 
             // echo this file back to user
             byte[] bytes = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
@@ -148,9 +157,9 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onNewConversation(WireClient client) {
         try {
-            Logger.info(String.format("onNewConversation: bot: %s, conv: %s",
+            Logger.info("onNewConversation: bot: %s, conv: %s",
                     client.getId(),
-                    client.getConversationId()));
+                    client.getConversationId());
 
             String label = String.format("Hello! I am %s. I echo everything you write", getName());
             client.sendText(label);
@@ -165,11 +174,11 @@ public class MessageHandler extends MessageHandlerBase {
         try {
             Collection<User> users = client.getUsers(userIds);
             for (User user : users) {
-                Logger.info(String.format("onMemberJoin: bot: %s, user: %s/%s",
+                Logger.info("onMemberJoin: bot: %s, user: %s/%s",
                         client.getId(),
                         user.id,
                         user.name
-                ));
+                );
 
                 // say Hi to new participant
                 client.sendText("Hi there " + user.name);
@@ -182,14 +191,14 @@ public class MessageHandler extends MessageHandlerBase {
 
     @Override
     public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
-        Logger.info(String.format("onMemberLeave: users: %s, bot: %s",
+        Logger.info("onMemberLeave: users: %s, bot: %s",
                 userIds,
-                client.getId()));
+                client.getId());
     }
 
     @Override
     public void onBotRemoved(String botId) {
-        Logger.info("This bot got removed from the conversation :(. BotId: " + botId);
+        Logger.info("Bot: %s got removed from the conversation :(", botId);
     }
 
     /**
