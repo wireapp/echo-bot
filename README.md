@@ -41,7 +41,7 @@ you send it.
 
 - Create a new bot (with DevBot, type `/help` for available commands)
   - Name - name of the bot, will also be used as the URL for the bot
-  - Base URL (you can put: `https://[Your_Public_IP]:8050`) 
+  - Base URL (you can put: `https://[Your_Public_IP]:443`) 
   - Description
   - Copy and paste the RSA key (found in `certs/pubkey.pem`)
 
