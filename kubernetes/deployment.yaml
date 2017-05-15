@@ -48,6 +48,7 @@ spec:
             - "-Ddw.server.applicationConnectors[1].keyStorePassword=$(KEYSTORE_PASSWORD)"
             - "-Ddw.server.applicationConnectors[1].keyStorePath=keystore.jks"
             - "-Ddw.auth=$(TOKEN)"
+            - "-Ddw.cryptoDir=/var/lib/echo/crypto"
             - "-jar"
             - "echo.jar"
             - "server"

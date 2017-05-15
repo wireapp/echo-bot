@@ -19,4 +19,4 @@ server:
 auth: your_auth_token   # obtained from DevBot when running: show bot <name>
 name: Echo
 accent: 2
-
+cryptoDir: crypto
