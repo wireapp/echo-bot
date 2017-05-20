@@ -21,12 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.marco83.rollerlib.parsing;
+package com.marco83.rollerlib.dice.parsing;
 
-import com.marco83.rollerlib.DiceExpression;
-import com.marco83.rollerlib.Die;
-import com.marco83.rollerlib.Format;
-import com.marco83.rollerlib.RollType;
+import com.marco83.rollerlib.dice.DiceExpression;
+import com.marco83.rollerlib.dice.Die;
+import com.marco83.rollerlib.dice.Format;
+import com.marco83.rollerlib.dice.RollType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

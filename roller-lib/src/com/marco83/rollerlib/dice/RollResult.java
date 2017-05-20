@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.marco83.rollerlib;
+package com.marco83.rollerlib.dice;
 
 import java.util.List;
 
@@ -36,5 +36,17 @@ public class RollResult {
     RollResult(List<Integer> individualRolls, int total) {
         this.individualRolls = individualRolls;
         this.total = total;
+    }
+
+    @Override
+    public String toString() {
+        String rolls = "";
+        for(Integer roll : this.individualRolls) {
+            rolls += roll.toString() + ", ";
+        }
+        if (!rolls.isEmpty()) {
+            rolls = rolls.substring(0, rolls.length()-2);
+        }
+        return String.format("Rolled... %d! (rolls: %s)", this.total, rolls);
     }
 }

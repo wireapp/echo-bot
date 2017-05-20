@@ -23,7 +23,9 @@
  */
 package com.marco83.rollerlib;
 
-import com.marco83.rollerlib.parsing.DiceExpressionParser;
+import com.marco83.rollerlib.dice.DiceExpression;
+import com.marco83.rollerlib.dice.RollResult;
+import com.marco83.rollerlib.dice.parsing.DiceExpressionParser;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
