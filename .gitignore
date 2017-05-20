@@ -4,3 +4,6 @@ crypto/
 *.iml
 *.log
 *.lck
+/roller-lib/nbproject/private/
+/roller-lib/build/
+/roller-lib/dist/
