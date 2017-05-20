@@ -79,6 +79,12 @@ public class DiceExpressionTest {
         DiceExpressionParser.parse("10+");        
     }
     
+        @Test
+    public void testInvalidExpressionSpaces() {
+        exception.expect(IllegalArgumentException.class);
+        DiceExpressionParser.parse("1 0");        
+    }
+    
     @Test
     public void testInvalidExpressionEndingD() {
         exception.expect(IllegalArgumentException.class);
@@ -127,6 +133,16 @@ public class DiceExpressionTest {
         assertEquals(sut.roll().total, -10);
     }
     
+        @Test
+    public void testNegativeSumOfNumbersSpaces() {
+        // GIVEN
+        DiceExpression sut = DiceExpressionParser.parse("0+ 10+5- 5 -20 -  0");
+        
+        // THEN
+        assertEquals(sut.toString(), "-10");
+        assertEquals(sut.roll().total, -10);
+    }
+    
     @Test
     public void testSingleDie() {
         // GIVEN
@@ -141,6 +157,16 @@ public class DiceExpressionTest {
     public void testDieWithModifier() {
         // GIVEN
         DiceExpression sut = DiceExpressionParser.parse("1d4-10");
+        
+        // THEN
+        assertEquals(sut.toString(), "1d4-10");
+        this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10);
+    }
+    
+        @Test
+    public void testDieWithModifierSpaces() {
+        // GIVEN
+        DiceExpression sut = DiceExpressionParser.parse("1d4 -10");
         
         // THEN
         assertEquals(sut.toString(), "1d4-10");

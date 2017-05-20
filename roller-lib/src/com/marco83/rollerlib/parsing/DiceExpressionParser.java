@@ -76,18 +76,16 @@ public class DiceExpressionParser {
     
     private static List<Token> tokenizeString(String text) throws IllegalArgumentException {
         
-        String lower = text.toLowerCase().trim();
         List<Token> tokens = new ArrayList();
-        
-        while (!lower.isEmpty()) {
-            Integer minusPosition = lower.lastIndexOf('-');
-            Integer plusPosition = lower.lastIndexOf('+');
+        while (!text.isEmpty()) {
+            Integer minusPosition = text.lastIndexOf('-');
+            Integer plusPosition = text.lastIndexOf('+');
             if (minusPosition < 0 && plusPosition < 0) { // done!
-                tokens.add(0, new Token(1, lower.trim()));
+                tokens.add(0, new Token(1, text.trim()));
                 break;
             }
             
-            if (minusPosition == lower.length()-1 || plusPosition == lower.length()-1) {
+            if (minusPosition == text.length()-1 || plusPosition == text.length()-1) {
                 throw new IllegalArgumentException("String ends with a + or -");
             }
             
@@ -103,9 +101,9 @@ public class DiceExpressionParser {
                 multiplier = +1;
             }
             
-            String token = lower.substring(cutOffPosition+1).trim();
-            String rest = lower.substring(0, cutOffPosition).trim();
-            lower = rest;
+            String token = text.substring(cutOffPosition+1).trim();
+            String rest = text.substring(0, cutOffPosition).trim();
+            text = rest;
             tokens.add(0, new Token(multiplier, token));
         }
         
@@ -128,6 +126,7 @@ public class DiceExpressionParser {
     }
     
     public static DiceExpression parse(String text) throws IllegalArgumentException {
+        String cleanText = text.toLowerCase().trim();
         List<Token> tokens = tokenizeString(text);
         return sumOfTokens(tokens);
     }
