@@ -110,7 +110,7 @@ public class DiceExpressionParser {
         return tokens;
     }
     
-    private static DiceExpression sumOfTokens(List<Token> tokens) throws IllegalArgumentException {
+    private static DiceExpression sumOfTokens(List<Token> tokens, RollType type) throws IllegalArgumentException {
         Integer totalModifier = 0;
         List<Die> dice = new ArrayList();
         for(Token token : tokens) {
@@ -122,13 +122,31 @@ public class DiceExpressionParser {
             }
         }
         
-        return new DiceExpression(dice, totalModifier, RollType.regular);
+        // for ADV/DIS, first one should be d20
+        if (type == RollType.advantage || type == RollType.disadvantage) {
+            if (dice.isEmpty() || dice.get(0).faces != 20 || dice.get(0).rolls != 1) {
+                throw new IllegalArgumentException("Can't user ADV/DIS on non-d20 rolls");
+            }
+        }
+        return new DiceExpression(dice, totalModifier, type);
     }
     
     public static DiceExpression parse(String text) throws IllegalArgumentException {
         String cleanText = text.toLowerCase().trim();
-        List<Token> tokens = tokenizeString(text);
-        return sumOfTokens(tokens);
+        
+        RollType type;
+        if (cleanText.startsWith("adv")) {
+            type = RollType.advantage;
+            cleanText = cleanText.substring(3);
+        } else if (cleanText.startsWith("dis")) {
+            type = RollType.disadvantage;
+            cleanText = cleanText.substring(3);
+        } else {
+            type = RollType.regular;
+        }
+        
+        List<Token> tokens = tokenizeString(cleanText);
+        return sumOfTokens(tokens, type);
     }
     
 }

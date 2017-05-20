@@ -35,22 +35,13 @@ public class DiceExpression {
     private final RollType type;
     private final int totalModifier;
     private final List<Die> dice;
-    private final boolean maximiseRolls; 
     
     public DiceExpression(List<Die> dice, int totalModifier, RollType type) {
         this.dice = dice;
         this.totalModifier = totalModifier;
         this.type = type;
-        this.maximiseRolls = false;
     }
     
-    public DiceExpression(List<Die> dice, int totalModifier, RollType type, boolean maximiseRolls) {
-        this.dice = dice;
-        this.totalModifier = totalModifier;
-        this.type = type;
-        this.maximiseRolls = maximiseRolls;
-    }
-
     @Override
     public String toString() {
         String diceString = "";
@@ -66,16 +57,24 @@ public class DiceExpression {
                     })
                     .reduce(diceString, String::concat);
         }
-        return String.format("%s%s", 
-                diceString, 
-                this.totalModifier != 0 ? Format.withSign(this.totalModifier) : "");
+        return 
+            (this.type != RollType.regular ? (this.type.prefix() + " ") : "") +    
+            diceString +  
+            (this.totalModifier != 0 ? Format.withSign(this.totalModifier) : "");    
     }
     
     public RollResult roll() {
         List<Integer> rolls = new ArrayList();
         Integer total = 0;
+        boolean foundD20 = false;
         for(Die die : this.dice) {
-            RollResult r = die.roll(this.maximiseRolls);
+            RollResult r;
+            if (!foundD20 && die.faces == 20) {
+                foundD20 = true;
+                r = die.roll(this.type);
+            } else {
+                r = die.roll(RollType.regular);
+            }
             rolls.addAll(r.individualRolls);
             total += r.total;
         }

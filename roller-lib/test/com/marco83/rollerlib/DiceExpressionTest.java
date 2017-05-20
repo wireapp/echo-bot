@@ -79,7 +79,7 @@ public class DiceExpressionTest {
         DiceExpressionParser.parse("10+");        
     }
     
-        @Test
+    @Test
     public void testInvalidExpressionSpaces() {
         exception.expect(IllegalArgumentException.class);
         DiceExpressionParser.parse("1 0");        
@@ -133,7 +133,7 @@ public class DiceExpressionTest {
         assertEquals(sut.roll().total, -10);
     }
     
-        @Test
+    @Test
     public void testNegativeSumOfNumbersSpaces() {
         // GIVEN
         DiceExpression sut = DiceExpressionParser.parse("0+ 10+5- 5 -20 -  0");
@@ -163,7 +163,7 @@ public class DiceExpressionTest {
         this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10);
     }
     
-        @Test
+    @Test
     public void testDieWithModifierSpaces() {
         // GIVEN
         DiceExpression sut = DiceExpressionParser.parse("1d4 -10");
@@ -203,7 +203,7 @@ public class DiceExpressionTest {
         this.assertResultsWithinRange(sut, 100, 3, 3, (4*2)+100);
     }
     
-        @Test
+    @Test
     public void testMultipleDiceTypesWithModifier() {
         // GIVEN
         DiceExpression sut = DiceExpressionParser.parse("2d6+2d4+1d100+10");
@@ -211,6 +211,26 @@ public class DiceExpressionTest {
         // THEN
         assertEquals(sut.toString(), "2d6+2d4+1d100+10");
         this.assertResultsWithinRange(sut, 100, 5, 15, (6*2)+(4*2)+100+10);
+    }
+    
+    @Test
+    public void testWithAdvantage() {
+        // GIVEN
+        DiceExpression sut = DiceExpressionParser.parse("ADV 1d20+4");
+        
+        // THEN
+        assertEquals(sut.toString(), "ADV 1d20+4");
+        this.assertResultsWithinRange(sut, 20, 2, 5, 25);
+    }
+    
+    @Test
+    public void testWithDisadvantage() {
+        // GIVEN
+        DiceExpression sut = DiceExpressionParser.parse("DIS 1d20");
+        
+        // THEN
+        assertEquals(sut.toString(), "DIS 1d20");
+        this.assertResultsWithinRange(sut, 20, 2, 1, 20);
     }
     
     private void assertResultsWithinRange(DiceExpression expression, 

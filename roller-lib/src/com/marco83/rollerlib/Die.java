@@ -50,21 +50,35 @@ public class Die {
      * @return the individual roll results
      */
     public RollResult roll() {
-        return this.roll(false);
+        return this.roll(RollType.regular);
     }
     /**
      * Rolls all dice
-     * @param maximiseRoll if true, rolls will always return the maximum face value
+     * @param type roll type
      * @return the individual roll results
      */
-    public RollResult roll(boolean maximiseRoll) {
+    public RollResult roll(RollType type) {
         List<Integer> results = new ArrayList();
+        int total = 0;
         for (int i = 0; i < this.rolls; i++) {
-            int result = maximiseRoll ? this.faces : 1 + random.nextInt(this.faces);
-            results.add(result);
+            int result;
+            if ((type == RollType.advantage || type == RollType.disadvantage) && this.faces == 20) {
+                int result1 = 1+random.nextInt(this.faces);
+                int result2 = 1+random.nextInt(this.faces);
+                results.add(result1);
+                results.add(result2);
+                if (type == RollType.advantage) {
+                    result = Math.max(result1, result2);
+                } else {
+                    result = Math.min(result1, result2);
+                }
+            } else {
+                result = 1+random.nextInt(this.faces);
+                results.add(result);
+            }
+            total += result;
         }
-        Integer total = this.multiplier * results.stream().reduce(0, Integer::sum);
-        return new RollResult(results, total);
+        return new RollResult(results, multiplier * total);
     }
 
     @Override

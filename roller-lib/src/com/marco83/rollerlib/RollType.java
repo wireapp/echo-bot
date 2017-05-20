@@ -30,5 +30,17 @@ package com.marco83.rollerlib;
 public enum RollType {
     advantage,
     disadvantage,
-    regular
+    regular;
+    
+    public String prefix() {
+        switch (this) {
+            case advantage:
+                return "ADV";
+            case disadvantage:
+                return "DIS";
+            case regular:
+                return "";
+        }
+        return "";
+    }
 }
