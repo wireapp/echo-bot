@@ -31,6 +31,7 @@ import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
 import io.dropwizard.setup.Environment;
+import com.marco83.rollerlib.commands.CommandParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,6 +87,7 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
+    /*
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
         try {
@@ -143,6 +145,7 @@ public class MessageHandler extends MessageHandlerBase {
             e.printStackTrace();
         }
     }
+    */
 
     @Override
     public String getName() {
@@ -154,6 +157,7 @@ public class MessageHandler extends MessageHandlerBase {
         return config.getAccent();
     }
 
+    /*
     @Override
     public void onNewConversation(WireClient client) {
         try {
@@ -200,7 +204,8 @@ public class MessageHandler extends MessageHandlerBase {
     public void onBotRemoved(String botId) {
         Logger.info("Bot: %s got removed from the conversation :(", botId);
     }
-
+    */
+    
     /**
      * This is generic method that is called every time something is posted to this conversation.
      *
