@@ -72,7 +72,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "+20");
-        assertEquals(sut.roll().total, 20);
+        assertEquals(sut.roll()[0].total, 20);
     }
     
     @Test
@@ -112,7 +112,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "-20");
-        assertEquals(sut.roll().total, -20);
+        assertEquals(sut.roll()[0].total, -20);
     }
     
     @Test
@@ -122,7 +122,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "+10");
-        assertEquals(sut.roll().total, 10);
+        assertEquals(sut.roll()[0].total, 10);
     }
     
     @Test
@@ -132,7 +132,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "-10");
-        assertEquals(sut.roll().total, -10);
+        assertEquals(sut.roll()[0].total, -10);
     }
     
     @Test
@@ -142,7 +142,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "-10");
-        assertEquals(sut.roll().total, -10);
+        assertEquals(sut.roll()[0].total, -10);
     }
     
     @Test
@@ -242,15 +242,15 @@ public class DiceExpressionTest {
             int maxTotal) {
         Set<Integer> foundResults = new HashSet();
         for (int i = 0; i < 500; ++i) {
-            RollResult result = expression.roll();
-            assertEquals(result.individualRolls.size(), expectedNumberOfRolls);
-            for (int r : result.individualRolls) {
+            RollResult[] result = expression.roll();
+            assertEquals(result[0].individualRolls.size(), expectedNumberOfRolls);
+            for (int r : result[0].individualRolls) {
                 assetGreaterEqualThan(r, 1);
                 assetLesserEqualThan(r, maxDiceRoll);
             }
-            assetGreaterEqualThan(result.total, minTotal);
-            assetLesserEqualThan(result.total, maxTotal);
-            foundResults.add(result.total);
+            assetGreaterEqualThan(result[0].total, minTotal);
+            assetLesserEqualThan(result[0].total, maxTotal);
+            foundResults.add(result[0].total);
         }
         assertTrue(foundResults.size() > 1);
     }

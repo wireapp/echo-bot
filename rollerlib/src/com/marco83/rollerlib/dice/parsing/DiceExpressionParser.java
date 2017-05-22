@@ -111,6 +111,7 @@ public class DiceExpressionParser {
     }
     
     private static DiceExpression sumOfTokens(List<Token> tokens, RollType type) throws IllegalArgumentException {
+        
         Integer totalModifier = 0;
         List<Die> dice = new ArrayList();
         for(Token token : tokens) {
@@ -128,25 +129,62 @@ public class DiceExpressionParser {
                 throw new IllegalArgumentException("Can't user ADV/DIS on non-d20 rolls");
             }
         }
-        return new DiceExpression(dice, totalModifier, type);
+        return new DiceExpression(1, dice, totalModifier, type);
     }
     
     public static DiceExpression parse(String text) throws IllegalArgumentException {
         String cleanText = text.toLowerCase().trim();
+        RollTypeAndRemainingString typeAndString = extractAdvantageDisadvantage(cleanText);
         
+        List<Token> tokens = tokenizeString(typeAndString.remaining);
+        return sumOfTokens(tokens, typeAndString.type);
+    } 
+    
+    private static final Pattern REPETITION_PATTERN = Pattern.compile("^([0-9]+x\\s+)");
+    
+    private static RepetitionsAndRemainingString extractRepetitions(String text) {
+        Matcher matcher = REPETITION_PATTERN.matcher(text);
+        if (matcher.matches()) {
+            int repetitions = Integer.parseInt(matcher.group(1));
+            String toRemove = matcher.group();
+            String remaining = text.substring(toRemove.length());
+            return new RepetitionsAndRemainingString(repetitions, remaining);
+        } else {
+            return new RepetitionsAndRemainingString(1, text);
+        }
+    }
+    
+    private static RollTypeAndRemainingString extractAdvantageDisadvantage(String text) {
         RollType type;
-        if (cleanText.startsWith("adv")) {
+        if (text.startsWith("adv")) {
             type = RollType.advantage;
-            cleanText = cleanText.substring(3);
-        } else if (cleanText.startsWith("dis")) {
+            text = text.substring(3);
+        } else if (text.startsWith("dis")) {
             type = RollType.disadvantage;
-            cleanText = cleanText.substring(3);
+            text = text.substring(3);
         } else {
             type = RollType.regular;
         }
-        
-        List<Token> tokens = tokenizeString(cleanText);
-        return sumOfTokens(tokens, type);
+        return new RollTypeAndRemainingString(type, text);
     }
     
+    private static class RollTypeAndRemainingString {
+        RollType type;
+        String remaining;
+        
+        RollTypeAndRemainingString(RollType type, String remaining) {
+            this.type = type;
+            this.remaining = remaining;
+        }
+    }  
+        
+    private static class RepetitionsAndRemainingString {
+        int repetitions;
+        String remaining;
+        
+        RepetitionsAndRemainingString(int repetitions, String remaining) {
+            this.repetitions = repetitions;
+            this.remaining = remaining;
+        }
+    }  
 }

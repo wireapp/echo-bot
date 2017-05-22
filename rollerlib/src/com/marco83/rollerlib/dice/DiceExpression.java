@@ -35,16 +35,20 @@ public class DiceExpression {
     private final RollType type;
     private final int totalModifier;
     private final List<Die> dice;
+    private final int repeat;
     
-    public DiceExpression(List<Die> dice, int totalModifier, RollType type) {
+    public DiceExpression(int repeat, List<Die> dice, int totalModifier, RollType type) {
         this.dice = dice;
         this.totalModifier = totalModifier;
         this.type = type;
+        this.repeat = repeat;
     }
     
     @Override
     public String toString() {
-        String diceString = "";
+        String diceString = this.repeat != 1 
+                ? String.format("%dx ", this.repeat) 
+                : "";
         if (!this.dice.isEmpty()) {
             diceString = this.dice.get(0).toString();
             List<Die> otherDice = this.dice.subList(1, this.dice.size());
@@ -63,23 +67,28 @@ public class DiceExpression {
             (this.totalModifier != 0 ? Format.withSign(this.totalModifier) : "");    
     }
     
-    public RollResult roll() {
-        List<Integer> rolls = new ArrayList();
-        Integer total = 0;
-        boolean foundD20 = false;
-        for(Die die : this.dice) {
-            RollResult r;
-            if (!foundD20 && die.faces == 20) {
-                foundD20 = true;
-                r = die.roll(this.type);
-            } else {
-                r = die.roll(RollType.regular);
+    public RollResult[] roll() {
+        List<RollResult> results = new ArrayList();
+        for (int i = 0; i < this.repeat; i++) {
+            List<Integer> rolls = new ArrayList();
+            Integer total = 0;
+            boolean foundD20 = false;
+            for(Die die : this.dice) {
+                RollResult r;
+                if (!foundD20 && die.faces == 20) {
+                    foundD20 = true;
+                    r = die.roll(this.type);
+                } else {
+                    r = die.roll(RollType.regular);
+                }
+                rolls.addAll(r.individualRolls);
+                total += r.total;
             }
-            rolls.addAll(r.individualRolls);
-            total += r.total;
+            total += this.totalModifier;
+            results.add(new RollResult(rolls, total));
         }
-        total += this.totalModifier;
-        return new RollResult(rolls, total);
+        RollResult[] output = new RollResult[this.repeat];
+        return results.toArray(output);
     }
 }
 
