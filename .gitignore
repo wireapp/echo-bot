@@ -3,4 +3,4 @@ certs/
 crypto/
 *.iml
 *.log
-*.lck
+keystore.jks
