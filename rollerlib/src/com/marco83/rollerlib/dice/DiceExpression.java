@@ -46,7 +46,8 @@ public class DiceExpression {
     
     @Override
     public String toString() {
-        String diceString = this.repeat != 1 
+        String diceString = "";
+        String repeatString = this.repeat != 1 
                 ? String.format("%dx ", this.repeat) 
                 : "";
         if (!this.dice.isEmpty()) {
@@ -62,8 +63,9 @@ public class DiceExpression {
                     .reduce(diceString, String::concat);
         }
         return 
+            repeatString +
             (this.type != RollType.regular ? (this.type.prefix() + " ") : "") +    
-            diceString +  
+            diceString +
             (this.totalModifier != 0 ? Format.withSign(this.totalModifier) : "");    
     }
     

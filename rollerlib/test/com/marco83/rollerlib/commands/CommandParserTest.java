@@ -70,6 +70,23 @@ public class CommandParserTest {
         // THEN
         assertTrue(result + " does not match", ROLL_RESULT_PATTERN.matcher(result).matches());
     }
+
+    @Test
+    public void testParseRollRepeated() {
+        
+        // GIVEN
+        CommandParser instance = new CommandParser();
+        
+        // WHEN
+        String result = instance.parseText("/roll 3x 3d6+3");
+        
+        // THEN
+        String[] lines = result.split("\n");
+        assertEquals(3, lines.length);
+        for(String line: lines) {
+            assertTrue(result + " does not match", ROLL_RESULT_PATTERN.matcher(line).matches());
+        }
+    }
     
     @Test
     public void testParseRollValidDieAdv() {

@@ -76,13 +76,19 @@ public class MessageHandler extends MessageHandlerBase {
     public void onText(WireClient client, TextMessage msg) {
         try {
             Logger.info("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId());
-
-            // send echo back to user
-            client.sendText("You wrote: " + msg.getText());
+			String output = this.parseCommand(msg.getText());
+			if (output != null) {
+				client.sendText(output);
+			}
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+	
+	private String parseCommand(String command) {
+        CommandParser parser = new CommandParser("/roll");
+        return parser.parseText(command);
+	}
 
     /*
     @Override

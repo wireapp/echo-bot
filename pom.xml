@@ -24,7 +24,6 @@
 	        <name>project</name>
 	        <url>file:${project.basedir}/rollerlib/repo</url>
 	    </repository>
-		
     </repositories>
 
     <profiles>

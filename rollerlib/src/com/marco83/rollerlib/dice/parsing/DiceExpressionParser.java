@@ -110,7 +110,11 @@ public class DiceExpressionParser {
         return tokens;
     }
     
-    private static DiceExpression sumOfTokens(List<Token> tokens, RollType type) throws IllegalArgumentException {
+    private static DiceExpression sumOfTokens(
+            List<Token> tokens, 
+            RollType type,
+            int repetitions
+    ) throws IllegalArgumentException {
         
         Integer totalModifier = 0;
         List<Die> dice = new ArrayList();
@@ -129,32 +133,34 @@ public class DiceExpressionParser {
                 throw new IllegalArgumentException("Can't user ADV/DIS on non-d20 rolls");
             }
         }
-        return new DiceExpression(1, dice, totalModifier, type);
+        return new DiceExpression(repetitions, dice, totalModifier, type);
     }
     
     public static DiceExpression parse(String text) throws IllegalArgumentException {
         String cleanText = text.toLowerCase().trim();
-        RollTypeAndRemainingString typeAndString = extractAdvantageDisadvantage(cleanText);
         
-        List<Token> tokens = tokenizeString(typeAndString.remaining);
-        return sumOfTokens(tokens, typeAndString.type);
+        RepetitionsAndRemaining repetitions = extractRepetitions(cleanText);
+        RollTypeAndRemaining type = extractAdvantageDisadvantage(repetitions.remaining);
+        
+        List<Token> tokens = tokenizeString(type.remaining);
+        return sumOfTokens(tokens, type.type, repetitions.repetitions);
     } 
     
-    private static final Pattern REPETITION_PATTERN = Pattern.compile("^([0-9]+x\\s+)");
+    private static final Pattern REPETITION_PATTERN = Pattern.compile("([0-9]+)x\\s+");
     
-    private static RepetitionsAndRemainingString extractRepetitions(String text) {
+    private static RepetitionsAndRemaining extractRepetitions(String text) {
         Matcher matcher = REPETITION_PATTERN.matcher(text);
-        if (matcher.matches()) {
+        if (matcher.lookingAt()) {
             int repetitions = Integer.parseInt(matcher.group(1));
             String toRemove = matcher.group();
             String remaining = text.substring(toRemove.length());
-            return new RepetitionsAndRemainingString(repetitions, remaining);
+            return new RepetitionsAndRemaining(repetitions, remaining);
         } else {
-            return new RepetitionsAndRemainingString(1, text);
+            return new RepetitionsAndRemaining(1, text);
         }
     }
     
-    private static RollTypeAndRemainingString extractAdvantageDisadvantage(String text) {
+    private static RollTypeAndRemaining extractAdvantageDisadvantage(String text) {
         RollType type;
         if (text.startsWith("adv")) {
             type = RollType.advantage;
@@ -165,24 +171,24 @@ public class DiceExpressionParser {
         } else {
             type = RollType.regular;
         }
-        return new RollTypeAndRemainingString(type, text);
+        return new RollTypeAndRemaining(type, text);
     }
     
-    private static class RollTypeAndRemainingString {
+    private static class RollTypeAndRemaining {
         RollType type;
         String remaining;
         
-        RollTypeAndRemainingString(RollType type, String remaining) {
+        RollTypeAndRemaining(RollType type, String remaining) {
             this.type = type;
             this.remaining = remaining;
         }
     }  
         
-    private static class RepetitionsAndRemainingString {
+    private static class RepetitionsAndRemaining {
         int repetitions;
         String remaining;
         
-        RepetitionsAndRemainingString(int repetitions, String remaining) {
+        RepetitionsAndRemaining(int repetitions, String remaining) {
             this.repetitions = repetitions;
             this.remaining = remaining;
         }

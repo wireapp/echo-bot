@@ -24,33 +24,45 @@
 package com.marco83.rollerlib.commands;
 
 import com.marco83.rollerlib.dice.DiceExpression;
+import com.marco83.rollerlib.dice.RollResult;
 import com.marco83.rollerlib.dice.parsing.DiceExpressionParser;
 
 /**
  *
  * @author marcoconti
  */
+
 public class CommandParser {
     
     public final String prefix;
 
-    CommandParser() {
+    public CommandParser() {
         this.prefix = "/roll";
     }
 
-    CommandParser(String prefix) {
+    public CommandParser(String prefix) {
         this.prefix = prefix;
     }
     
     public String parseText(String text) {
-        if (text.startsWith(this.prefix)) {
+        if(text.trim().equals("/help")) {
+            return "**Dice Roller Bot**\n" +
+                    "Type `/roll 3d6+6` to parse and roll\n" +
+                    "also supports:\n" +
+                    "- advantage/disadvantage (`ADV 1d20+10`) or (`DIS 1d20+10`)\n" +
+                    "- repetitions of entire expression (`4x 1d20+10`)\n" +
+                    "- combination of dice (`1d20+10-3d6-5+1d4`)\n" +
+                    "- omit `/roll` for quick input, but will not print errors in case of errors\n";
+        }
+        
+        if (text.startsWith(this.prefix)) { // is this defintely a roll?
             return this.executeCommand(text.substring(this.prefix.length()).trim());
         }
         
         // try to parse it directly as a roll, if it fails, don't warn
         try {
             DiceExpression expression = DiceExpressionParser.parse(text);
-            return expression.roll().toString();
+            return this.describeResults(expression);
         } catch (IllegalArgumentException ex) {
             return null;
         }
@@ -63,6 +75,15 @@ public class CommandParser {
         } catch (IllegalArgumentException ex) {
             return "ERROR: "+ex.getMessage();
         }
-        return expression.roll().toString();
+        return this.describeResults(expression);
+    }
+    
+    private String describeResults(DiceExpression expression) {
+        RollResult results[] = expression.roll();
+        String output = "";
+        for(RollResult r: results) {
+            output += r.toString() + "\n";
+        }
+        return output.trim();
     }
 }

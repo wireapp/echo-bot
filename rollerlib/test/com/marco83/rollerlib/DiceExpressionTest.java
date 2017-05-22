@@ -152,7 +152,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "1d4");
-        this.assertResultsWithinRange(sut, 4, 1, 1, 4);
+        this.assertResultsWithinRange(sut, 4, 1, 1, 4, 1);
     }
     
     @Test
@@ -162,7 +162,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "1d4-10");
-        this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10);
+        this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10, 1);
     }
     
     @Test
@@ -172,7 +172,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "1d4-10");
-        this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10);
+        this.assertResultsWithinRange(sut, 4, 1, 1-10, 4-10, 1);
     }
     
     @Test
@@ -182,7 +182,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "-1d8");
-        this.assertResultsWithinRange(sut, 8, 1, -8, -1);
+        this.assertResultsWithinRange(sut, 8, 1, -8, -1, 1);
     }
     
     @Test
@@ -192,7 +192,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "4d4+2");
-        this.assertResultsWithinRange(sut, 4, 4, 6, (4*4)+2);
+        this.assertResultsWithinRange(sut, 4, 4, 6, (4*4)+2, 1);
     }
     
     @Test
@@ -202,7 +202,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "2d4+1d100");
-        this.assertResultsWithinRange(sut, 100, 3, 3, (4*2)+100);
+        this.assertResultsWithinRange(sut, 100, 3, 3, (4*2)+100, 1);
     }
     
     @Test
@@ -212,7 +212,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "2d6+2d4+1d100+10");
-        this.assertResultsWithinRange(sut, 100, 5, 15, (6*2)+(4*2)+100+10);
+        this.assertResultsWithinRange(sut, 100, 5, 15, (6*2)+(4*2)+100+10, 1);
     }
     
     @Test
@@ -222,7 +222,7 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "ADV 1d20+4");
-        this.assertResultsWithinRange(sut, 20, 2, 5, 25);
+        this.assertResultsWithinRange(sut, 20, 2, 5, 25, 1);
     }
     
     @Test
@@ -232,25 +232,39 @@ public class DiceExpressionTest {
         
         // THEN
         assertEquals(sut.toString(), "DIS 1d20");
-        this.assertResultsWithinRange(sut, 20, 2, 1, 20);
+        this.assertResultsWithinRange(sut, 20, 2, 1, 20, 1);
+    }
+    
+    @Test
+    public void testSingleDieRepeated() {
+        // GIVEN
+        DiceExpression sut = DiceExpressionParser.parse("2x 1d4+1");
+        
+        // THEN
+        assertEquals(sut.toString(), "2x 1d4+1");
+        this.assertResultsWithinRange(sut, 4, 1, 2, 5, 2);
     }
     
     private void assertResultsWithinRange(DiceExpression expression, 
             int maxDiceRoll,
             int expectedNumberOfRolls,
             int minTotal, 
-            int maxTotal) {
+            int maxTotal,
+            int repetitions) {
         Set<Integer> foundResults = new HashSet();
         for (int i = 0; i < 500; ++i) {
-            RollResult[] result = expression.roll();
-            assertEquals(result[0].individualRolls.size(), expectedNumberOfRolls);
-            for (int r : result[0].individualRolls) {
-                assetGreaterEqualThan(r, 1);
-                assetLesserEqualThan(r, maxDiceRoll);
+            RollResult[] results = expression.roll();
+            assertEquals(repetitions, results.length);
+            for(RollResult roll: results) {
+                assertEquals(roll.individualRolls.size(), expectedNumberOfRolls);
+                for (int r : roll.individualRolls) {
+                    assetGreaterEqualThan(r, 1);
+                    assetLesserEqualThan(r, maxDiceRoll);
+                }
+                assetGreaterEqualThan(roll.total, minTotal);
+                assetLesserEqualThan(roll.total, maxTotal);
+                foundResults.add(roll.total);
             }
-            assetGreaterEqualThan(result[0].total, minTotal);
-            assetLesserEqualThan(result[0].total, maxTotal);
-            foundResults.add(result[0].total);
         }
         assertTrue(foundResults.size() > 1);
     }
