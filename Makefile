@@ -21,6 +21,7 @@ default: all
 
 .PHONY: all
 all: generate_cert generate_keystore
+	(cd rollerlib; ./deploy.sh)
 	mvn -P$(PLATFORM) package
 
 .PHONY: linux

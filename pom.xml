@@ -19,6 +19,11 @@
             <url>https://dl.bintray.com/wire-android/snapshots/</url>
             <layout>default</layout>
         </repository>
+	    <repository>
+	        <id>project.local</id>
+	        <name>project</name>
+	        <url>file:${project.basedir}/rollerlib/repo</url>
+	    </repository>
     </repositories>
 
     <profiles>
@@ -67,6 +72,11 @@
             <artifactId>bot-sdk</artifactId>
             <version>${bot.version}</version>
         </dependency>
+		<dependency>
+		    <groupId>com.marco83</groupId>
+		    <artifactId>rollerlib</artifactId>
+		    <version>1.0</version>
+		</dependency>
     </dependencies>
 
     <build>

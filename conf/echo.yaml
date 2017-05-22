@@ -3,9 +3,9 @@ server:
     - type: http
       port: 8080
     - type: https
-      port: 443
-      keyStorePath: keystore.jks
-      keyStorePassword: your_secret
+      keyStorePath: certs/keystore.jks
+      port: 8050
+      keyStorePassword: 123456
       certAlias: myservercert
       validateCerts: false
       validatePeers: false

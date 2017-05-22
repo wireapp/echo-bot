@@ -28,6 +28,7 @@ import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
 import io.dropwizard.setup.Environment;
+import com.marco83.rollerlib.commands.CommandParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,14 +76,21 @@ public class MessageHandler extends MessageHandlerBase {
     public void onText(WireClient client, TextMessage msg) {
         try {
             Logger.info("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId());
-
-            // send echo back to user
-            client.sendText("You wrote: " + msg.getText());
+			String output = this.parseCommand(msg.getText());
+			if (output != null) {
+				client.sendText(output);
+			}
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+	
+	private String parseCommand(String command) {
+        CommandParser parser = new CommandParser("/roll");
+        return parser.parseText(command);
+	}
 
+    /*
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
         try {
@@ -191,6 +199,7 @@ public class MessageHandler extends MessageHandlerBase {
             e.printStackTrace();
         }
     }
+    */
 
     @Override
     public String getName() {
@@ -202,6 +211,7 @@ public class MessageHandler extends MessageHandlerBase {
         return config.getAccent();
     }
 
+    /*
     @Override
     public void onNewConversation(WireClient client) {
         try {
@@ -248,7 +258,8 @@ public class MessageHandler extends MessageHandlerBase {
     public void onBotRemoved(String botId) {
         Logger.info("Bot: %s got removed from the conversation :(", botId);
     }
-
+    */
+    
     /**
      * This is generic method that is called every time something is posted to this conversation.
      *
