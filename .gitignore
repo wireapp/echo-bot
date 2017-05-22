@@ -3,10 +3,10 @@ certs/
 crypto/
 *.iml
 *.log
-*.lck
 /roller-lib/nbproject/private/
 /roller-lib/build/
 /roller-lib/dist/
 /rollerlib/nbproject/private/
 /rollerlib/dist/
 /rollerlib/build/
+keystore.jks

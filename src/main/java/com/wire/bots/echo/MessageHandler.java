@@ -23,10 +23,7 @@ import com.waz.model.Messages;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.models.AttachmentMessage;
-import com.wire.bots.sdk.models.AudioMessage;
-import com.wire.bots.sdk.models.ImageMessage;
-import com.wire.bots.sdk.models.TextMessage;
+import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
@@ -42,7 +39,7 @@ public class MessageHandler extends MessageHandlerBase {
     private final EchoConfig config;
     private final MetricRegistry metrics;
 
-    public MessageHandler(EchoConfig config, Environment env) {
+    MessageHandler(EchoConfig config, Environment env) {
         this.config = config;
         metrics = env.metrics();
     }
@@ -99,8 +96,13 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getTag()
             );
 
+            // download this image from Wire server
+            byte[] img = client.downloadAsset(msg.getAssetKey(),
+                    msg.getAssetToken(),
+                    msg.getSha256(),
+                    msg.getOtrKey());
+
             // echo this image back to user
-            byte[] img = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
             client.sendPicture(img, msg.getMimeType());
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,9 +119,45 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
 
+            // download this audio from Wire Server
+            byte[] audio = client.downloadAsset(msg.getAssetKey(),
+                    msg.getAssetToken(),
+                    msg.getSha256(),
+                    msg.getOtrKey());
+
             // echo this audio back to user
-            byte[] audio = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
-            client.sendAudio(audio, msg.getName(), msg.getMimeType(), msg.getDuration());
+            client.sendAudio(audio,
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onVideo(WireClient client, VideoMessage msg) {
+        try {
+            Logger.info("Received Video: name: %s, type: %s, size: %,d KB, duration: %,d sec",
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getSize() / 1024,
+                    msg.getDuration() / 1000
+            );
+
+            // download this video from Wire Server
+            byte[] video = client.downloadAsset(msg.getAssetKey(),
+                    msg.getAssetToken(),
+                    msg.getSha256(),
+                    msg.getOtrKey());
+
+            // echo this video back to user
+            client.sendVideo(video,
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration(),
+                    msg.getHeight(),
+                    msg.getWidth());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,13 +172,23 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSize() / 1024
             );
 
-            // echo this file back to user
-            byte[] bytes = client.downloadAsset(msg.getAssetKey(), msg.getAssetToken(), msg.getSha256(), msg.getOtrKey());
-            File tempFile = File.createTempFile("hello-bot", "attachment", null);
-            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            // download file from Wire servers
+            byte[] bytes = client.downloadAsset(msg.getAssetKey(),
+                    msg.getAssetToken(),
+                    msg.getSha256(),
+                    msg.getOtrKey());
+
+            // save it locally
+            File file = new File(config.getCryptoDir(), msg.getName());
+            try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(bytes);
             }
-            client.sendFile(tempFile, "application/pdf");
+
+            // echo this file back to user
+            client.sendFile(file, msg.getMimeType());
+
+            // we don't need this file anymore.
+            file.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }

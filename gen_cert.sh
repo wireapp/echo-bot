@@ -16,4 +16,4 @@ openssl req -new -subj "/C=$CSR_COUNTRY/ST=$CSR_STATE/L=$CSR_LOCALITY/O=$CSR_ORG
 openssl x509 -req -days 7300 -in $CERTS_DIR/csr.pem -signkey $CERTS_DIR/privkey.pem -out $CERTS_DIR/cert.pem
 openssl rsa -in $CERTS_DIR/privkey.pem -pubout -out $CERTS_DIR/pubkey.pem
 openssl pkcs12 -export -name $CSR_NAME -in $CERTS_DIR/cert.pem -inkey $CERTS_DIR/privkey.pem -out $CERTS_DIR/keystore.p12 -passout pass:$KEYSTORE_PASSWORD
-keytool -importkeystore -noprompt -destkeystore $CERTS_DIR/$KEYSTORE_FILE -srckeystore $CERTS_DIR/keystore.p12 -srcstorepass $KEYSTORE_PASSWORD -storepass $KEYSTORE_PASSWORD -srcstoretype pkcs12 -alias $CSR_NAME
+keytool -importkeystore -noprompt -destkeystore $KEYSTORE_FILE -srckeystore $CERTS_DIR/keystore.p12 -srcstorepass $KEYSTORE_PASSWORD -storepass $KEYSTORE_PASSWORD -srcstoretype pkcs12 -alias $CSR_NAME
