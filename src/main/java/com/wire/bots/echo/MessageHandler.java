@@ -18,8 +18,7 @@
 
 package com.wire.bots.echo;
 
-import com.codahale.metrics.MetricRegistry;
-import com.waz.model.Messages;
+import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
@@ -35,12 +34,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final EchoConfig config;
-    private final MetricRegistry metrics;
+    private final Config config;
+    private final Environment env;
+    private final ClientRepo repo;
 
-    MessageHandler(EchoConfig config, Environment env) {
+    MessageHandler(Config config, Environment env, ClientRepo repo) {
         this.config = config;
-        metrics = env.metrics();
+        this.env = env;
+        this.repo = repo;
     }
 
     /**
@@ -56,9 +57,9 @@ public class MessageHandler extends MessageHandlerBase {
      */
     @Override
     public boolean onNewBot(NewBot newBot) {
-        Logger.info(String.format("onNewBot: bot: %s, origin: %s",
+        Logger.info(String.format("onNewBot: bot: %s, username: %s",
                 newBot.id,
-                newBot.origin.id));
+                newBot.origin.handle));
 
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
@@ -193,23 +194,13 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public String getName() {
-        return config.getName();
-    }
-
-    @Override
-    public int getAccentColour() {
-        return config.getAccent();
-    }
-
-    @Override
     public void onNewConversation(WireClient client) {
         try {
             Logger.info("onNewConversation: bot: %s, conv: %s",
                     client.getId(),
                     client.getConversationId());
 
-            String label = String.format("Hello! I am %s. I echo everything you write", getName());
+            String label = "Hello! I am Echo. I echo everything you write";
             client.sendText(label);
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,22 +238,5 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onBotRemoved(String botId) {
         Logger.info("Bot: %s got removed from the conversation :(", botId);
-    }
-
-    /**
-     * This is generic method that is called every time something is posted to this conversation.
-     *
-     * @param client         Thread safe wire client that can be used to post back to this conversation
-     * @param userId         User Id for the sender
-     * @param genericMessage Generic message as it comes from the BE
-     */
-    @Override
-    public void onEvent(WireClient client, String userId, Messages.GenericMessage genericMessage) {
-        if (genericMessage.hasConfirmation()) {
-            metrics.meter("engagement.delivery").mark();
-        }
-        if (genericMessage.hasText()) {
-            metrics.meter("engagement.txt.received").mark();
-        }
     }
 }

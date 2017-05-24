@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
 
     <properties>
         <bot.version>1.0.3</bot.version>
@@ -123,7 +123,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.wire.bots.echo.EchoService</mainClass>
+                                    <mainClass>com.wire.bots.echo.Service</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

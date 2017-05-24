@@ -18,16 +18,17 @@
 
 package com.wire.bots.echo;
 
-public class EchoConfig extends com.wire.bots.sdk.Configuration {
-    public String name;
-    public int accent;
+import com.wire.bots.sdk.MessageHandlerBase;
+import com.wire.bots.sdk.Server;
+import io.dropwizard.setup.Environment;
 
-    public String getName() {
-        return name;
+public class Service extends Server<Config> {
+    public static void main(String[] args) throws Exception {
+        new Service().run(args);
     }
 
-    public int getAccent() {
-        return accent;
+    @Override
+    protected MessageHandlerBase createHandler(Config config, Environment env) {
+        return new MessageHandler(config, env, repo);
     }
-
 }

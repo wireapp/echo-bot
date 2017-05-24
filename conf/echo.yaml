@@ -3,7 +3,7 @@ server:
     - type: http
       port: 8080
     - type: https
-      port: 443
+      port: 4443
       keyStorePath: keystore.jks
       keyStorePassword: your_secret
       certAlias: myservercert
@@ -17,6 +17,7 @@ server:
 #    appenders: []
 
 auth: your_token   # obtained from DevBot when running: show bot <name>
-name: Echo
-accent: 2
-cryptoDir: crypto
+cryptoDir: ./data
+
+#your custom config comes here
+someValue: 'this is some custom string'

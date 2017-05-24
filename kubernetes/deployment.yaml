@@ -23,6 +23,12 @@ spec:
               memory: "500Mi"
 
           env:
+            - name: DATA_DIR
+              value: "/var/lib/echo"
+
+            - name: KEYSTORE_FILE
+              value: "/var/lib/echo/keystore.jks"
+
             - name: TOKEN
               valueFrom:
                 secretKeyRef:
@@ -35,28 +41,28 @@ spec:
                   name: echo-knows
                   key: keystore_password
 
-
           volumeMounts:
-            - name: cryptobox-echo
-              mountPath: /var/lib/echo/crypto
+            - name: echo-disk
+              mountPath: /var/lib/echo
 
             - name: echo-config
               mountPath: /etc/echo
 
           command:
-            - "/usr/bin/java"
-            - "-Ddw.server.applicationConnectors[1].keyStorePassword=$(KEYSTORE_PASSWORD)"
-            - "-Ddw.auth=$(TOKEN)"
-            - "-Ddw.cryptoDir=/var/lib/echo/crypto"
-            - "-jar"
-            - "echo.jar"
-            - "server"
-            - "/etc/echo/echo.yaml"
+            - "/bin/bash"
+            - "-c"
+            - "base64 --decode -i /etc/echo/keystore.jks.base64 > $(KEYSTORE_FILE)
+            && /usr/bin/java
+            -Ddw.server.applicationConnectors[1].keyStorePassword=$(KEYSTORE_PASSWORD)
+            -Ddw.server.applicationConnectors[1].keyStorePath=$(KEYSTORE_FILE)
+            -Ddw.auth=$(TOKEN)
+            -Ddw.cryptoDir=$(DATA_DIR)
+            -jar echo.jar server /etc/echo/echo.yaml"
 
       volumes:
-        - name: cryptobox-echo
+        - name: echo-disk
           gcePersistentDisk:
-            pdName: cryptobox-echo
+            pdName: echo-disk
             fsType: ext4
 
         - name: echo-config
@@ -75,4 +81,5 @@ spec:
   ports:
     - name: https
       port: 443
+      targetPort: 4443
       protocol: TCP
