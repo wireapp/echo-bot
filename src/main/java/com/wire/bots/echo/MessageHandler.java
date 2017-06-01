@@ -213,10 +213,11 @@ public class MessageHandler extends MessageHandlerBase {
         try {
             Collection<User> users = client.getUsers(userIds);
             for (User user : users) {
-                Logger.info("onMemberJoin: bot: %s, user: %s/%s",
+                Logger.info("onMemberJoin: bot: %s, user: %s/%s @%s",
                         client.getId(),
                         user.id,
-                        user.name
+                        user.name,
+                        user.handle
                 );
 
                 // say Hi to new participant
