@@ -16,7 +16,10 @@ For clarity, if you compile the open source software that we make available from
 
 No license is granted to the Wire trademark and its associated logos, all of which will continue to be owned exclusively by Wire Swiss GmbH. Any use of the Wire trademark and/or its associated logos is expressly prohibited without the express prior written consent of Wire Swiss GmbH.
 
-# Hello Bot
+# Documentation
+[Bot API](https://github.com/wireapp/wire-bot-java/wiki)
+
+## Hello Bot
 This is demo project that uses: [java-bot-sdk](https://github.com/wireapp/bot-sdk). It creates a Bot that will echo everything 
 you send it.
 
