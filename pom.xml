@@ -9,7 +9,7 @@
     <version>0.1.5</version>
 
     <properties>
-        <bot.version>1.0.3</bot.version>
+        <bot.version>1.0.4</bot.version>
     </properties>
 
     <repositories>
