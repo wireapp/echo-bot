@@ -2,12 +2,12 @@
 
 [![Wire logo](https://github.com/wireapp/wire/blob/master/assets/header-small.png?raw=true)](https://wire.com/jobs/)
 
-## Hello Bot
-This is demo project that uses: [java-bot-sdk](https://github.com/wireapp/bot-sdk). It creates a Bot that will echo everything 
+## Echo Bot
+This is demo project that uses: [lithium](https://github.com/wireapp/lithium). It creates a Bot that will echo everything 
 you send it.
 
 # Documentation
-[Bot API](https://github.com/wireapp/wire-bot-java/wiki)
+[Bot API](https://github.com/wireapp/lithium/wiki)
 
 ## Build the project
  Modify the `Makefile` before the run in order to better reflect your company's name/country...
