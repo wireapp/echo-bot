@@ -18,7 +18,6 @@
 
 package com.wire.bots.echo;
 
-import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.Logger;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
@@ -26,7 +25,6 @@ import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
-import io.dropwizard.setup.Environment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,14 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final Config config;
-    private final Environment env;
-    private final ClientRepo repo;
+    private final String dataDir;
 
-    MessageHandler(Config config, Environment env, ClientRepo repo) {
-        this.config = config;
-        this.env = env;
-        this.repo = repo;
+    MessageHandler(String dataDir) {
+        this.dataDir = dataDir;
     }
 
     /**
@@ -178,7 +172,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // save it locally
-            File file = new File(config.getCryptoDir(), msg.getName());
+            File file = new File(dataDir, msg.getName());
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(bytes);
             }
@@ -187,7 +181,8 @@ public class MessageHandler extends MessageHandlerBase {
             client.sendFile(file, msg.getMimeType());
 
             // we don't need this file anymore.
-            file.delete();
+            if (!file.delete())
+                Logger.warning("Failed to delete file: %s", file.getPath());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -29,6 +29,6 @@ public class Service extends Server<Config> {
 
     @Override
     protected MessageHandlerBase createHandler(Config config, Environment env) {
-        return new MessageHandler(config, env, repo);
+        return new MessageHandler(config.getCryptoDir());
     }
 }

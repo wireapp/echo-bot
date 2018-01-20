@@ -26,20 +26,31 @@ spec:
             - name: DATA_DIR
               value: "/var/lib/echo"
 
-            - name: KEYSTORE_FILE
-              value: "/var/lib/echo/keystore.jks"
-
             - name: TOKEN
               valueFrom:
                 secretKeyRef:
                   name: echo-knows
                   key: token
 
-            - name: KEYSTORE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: echo-knows
-                  key: keystore_password
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          livenessProbe:
+            httpGet:
+              path: /bots/status
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 10
+
+          # for L7 LB
+          readinessProbe:
+            httpGet:
+              path: /bots/status
+              port: 8080
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
 
           volumeMounts:
             - name: echo-disk
@@ -49,16 +60,15 @@ spec:
               mountPath: /etc/echo
 
           command:
-            - "/bin/bash"
-            - "-c"
-            - "base64 --decode -i /etc/echo/keystore.jks.base64 > $(KEYSTORE_FILE)
-            && /usr/bin/java
-            -Ddw.server.applicationConnectors[1].keyStorePassword=$(KEYSTORE_PASSWORD)
-            -Ddw.server.applicationConnectors[1].keyStorePath=$(KEYSTORE_FILE)
-            -Ddw.auth=$(TOKEN)
-            -Ddw.cryptoDir=$(DATA_DIR)
-            -jar echo.jar server /etc/echo/echo.yaml"
-
+            - "/usr/bin/java"
+            - "-Ddw.cryptoDir=$(DATA_DIR)"
+            - "-Ddw.auth=$(TOKEN)"
+            - "-Denv=staging"
+            - "-jar"
+            - "echo.jar"
+            - "server"
+            - "/etc/echo/echo.yaml"
+          
       volumes:
         - name: echo-disk
           gcePersistentDisk:
@@ -77,9 +87,9 @@ metadata:
 spec:
   selector:
     name: echo
-  type: LoadBalancer
+  type: NodePort
   ports:
-    - name: https
-      port: 443
-      targetPort: 4443
+    - name: http
+      port: 80
+      targetPort: 8080
       protocol: TCP
