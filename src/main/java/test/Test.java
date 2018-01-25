@@ -13,7 +13,7 @@ import javax.websocket.Session;
 
 /*
     Sign using Wire credentials (email/password).
-    Search for service called: Echo
+    Search for service named: args[0]
     Create new conversation and add this service
     Send some text in this conversation
 */
@@ -37,20 +37,9 @@ public class Test {
 
 
         Endpoint ep = new Endpoint(config);
-        String userId = ep.signIn(email, password);
+        String userId = ep.signIn(email, password, false);
 
         Logger.info("Logged in as: %s, id: %s", email, userId);
-
-        String keyword = "echo";
-        String tags = "tutorial";
-
-        Logger.info("Searching service: keyword: %s, tags: %s", keyword, tags);
-        SearchClient searchClient = new SearchClient(ep.getToken());
-        SearchClient.Result res = searchClient.search(tags, keyword);
-        if (res.services.isEmpty()) {
-            System.console().printf("Cannot find any service starting in: %s", keyword);
-            return;
-        }
 
         // Listen on incoming messages coming from other users
         MessageResource msgRes = new MessageResource(new MessageHandlerBase() {
@@ -61,28 +50,51 @@ public class Test {
         }, config, repo);
         Session session = ep.connectWebSocket(msgRes);
 
-        SearchClient.Service echo = res.services.get(0);
+        String keyword = args.length == 0 ? "" : args[0];
+        String tags = "integration";
+
+        Logger.info("Searching services starting in: `%s`, tags: %s", keyword, tags);
+        SearchClient searchClient = new SearchClient(ep.getToken());
+        SearchClient.Result res = searchClient.search(tags, keyword);
+        if (res.services.isEmpty()) {
+            Logger.info("Cannot find any service starting in: `%s`\n", keyword);
+            return;
+        }
+
+        SearchClient.Service service = res.services.get(0);
+
         Logger.info("Found service:\nname: %s\nsummary: %s\nserviceId: %s\nproviderId: %s",
-                echo.name,
-                echo.summary,
-                echo.serviceId,
-                echo.providerId);
+                service.name,
+                service.summary,
+                service.serviceId,
+                service.providerId);
 
         API api = new API(ep.getToken());
 
+        // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        Conversation conversation = api.createConversation(echo.name);
+        Conversation conversation = api.createConversation(service.name);
 
-        Logger.info("Adding service `%s` to conversation: `%s`", echo.name, conversation.name);
-        User bot = api.addService(echo.serviceId, echo.providerId);
-        Logger.info("New Bot `%s`, id:: %s", bot.name, bot.id);
+        try {
+            // Add this service (Bot) into this conversation
+            Logger.info("Adding service `%s` to conversation: `%s`", service.name, conversation.name);
+            User bot = api.addService(service.serviceId, service.providerId);
+            Logger.info("New Bot `%s`, id:: %s", bot.name, bot.id);
+            Thread.sleep(2000);
 
-        Thread.sleep(2000);
+            // Post some text into this conversation
+            String txt = "Privet! Kak dela?";
+            Logger.info("Posting text: `%s`", txt);
+            WireClient wireClient = repo.getWireClient(userId, conversation.id);
+            wireClient.sendText(txt);
+            Thread.sleep(5000);
+        } catch (Exception e) {
 
-        Logger.info("Posting text into conversation: %s", conversation.name);
-        WireClient wireClient = repo.getWireClient(userId, conversation.id);
+        } finally {
+            //Logger.info("Deleting conversation: %s", conversation.id);
+            //api.deleteConversation("a31fd99e-0b0f-46cd-b3fe-e01b4691c8dc");
+        }
 
-        wireClient.sendText("Privet! Kak dela?");
         Thread.sleep(2000);
 
         session.close();

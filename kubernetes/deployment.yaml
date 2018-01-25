@@ -53,10 +53,10 @@ spec:
             timeoutSeconds: 30
 
           volumeMounts:
-            - name: echo-disk
+            - name: disk
               mountPath: /var/lib/echo
 
-            - name: echo-config
+            - name: config
               mountPath: /etc/echo
 
           command:
@@ -70,12 +70,12 @@ spec:
             - "/etc/echo/echo.yaml"
           
       volumes:
-        - name: echo-disk
+        - name: disk
           gcePersistentDisk:
             pdName: echo-disk
             fsType: ext4
 
-        - name: echo-config
+        - name: config
           configMap:
             name: echo-config
 
