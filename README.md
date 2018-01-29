@@ -6,6 +6,10 @@
 This is demo project that uses: [lithium](https://github.com/wireapp/lithium). It creates a Bot that will echo everything 
 you send it.
 
+## Production
+Use this link to try it out:
+> https://app.wire.com?bot_name=Echo&bot_provider=59d7abe5-3850-4b34-8fe5-0bcd4bfad4e6&bot_service=aba311a6-fb14-46c9-af1b-3cb454762ef2
+
 # Documentation
 [Bot API](https://github.com/wireapp/lithium/wiki)
 
