@@ -1,1 +1,13 @@
+sudo: 'required'
+
 language: java
+
+services:
+  - 'docker'
+
+after_success:
+  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
+      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+      docker build -t dejankovacevic/echo-bot:0.2.$TRAVIS_BUILD_NUMBER . ;
+      docker push dejankovacevic/echo-bot ;
+    fi

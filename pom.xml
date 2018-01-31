@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>0.1.7</version>
+    <version>0.2.0</version>
 
     <properties>
         <bot.version>1.0.7</bot.version>

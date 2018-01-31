@@ -1,5 +1,4 @@
 SHELL := /usr/bin/env bash
-BOT   := echo
 OS    := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 ifeq ($(OS), darwin)
@@ -20,8 +19,7 @@ linux: mvn -Plinux package
 darwin: mvn -Pdarwin package
 	
 PHONY: windows
-windows: generate_cert generate_keystore
-	mvn -Pwindows package
+windows: mvn -Pwindows package
 
 .PHONY: clean
 clean:
@@ -29,4 +27,4 @@ clean:
 
 .PHONY: run
 run:
-	java -jar target/$(BOT).jar server conf/$(BOT).yaml
+	java -jar target/echo.jar server conf/echo.yaml
