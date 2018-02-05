@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>0.2.0</version>
-
-    <properties>
-        <bot.version>1.0.7</bot.version>
-    </properties>
+    <version>1.0.0</version>
 
     <repositories>
         <repository>
-            <id>bintray</id>
-            <name>Bintray</name>
-            <url>https://dl.bintray.com/wire-android/snapshots/</url>
-            <layout>default</layout>
+            <id>lithium</id>
+            <url>https://packagecloud.io/dkovacevic/lithium/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>cryptonite</id>
+            <url>https://packagecloud.io/dkovacevic/cryptonite/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
     </repositories>
 
@@ -64,8 +68,13 @@
     <dependencies>
         <dependency>
             <groupId>com.wire.bots</groupId>
-            <artifactId>bot-sdk</artifactId>
-            <version>${bot.version}</version>
+            <artifactId>lithium</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wire.bots</groupId>
+            <artifactId>cryptonite</artifactId>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

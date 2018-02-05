@@ -18,9 +18,15 @@
 
 package com.wire.bots.echo;
 
+import com.wire.bots.cryptonite.CryptoService;
+import com.wire.bots.cryptonite.StorageService;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
+import com.wire.bots.sdk.factories.CryptoFactory;
+import com.wire.bots.sdk.factories.StorageFactory;
 import io.dropwizard.setup.Environment;
+
+import java.net.URI;
 
 public class Service extends Server<Config> {
     public static void main(String[] args) throws Exception {
@@ -29,6 +35,30 @@ public class Service extends Server<Config> {
 
     @Override
     protected MessageHandlerBase createHandler(Config config, Environment env) {
-        return new MessageHandler(config.getCryptoDir());
+        return new MessageHandler(config.data);
+    }
+
+    /**
+     * Instructs the framework to use Storage Service for the state.
+     * Remove this override in order to use local File system storage
+     *
+     * @param config
+     * @return
+     */
+    @Override
+    protected StorageFactory getStorageFactory(Config config) {
+        return botId -> new StorageService("echo", botId, new URI(config.data));
+    }
+
+    /**
+     * Instructs the framework to use Crypto Service for the crypto keys.
+     * Remove this override in order to store key onto your local File system
+     *
+     * @param config
+     * @return
+     */
+    @Override
+    protected CryptoFactory getCryptoFactory(Config config) {
+        return (botId) -> new CryptoService(botId, new URI(config.data));
     }
 }

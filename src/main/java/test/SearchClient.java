@@ -3,6 +3,7 @@ package test;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.wire.bots.sdk.tools.Util;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
@@ -20,8 +21,7 @@ class SearchClient {
     SearchClient(String token) {
         this.token = token;
         String env = System.getProperty("env", "prod");
-        String domain = env.equals("prod") ? "wire.com" : "zinfra.io"; //fixme: remove zinfra
-        httpUrl = String.format("https://%s-nginz-https.%s", env, domain);
+        httpUrl = String.format("https://%s-nginz-https.%s", env, Util.getDomain());
 
         ClientConfig cfg = new ClientConfig(JacksonJsonProvider.class);
         client = JerseyClientBuilder.createClient(cfg);

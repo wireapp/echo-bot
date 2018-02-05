@@ -7,7 +7,7 @@ server:
 #    appenders: []
 
 auth: your_token   # Service's auth token
-cryptoDir: ./data
+data: ./data
 
 #your custom config comes here
 someValue: 'this is some custom string'

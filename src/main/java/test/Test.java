@@ -1,13 +1,19 @@
 package test;
 
-import com.wire.bots.sdk.*;
+import com.wire.bots.sdk.Configuration;
+import com.wire.bots.sdk.MessageHandlerBase;
+import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.crypto.Crypto;
+import com.wire.bots.sdk.crypto.CryptoFile;
+import com.wire.bots.sdk.factories.StorageFactory;
+import com.wire.bots.sdk.factories.WireClientFactory;
 import com.wire.bots.sdk.models.TextMessage;
 import com.wire.bots.sdk.server.model.Conversation;
 import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.server.resources.MessageResource;
-import com.wire.bots.sdk.user.API;
-import com.wire.bots.sdk.user.Endpoint;
-import com.wire.bots.sdk.user.UserClient;
+import com.wire.bots.sdk.storage.FileStorage;
+import com.wire.bots.sdk.tools.Logger;
+import com.wire.bots.sdk.tools.Util;
+import com.wire.bots.sdk.user.*;
 
 import javax.websocket.Session;
 
@@ -18,7 +24,7 @@ import javax.websocket.Session;
     Send some text in this conversation
 */
 public class Test {
-    private static final String CRYPTO_DIR = "data";
+    private static final String CRYPTO_DIR = "./data";
 
     public static void main(String[] args) throws Exception {
 
@@ -26,28 +32,30 @@ public class Test {
         String password = System.getProperty("password");
 
         Configuration config = new Configuration();
-        config.cryptoDir = CRYPTO_DIR;
+        config.data = CRYPTO_DIR;
 
-        WireClientFactory userClientFactory = (botId, convId, clientId, token) -> {
-            String path = String.format("%s/%s", CRYPTO_DIR, botId);
-            OtrManager otrManager = new OtrManager(path);
-            return new UserClient(otrManager, botId, convId, clientId, token);
+        StorageFactory storageFactory = botId -> new FileStorage(CRYPTO_DIR, botId);
+
+        WireClientFactory userClientFactory = botId -> {
+            Crypto crypto = new CryptoFile(CRYPTO_DIR, botId);
+            return new UserClient(crypto, storageFactory.create(botId));
         };
-        ClientRepo repo = new ClientRepo(userClientFactory, CRYPTO_DIR);
 
+        UserClientRepo repo = new UserClientRepo(userClientFactory, storageFactory);
 
         Endpoint ep = new Endpoint(config);
         String userId = ep.signIn(email, password, false);
 
-        Logger.info("Logged in as: %s, id: %s", email, userId);
+        Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
 
         // Listen on incoming messages coming from other users
-        MessageResource msgRes = new MessageResource(new MessageHandlerBase() {
+        UserMessageResource msgRes = new UserMessageResource(new MessageHandlerBase() {
             @Override
             public void onText(WireClient client, TextMessage msg) {
                 Logger.info("Received: '%s' from: %s", msg.getText(), msg.getUserId());
             }
-        }, config, repo);
+        }, repo);
+
         Session session = ep.connectWebSocket(msgRes);
 
         String keyword = args.length == 0 ? "" : args[0];
