@@ -3,17 +3,19 @@ package test;
 import com.wire.bots.sdk.Configuration;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.crypto.Crypto;
 import com.wire.bots.sdk.crypto.CryptoFile;
+import com.wire.bots.sdk.factories.CryptoFactory;
 import com.wire.bots.sdk.factories.StorageFactory;
-import com.wire.bots.sdk.factories.WireClientFactory;
 import com.wire.bots.sdk.models.TextMessage;
 import com.wire.bots.sdk.server.model.Conversation;
 import com.wire.bots.sdk.server.model.User;
 import com.wire.bots.sdk.storage.FileStorage;
 import com.wire.bots.sdk.tools.Logger;
 import com.wire.bots.sdk.tools.Util;
-import com.wire.bots.sdk.user.*;
+import com.wire.bots.sdk.user.API;
+import com.wire.bots.sdk.user.Endpoint;
+import com.wire.bots.sdk.user.UserClientRepo;
+import com.wire.bots.sdk.user.UserMessageResource;
 
 import javax.websocket.Session;
 
@@ -34,19 +36,15 @@ public class Test {
         Configuration config = new Configuration();
         config.data = CRYPTO_DIR;
 
-        StorageFactory storageFactory = botId -> new FileStorage(CRYPTO_DIR, botId);
-
-        WireClientFactory userClientFactory = botId -> {
-            Crypto crypto = new CryptoFile(CRYPTO_DIR, botId);
-            return new UserClient(crypto, storageFactory.create(botId));
-        };
-
-        UserClientRepo repo = new UserClientRepo(userClientFactory, storageFactory);
-
         Endpoint ep = new Endpoint(config);
         String userId = ep.signIn(email, password, false);
 
         Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
+
+        StorageFactory storageFactory = botId -> new FileStorage(CRYPTO_DIR, botId);
+        CryptoFactory cryptoFactory = botId -> new CryptoFile(CRYPTO_DIR, botId);
+
+        UserClientRepo repo = new UserClientRepo(cryptoFactory, storageFactory);
 
         // Listen on incoming messages coming from other users
         UserMessageResource msgRes = new UserMessageResource(new MessageHandlerBase() {
@@ -77,11 +75,12 @@ public class Test {
                 service.serviceId,
                 service.providerId);
 
-        API api = new API(ep.getToken());
 
         // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        Conversation conversation = api.createConversation(service.name);
+        Conversation conversation = API.createConversation(service.name, ep.getToken());
+
+        API api = new API(conversation.id, ep.getToken());
 
         try {
             // Add this service (Bot) into this conversation
@@ -97,10 +96,12 @@ public class Test {
             wireClient.sendText(txt);
             Thread.sleep(5000);
         } catch (Exception e) {
-
+            e.printStackTrace();
+            Logger.error(e.getMessage());
         } finally {
-            //Logger.info("Deleting conversation: %s", conversation.id);
-            //api.deleteConversation("a31fd99e-0b0f-46cd-b3fe-e01b4691c8dc");
+            Logger.info("Deleting conversation: %s", conversation.name);
+            String teamId = "a31fd99e-0b0f-46cd-b3fe-e01b4691c8dc";
+            api.deleteConversation(teamId);
         }
 
         Thread.sleep(2000);

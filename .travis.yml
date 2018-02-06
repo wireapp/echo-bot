@@ -3,7 +3,7 @@ sudo: 'required'
 language: java
 
 services:
-  - 'docker'
+- docker
 
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
