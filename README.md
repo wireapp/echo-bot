@@ -7,46 +7,21 @@
 This is demo project that uses: [lithium](https://github.com/wireapp/lithium). It creates a Bot that will echo everything
 you send it.
 
-## Production
-Use this link to try it out:
-> https://app.wire.com?bot_name=Echo&bot_provider=59d7abe5-3850-4b34-8fe5-0bcd4bfad4e6&bot_service=aba311a6-fb14-46c9-af1b-3cb454762ef2
-
 # Documentation
 [Bot API](https://github.com/wireapp/lithium/wiki)
 
 ## Build the project
  Run:
  ```
- make
+ mvn -Plinux package
  ```
  *linux*, *windows* and *darwin* are supported.
 
-## Register as Bot Developer and create some bots
-- Run `myprovider.sh`
-- You can use `myprovider.sh` to generate your self signed cert that can be used for your service
-- Update the `conf/echo.yaml` file (with the *auth_token* for your service)
-
-- Deploy the service online - You'll need to host it on your own servers.
-  Please download the strong cryptography policies for Java from:
-	  http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
-    and unpack the content into `${JAVA_HOME}/jre/lib/security/`
-
-## Deployment
-Deploy:
-```
-target/echo.jar
-conf/echo.yaml
-```
-files to your server. Notice that you will need a **Public IP** to serve as endpoint that will be called by the Wire Backend
-
-## Start your Bot Service
+## Run Bot Service
 Run:
 ```
 java -jar /path/to/echo.jar server /path/to/echo.yaml
 ```
-
-## Enable your bot
-Enable bot (with `myprovider.sh` command)
 
 # Build Docker images
 	docker build --tag wire/bots.runtime -f Dockerfile.runtime .
