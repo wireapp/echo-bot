@@ -8,27 +8,26 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 
 class SearchClient {
-    private final Client client;
-    private final String httpUrl;
     private final String token;
+    private final WebTarget target;
 
     SearchClient(String token) {
         this.token = token;
-        String env = System.getProperty("env", "prod");
-        httpUrl = String.format("https://%s-nginz-https.%s", env, Util.getDomain());
 
         ClientConfig cfg = new ClientConfig(JacksonJsonProvider.class);
-        client = JerseyClientBuilder.createClient(cfg);
+        Client client = JerseyClientBuilder.createClient(cfg);
+        target = client.target(Util.getHost());
     }
 
     Result search(String tags, String start) throws IOException {
-        Response response = client.target(httpUrl).
+        Response response = target.
                 path("services").
                 queryParam("tags", tags).
                 queryParam("start", start).

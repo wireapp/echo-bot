@@ -1,6 +1,5 @@
 package test;
 
-import com.wire.bots.sdk.Configuration;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.crypto.CryptoFile;
@@ -17,10 +16,10 @@ import com.wire.bots.sdk.user.Endpoint;
 import com.wire.bots.sdk.user.UserClientRepo;
 import com.wire.bots.sdk.user.UserMessageResource;
 
-import javax.websocket.Session;
+import java.io.IOException;
 
 /*
-    Sign using Wire credentials (email/password).
+    Sign in using Wire credentials (email/password).
     Search for service named: args[0]
     Create new conversation and add this service
     Send some text in this conversation
@@ -32,12 +31,13 @@ public class Test {
 
         String email = System.getProperty("email");
         String password = System.getProperty("password");
+        String keyword = args.length == 0 ? "" : args[0];
+        String serviceId = System.getProperty("service");
+        String providerId = System.getProperty("provider");
 
-        Configuration config = new Configuration();
-        config.data = CRYPTO_DIR;
-
-        Endpoint ep = new Endpoint(config);
+        Endpoint ep = new Endpoint(CRYPTO_DIR);
         String userId = ep.signIn(email, password, false);
+        String token = ep.getToken();
 
         Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
 
@@ -54,37 +54,35 @@ public class Test {
             }
         }, repo);
 
-        Session session = ep.connectWebSocket(msgRes);
+        ep.connectWebSocket(msgRes);
 
-        String keyword = args.length == 0 ? "" : args[0];
-        String tags = "integration";
+        SearchClient.Service service;
 
-        Logger.info("Searching services starting in: `%s`, tags: %s", keyword, tags);
-        SearchClient searchClient = new SearchClient(ep.getToken());
-        SearchClient.Result res = searchClient.search(tags, keyword);
-        if (res.services.isEmpty()) {
-            Logger.info("Cannot find any service starting in: `%s`\n", keyword);
-            return;
+        if (serviceId != null && providerId != null) {
+            service = new SearchClient.Service();
+            service.name = "Wire Bots";
+            service.providerId = serviceId;
+            service.serviceId = providerId;
+        } else {
+            String tags = "integration";
+
+            Logger.info("Searching services starting in: `%s`, tags: %s", keyword, tags);
+            service = search(keyword, tags, token);
+            if (service == null) {
+                Logger.info("Cannot find any service starting in: `%s`\n", keyword);
+                return;
+            }
         }
-
-        SearchClient.Service service = res.services.get(0);
-
-        Logger.info("Found service:\nname: %s\nsummary: %s\nserviceId: %s\nproviderId: %s",
-                service.name,
-                service.summary,
-                service.serviceId,
-                service.providerId);
-
 
         // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        Conversation conversation = API.createConversation(service.name, ep.getToken());
+        Conversation conversation = API.createConversation(service.name, token);
 
-        API api = new API(conversation.id, ep.getToken());
+        API api = new API(conversation.id, token);
 
         try {
             // Add this service (Bot) into this conversation
-            Logger.info("Adding service `%s` to conversation: `%s`", service.name, conversation.name);
+            Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, conversation.name);
             User bot = api.addService(service.serviceId, service.providerId);
             Logger.info("New Bot `%s`, id:: %s", bot.name, bot.id);
             Thread.sleep(2000);
@@ -94,18 +92,31 @@ public class Test {
             Logger.info("Posting text: `%s`", txt);
             WireClient wireClient = repo.getWireClient(userId, conversation.id);
             wireClient.sendText(txt);
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (Exception e) {
-            e.printStackTrace();
             Logger.error(e.getMessage());
         } finally {
-            Logger.info("Deleting conversation: %s", conversation.name);
-            String teamId = "a31fd99e-0b0f-46cd-b3fe-e01b4691c8dc";
-            api.deleteConversation(teamId);
+            String teamId = api.getTeam();
+            if (teamId != null && api.deleteConversation(teamId)) {
+                Logger.info("Deleted conversation: %s", conversation.name);
+            }
         }
 
-        Thread.sleep(2000);
+    }
 
-        session.close();
+    private static SearchClient.Service search(String keyword, String tags, String token) throws IOException {
+        SearchClient searchClient = new SearchClient(token);
+        SearchClient.Result res = searchClient.search(tags, keyword);
+        if (!res.services.isEmpty()) {
+            SearchClient.Service service = res.services.get(0);
+
+            Logger.info("Found service:\nname: %s\nsummary: %s\nserviceId: %s\nproviderId: %s",
+                    service.name,
+                    service.summary,
+                    service.serviceId,
+                    service.providerId);
+            return service;
+        }
+        return null;
     }
 }
