@@ -29,6 +29,9 @@ import io.dropwizard.setup.Environment;
 import java.net.URI;
 
 public class Service extends Server<Config> {
+
+    private static final String SERVICE = "echo";
+
     public static void main(String[] args) throws Exception {
         new Service().run(args);
     }
@@ -47,7 +50,7 @@ public class Service extends Server<Config> {
      */
     @Override
     protected StorageFactory getStorageFactory(Config config) {
-        return botId -> new StorageService("echo", botId, new URI(config.data));
+        return botId -> new StorageService(SERVICE, botId, new URI(config.data));
     }
 
     /**
@@ -55,10 +58,10 @@ public class Service extends Server<Config> {
      * Remove this override in order to store key onto your local File system
      *
      * @param config
-     * @return
+     * @return CryptoFactory
      */
     @Override
     protected CryptoFactory getCryptoFactory(Config config) {
-        return (botId) -> new CryptoService(botId, new URI(config.data));
+        return (botId) -> new CryptoService(SERVICE, botId, new URI(config.data));
     }
 }
