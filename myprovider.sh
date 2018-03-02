@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-PROGNAME=$(basename $0)
+PROGNAME=$(basename "$0")
+REQUIRED_TOOLS="jq curl"
 
 ################################################################################
 # Functions
@@ -42,6 +43,15 @@ EOF
     exit 1
 }
 
+check_tools() {
+    for TOOL in $REQUIRED_TOOLS; do
+        if ! command -v "$TOOL" > /dev/null; then
+            echo "Could not find $TOOL! Exiting."
+            exit 1
+        fi
+    done
+}
+
 check_auth() {
     if [ ! -f "./.cookie" ]; then
         echo "Not authenticated. Use the 'auth' command."
@@ -58,8 +68,8 @@ authenticate() {
         echo "Invalid identifier. Directory not found: $auth_ident"
         exit 1
     fi
-    auth_email=`cat $auth_ident/.email`
-    auth_password=`cat $auth_ident/.password`
+    auth_email=$(< "$auth_ident/.email")
+    auth_password=$(< "$auth_ident/.password")
     curl -s -XPOST "$zapi/provider/login" \
         -H 'Content-Type: application/json' \
         -d '{"email":"'"$auth_email"'"
@@ -149,7 +159,7 @@ delete_self() {
             -b ./.cookie
         rm -f ./.current
         rm -f ./.cookie
-        rm -rf $auth_ident
+        rm -rf "$auth_ident"
         echo "Done"
     fi
 }
@@ -163,8 +173,8 @@ new_service() {
     read -p "Service RSA public key file: " service_pubkey_file
     read -p "Service tags (comma-separated): " service_tags_str
 
-    service_pubkey=`cat $service_pubkey_file`
-    service_tags=`echo $service_tags_str | sed 's/,/","/g'`
+    service_pubkey=$(< "$service_pubkey_file")
+    service_tags=$(echo "$service_tags_str" | sed 's/,/","/g')
 
     echo "Registering service $service_name ..."
     curl -s -XPOST "$zapi/provider/services" \
@@ -211,7 +221,7 @@ update_service() {
     if [ -z "$new_tags" ]; then
         new_tags="null"
     else
-        new_tags_tmp=`echo $new_tags | sed 's/,/","/g'`
+        new_tags_tmp=$(echo "$new_tags" | sed 's/,/","/g')
         new_tags="[\"$new_tags_tmp\"]"
     fi
     echo "Updating service profile ..."
@@ -245,7 +255,7 @@ update_service_conn() {
     if [ -z "$new_pubkey_file" ]; then
         new_pubkeys="null"
     else
-        new_pubkey=`cat $new_pubkey_file`
+        new_pubkey=$(< "$new_pubkey_file")
         new_pubkeys="[\"$new_pubkey\"]"
     fi
     if [ -z "$new_enabled" ]; then
@@ -280,15 +290,15 @@ delete_service() {
 
 new_cert() {
     read -p "Target directory: " cert_dir
-    mkdir -p $cert_dir
+    mkdir -p "$cert_dir"
     echo "Writing RSA key pair to $cert_dir/key.pem"
-    openssl genrsa -out $cert_dir/key.pem 4096
+    openssl genrsa -out "$cert_dir/key.pem" 4096
     echo "Writing CSR to $cert_dir/csr.pem"
-    openssl req -new -key $cert_dir/key.pem -out $cert_dir/csr.pem
+    openssl req -new -key "$cert_dir/key.pem" -out "$cert_dir/csr.pem"
     echo "Writing self-signed certificate to $cert_dir/cert.pem"
-    openssl x509 -req -days 7300 -in $cert_dir/csr.pem -signkey $cert_dir/key.pem -out $cert_dir/cert.pem
+    openssl x509 -req -days 7300 -in "$cert_dir/csr.pem "-signkey "$cert_dir/key.pem" -out "$cert_dir/cert.pem"
     echo "Writing RSA public key to $cert_dir/pubkey.pem"
-    openssl rsa -in $cert_dir/key.pem -pubout -out $cert_dir/pubkey.pem
+    openssl rsa -in "$cert_dir/key.pem" -pubout -out "$cert_dir/pubkey.pem"
 }
 
 read_ident() {
@@ -296,14 +306,16 @@ read_ident() {
 }
 
 read_password() {
-    auth_ident=`cat .current`
-    cat $auth_ident/.password
+    auth_ident=$(< .current)
+    cat "$auth_ident/.password"
 }
 
 ################################################################################
 # Program
 
-zident=`whoami`
+check_tools
+
+zident=$(whoami)
 zcmd=""
 zenv="prod"
 zdomain="wire.com"
