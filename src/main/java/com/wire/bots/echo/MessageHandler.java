@@ -18,24 +18,32 @@
 
 package com.wire.bots.echo;
 
+import com.wire.blender.Blender;
+import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.factories.StorageFactory;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
+import com.wire.bots.sdk.storage.Storage;
 import com.wire.bots.sdk.tools.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final String dataDir;
+    private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
+    private final ClientRepo repo;
+    private final StorageFactory storageFactory;
 
-    MessageHandler(String dataDir) {
-        this.dataDir = dataDir;
+    MessageHandler(ClientRepo repo, StorageFactory storageFactory) {
+        this.repo = repo;
+        this.storageFactory = storageFactory;
     }
 
     /**
@@ -157,28 +165,28 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void onAttachment(WireClient client, AttachmentMessage msg) {
+    public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
             Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
-                    msg.getName(),
-                    msg.getMimeType(),
-                    msg.getSize() / 1024
+                    attach.getName(),
+                    attach.getMimeType(),
+                    attach.getSize() / 1024
             );
 
             // download file from Wire servers
-            byte[] bytes = client.downloadAsset(msg.getAssetKey(),
-                    msg.getAssetToken(),
-                    msg.getSha256(),
-                    msg.getOtrKey());
+            byte[] bytes = client.downloadAsset(attach.getAssetKey(),
+                    attach.getAssetToken(),
+                    attach.getSha256(),
+                    attach.getOtrKey());
 
             // save it locally
-            File file = new File(dataDir, msg.getName());
+            File file = new File(attach.getName());
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(bytes);
             }
 
             // echo this file back to user
-            client.sendFile(file, msg.getMimeType());
+            client.sendFile(file, attach.getMimeType());
 
             // we don't need this file anymore.
             if (!file.delete())
@@ -234,5 +242,33 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onBotRemoved(String botId) {
         Logger.info("Bot: %s got removed from the conversation :(", botId);
+    }
+
+    @Override
+    public void onCalling(WireClient client, String userId, String clientId, String content) {
+        String botId = client.getId();
+        Blender blender = getBlender(botId);
+        blender.recvMessage(botId, userId, clientId, content);
+    }
+
+    private Blender getBlender(String botId) {
+        return blenders.computeIfAbsent(botId, k -> {
+            try {
+                String module = Service.CONFIG.getModule();
+                String ingress = Service.CONFIG.getIngress();
+                int portMin = Service.CONFIG.getPortMin();
+                int portMax = Service.CONFIG.getPortMax();
+
+                Storage storage = storageFactory.create(botId);
+                NewBot state = storage.getState();
+                Blender blender = new Blender();
+                blender.init(module, botId, state.client, ingress, portMin, portMax);
+                blender.registerListener(new CallListener(repo));
+                return blender;
+            } catch (Exception e) {
+                Logger.error(e.toString());
+                return null;
+            }
+        });
     }
 }

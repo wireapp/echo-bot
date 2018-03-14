@@ -19,9 +19,24 @@
 package com.wire.bots.echo;
 
 public class Config extends com.wire.bots.sdk.Configuration {
-    private String someValue;
+    public String ingress;
+    public int portMin;
+    public int portMax;
+    public String module;
 
-    public String getSomeValue() {
-        return someValue;
+    public String getIngress() {
+        return ingress;
+    }
+
+    public int getPortMin() {
+        return portMin;
+    }
+
+    public int getPortMax() {
+        return portMax;
+    }
+
+    public String getModule() {
+        return module;
     }
 }

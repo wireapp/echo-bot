@@ -28,10 +28,10 @@ public class Test {
     private static final String CRYPTO_DIR = "./data";
 
     public static void main(String[] args) throws Exception {
-
         String email = System.getProperty("email");
         String password = System.getProperty("password");
-        String keyword = args.length == 0 ? "" : args[0];
+        String keyword = System.getProperty("keyword");
+
         String serviceId = System.getProperty("service");
         String providerId = System.getProperty("provider");
 
@@ -74,34 +74,38 @@ public class Test {
             }
         }
 
-        // Create new conversation in which we are going to talk to
-        Logger.info("Creating new conversation...");
-        Conversation conversation = API.createConversation(service.name, token);
+        for (int i = 0; i < 1; i++) {
 
-        API api = new API(conversation.id, token);
+            // Create new conversation in which we are going to talk to
+            Logger.info("Creating new conversation...");
+            Conversation conversation = API.createConversation(service.name, token);
 
-        try {
-            // Add this service (Bot) into this conversation
-            Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, conversation.name);
-            User bot = api.addService(service.serviceId, service.providerId);
-            Logger.info("New Bot `%s`, id:: %s", bot.name, bot.id);
-            Thread.sleep(2000);
+            API api = new API(conversation.id, token);
 
-            // Post some text into this conversation
-            String txt = "Privet! Kak dela?";
-            Logger.info("Posting text: `%s`", txt);
-            WireClient wireClient = repo.getWireClient(userId, conversation.id);
-            wireClient.sendText(txt);
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            Logger.error(e.getMessage());
-        } finally {
-            String teamId = api.getTeam();
-            if (teamId != null && api.deleteConversation(teamId)) {
-                Logger.info("Deleted conversation: %s", conversation.name);
+            String convName = conversation.name;
+            try {
+                // Add this service (Bot) into this conversation
+                Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, convName);
+                User bot = api.addService(service.serviceId, service.providerId);
+                Logger.info("%,d. New Bot  `%s`, id:: %s", i, bot.name, bot.id);
+                Thread.sleep(2000);
+
+                // Post some text into this conversation
+                String txt = "Privet! Kak dela?";
+                Logger.info("Posting text: `%s`", txt);
+                WireClient wireClient = repo.getWireClient(userId, conversation.id);
+                wireClient.sendText(txt);
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                Logger.error(e.getMessage());
+            } finally {
+                String teamId = api.getTeam();
+                if (teamId != null && api.deleteConversation(teamId)) {
+                    Logger.info("Deleted conversation: %s", convName);
+                }
             }
-        }
 
+        }
     }
 
     private static SearchClient.Service search(String keyword, String tags, String token) throws IOException {

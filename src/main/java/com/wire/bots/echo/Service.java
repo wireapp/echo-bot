@@ -20,6 +20,8 @@ package com.wire.bots.echo;
 
 import com.wire.bots.cryptonite.CryptoService;
 import com.wire.bots.cryptonite.StorageService;
+import com.wire.bots.cryptonite.client.CryptoClient;
+import com.wire.bots.cryptonite.client.StorageClient;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
 import com.wire.bots.sdk.factories.CryptoFactory;
@@ -29,39 +31,50 @@ import io.dropwizard.setup.Environment;
 import java.net.URI;
 
 public class Service extends Server<Config> {
-
     private static final String SERVICE = "echo";
+    static Config CONFIG;
+    private StorageClient storageClient;
+    private CryptoClient cryptoClient;
 
     public static void main(String[] args) throws Exception {
+        System.loadLibrary("blender"); // Load native library at runtime
+
         new Service().run(args);
     }
 
     @Override
+    protected void initialize(Config config, Environment env) throws Exception {
+        CONFIG = config;
+        storageClient = new StorageClient(SERVICE, new URI(config.data));
+        cryptoClient = new CryptoClient(SERVICE, new URI(config.data));
+    }
+
+    @Override
     protected MessageHandlerBase createHandler(Config config, Environment env) {
-        return new MessageHandler(config.data);
+        return new MessageHandler(repo, getStorageFactory(config));
     }
 
     /**
      * Instructs the framework to use Storage Service for the state.
      * Remove this override in order to use local File system storage
      *
-     * @param config
-     * @return
+     * @param config Config
+     * @return Storage
      */
     @Override
     protected StorageFactory getStorageFactory(Config config) {
-        return botId -> new StorageService(SERVICE, botId, new URI(config.data));
+        return botId -> new StorageService(botId, storageClient);
     }
 
     /**
      * Instructs the framework to use Crypto Service for the crypto keys.
      * Remove this override in order to store key onto your local File system
      *
-     * @param config
+     * @param config Config
      * @return CryptoFactory
      */
     @Override
     protected CryptoFactory getCryptoFactory(Config config) {
-        return (botId) -> new CryptoService(SERVICE, botId, new URI(config.data));
+        return (botId) -> new CryptoService(botId, cryptoClient);
     }
 }
