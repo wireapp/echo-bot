@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <repositories>
         <repository>
@@ -69,17 +69,12 @@
         <dependency>
             <groupId>com.wire.bots</groupId>
             <artifactId>lithium</artifactId>
-            <version>2.9.0</version>
+            <version>2.9.3</version>
         </dependency>
         <dependency>
             <groupId>com.wire.bots</groupId>
             <artifactId>cryptonite</artifactId>
-            <version>1.4.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-common</artifactId>
-            <version>2.25.1</version>
+            <version>1.5.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

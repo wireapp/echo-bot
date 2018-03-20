@@ -2,12 +2,9 @@ package test;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.wire.bots.sdk.tools.Util;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.JerseyClientBuilder;
+import com.wire.bots.sdk.user.TrustedTlsClientBuilder;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,9 +18,7 @@ class SearchClient {
     SearchClient(String token) {
         this.token = token;
 
-        ClientConfig cfg = new ClientConfig(JacksonJsonProvider.class);
-        Client client = JerseyClientBuilder.createClient(cfg);
-        target = client.target(Util.getHost());
+        target = TrustedTlsClientBuilder.build().target(Util.getHost());
     }
 
     Result search(String tags, String start) throws IOException {

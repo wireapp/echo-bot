@@ -54,7 +54,7 @@ public class Test {
             }
         }, repo);
 
-        ep.connectWebSocket(msgRes);
+        // ep.connectWebSocket(msgRes);
 
         SearchClient.Service service;
 
@@ -100,9 +100,9 @@ public class Test {
                 Logger.error(e.getMessage());
             } finally {
                 String teamId = api.getTeam();
-                if (teamId != null && api.deleteConversation(teamId)) {
-                    Logger.info("Deleted conversation: %s", convName);
-                }
+//                if (teamId != null && api.deleteConversation(teamId)) {
+//                    Logger.info("Deleted conversation: %s", convName);
+//                }
             }
 
         }
