@@ -82,7 +82,7 @@ public class MessageHandler extends MessageHandlerBase {
             // send echo back to user
             client.sendText("You wrote: " + msg.getText());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onText: %s", e);
         }
     }
 
@@ -106,7 +106,7 @@ public class MessageHandler extends MessageHandlerBase {
             // echo this image back to user
             client.sendPicture(img, msg.getMimeType());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onImage: %s", e);
         }
     }
 
@@ -206,8 +206,7 @@ public class MessageHandler extends MessageHandlerBase {
             String label = "Hello! I am Echo. I echo everything you write";
             client.sendText(label);
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
+            Logger.error("onNewConversation: %s", e);
         }
     }
 
@@ -227,8 +226,7 @@ public class MessageHandler extends MessageHandlerBase {
                 client.sendText("Hi there " + user.name);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
+            Logger.error("onMemberJoin: %s", e);
         }
     }
 

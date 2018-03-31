@@ -3,13 +3,7 @@ certs/
 current.log.lck
 *.iml
 *.log
-keystore.jks
-conf/keystore.jks.base64
 data/
 .idea/
+libs/
 
-# authentication data
-.cookie
-.current
-.email
-.password

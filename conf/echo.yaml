@@ -12,3 +12,9 @@ module: echo
 ingress: 35.205.208.35
 portMin: 32768
 portMax: 32867
+storage:
+  host: 10.3.248.196
+  port: 5432
+  database: postgres
+  user: postgres
+  password: password
