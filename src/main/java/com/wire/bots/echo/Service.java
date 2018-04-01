@@ -19,8 +19,6 @@
 package com.wire.bots.echo;
 
 import com.wire.bots.cryptobox.storage.PgStorage;
-import com.wire.bots.cryptonite.StorageService;
-import com.wire.bots.cryptonite.client.StorageClient;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
 import com.wire.bots.sdk.crypto.CryptoDatabase;
@@ -28,13 +26,8 @@ import com.wire.bots.sdk.factories.CryptoFactory;
 import com.wire.bots.sdk.factories.StorageFactory;
 import io.dropwizard.setup.Environment;
 
-import java.net.URI;
-
 public class Service extends Server<Config> {
-    private static final String SERVICE = "echo";
     static Config CONFIG;
-    private StorageClient storageClient;
-    private PgStorage storage;
 
     public static void main(String[] args) throws Exception {
         new Service().run(args);
@@ -43,13 +36,6 @@ public class Service extends Server<Config> {
     @Override
     protected void initialize(Config config, Environment env) throws Exception {
         CONFIG = config;
-        storageClient = new StorageClient(SERVICE, new URI(config.data));
-        storage = new PgStorage(
-                config.storage.user,
-                config.storage.password,
-                config.storage.database,
-                config.storage.host,
-                config.storage.port);
     }
 
     @Override
@@ -66,7 +52,7 @@ public class Service extends Server<Config> {
      */
     @Override
     protected StorageFactory getStorageFactory(Config config) {
-        return botId -> new StorageService(botId, storageClient);
+        return botId -> new com.wire.bots.sdk.storage.PgStorage(botId, config.db);
     }
 
     /**
@@ -78,6 +64,11 @@ public class Service extends Server<Config> {
      */
     @Override
     protected CryptoFactory getCryptoFactory(Config config) {
-        return (botId) -> new CryptoDatabase(botId, storage);
+        return (botId) -> new CryptoDatabase(botId, new PgStorage(
+                config.db.user,
+                config.db.password,
+                config.db.database,
+                config.db.host,
+                config.db.port));
     }
 }

@@ -18,12 +18,13 @@
 
 package com.wire.bots.echo;
 
-public class Config extends com.wire.bots.sdk.Configuration {
+import com.wire.bots.sdk.Configuration;
+
+public class Config extends Configuration {
     public String ingress;
     public int portMin;
     public int portMax;
     public String module;
-    public Storage storage;
 
     public String getIngress() {
         return ingress;
@@ -37,19 +38,8 @@ public class Config extends com.wire.bots.sdk.Configuration {
         return portMax;
     }
 
-    public Storage getStorage() {
-        return storage;
-    }
-
     public String getModule() {
         return module;
     }
 
-    public static class Storage {
-        public String host;
-        public int port;
-        public String database;
-        public String user;
-        public String password;
-    }
 }
