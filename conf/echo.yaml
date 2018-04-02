@@ -7,10 +7,11 @@ server:
     appenders: []
 
 auth: your_token   # Service's auth token
-data: ./data
+
 module: echo
 portMin: 32768
 portMax: 32867
+ingress: localhost
 
 db:
   host: localhost
