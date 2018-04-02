@@ -27,7 +27,7 @@ import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
 import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.storage.Storage;
+import com.wire.bots.sdk.state.State;
 import com.wire.bots.sdk.tools.Logger;
 
 import java.io.File;
@@ -257,10 +257,10 @@ public class MessageHandler extends MessageHandlerBase {
                 int portMin = Service.CONFIG.getPortMin();
                 int portMax = Service.CONFIG.getPortMax();
 
-                Storage storage = storageFactory.create(botId);
-                NewBot state = storage.getState();
+                State state = storageFactory.create(botId);
+                NewBot bot = state.getState();
                 Blender blender = new Blender();
-                blender.init(module, botId, state.client, ingress, portMin, portMax);
+                blender.init(module, botId, bot.client, ingress, portMin, portMax);
                 blender.registerListener(new CallListener(repo));
                 return blender;
             } catch (Exception e) {
