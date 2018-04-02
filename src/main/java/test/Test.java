@@ -8,7 +8,7 @@ import com.wire.bots.sdk.factories.StorageFactory;
 import com.wire.bots.sdk.models.TextMessage;
 import com.wire.bots.sdk.server.model.Conversation;
 import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.storage.FileStorage;
+import com.wire.bots.sdk.state.FileState;
 import com.wire.bots.sdk.tools.Logger;
 import com.wire.bots.sdk.tools.Util;
 import com.wire.bots.sdk.user.API;
@@ -41,7 +41,7 @@ public class Test {
 
         Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
 
-        StorageFactory storageFactory = botId -> new FileStorage(CRYPTO_DIR, botId);
+        StorageFactory storageFactory = botId -> new FileState(CRYPTO_DIR, botId);
         CryptoFactory cryptoFactory = botId -> new CryptoFile(CRYPTO_DIR, botId);
 
         UserClientRepo repo = new UserClientRepo(cryptoFactory, storageFactory);
@@ -75,7 +75,6 @@ public class Test {
         }
 
         for (int i = 0; i < 1; i++) {
-
             // Create new conversation in which we are going to talk to
             Logger.info("Creating new conversation...");
             Conversation conversation = API.createConversation(service.name, token);
@@ -88,14 +87,14 @@ public class Test {
                 Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, convName);
                 User bot = api.addService(service.serviceId, service.providerId);
                 Logger.info("%,d. New Bot  `%s`, id:: %s", i, bot.name, bot.id);
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 // Post some text into this conversation
-                String txt = "Privet! Kak dela?";
+                String txt = "Hello";
                 Logger.info("Posting text: `%s`", txt);
                 WireClient wireClient = repo.getWireClient(userId, conversation.id);
                 wireClient.sendText(txt);
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 Logger.error(e.getMessage());
             } finally {
