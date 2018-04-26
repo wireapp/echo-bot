@@ -95,18 +95,18 @@ new_provider() {
     read -p "Provider description: " provider_descr
 
     echo "Creating directory $provider_ident ..."
-    mkdir $provider_ident
+    mkdir ${provider_ident}
     echo "Registering $provider_name ..."
-    curl -XPOST "$zapi/provider/register" \
+    resp=$(curl -s -X POST "$zapi/provider/register" \
         -H 'Content-Type: application/json' \
         -d '{"name": "'"$provider_name"'",
              "email": "'"$provider_email"'",
              "url": "'"$provider_url"'",
              "description": "'"$provider_descr"'"
-            }' \
-        | jq -r '.password' \
-        > $provider_ident/.password
-    echo "$provider_email" > $provider_ident/.email
+            }')
+    echo "$resp"
+    echo "$resp" | jq -r '.password' > ${provider_ident}/.password
+    echo "$provider_email" > ${provider_ident}/.email
     echo "Done. Please check your e-mail."
 }
 
