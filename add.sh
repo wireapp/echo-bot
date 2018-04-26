@@ -4,8 +4,8 @@ echo "=========================================="
 echo "|        Script to add service           |"
 echo "=========================================="
 
-read -p "| Provider e-mail..: " email
-read -p "| Password.........: " -s password
+read -p "| E-mail....: " email
+read -p "| Password..: " -s password
 
 # function needed to bypass curl problems with shell vars
 build_data()
