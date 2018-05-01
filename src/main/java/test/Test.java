@@ -17,6 +17,9 @@ import com.wire.bots.sdk.user.UserClientRepo;
 import com.wire.bots.sdk.user.UserMessageResource;
 
 import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /*
     Sign in using Wire credentials (email/password).
@@ -74,36 +77,56 @@ public class Test {
             }
         }
 
-        for (int i = 0; i < 1; i++) {
-            // Create new conversation in which we are going to talk to
-            Logger.info("Creating new conversation...");
-            Conversation conversation = API.createConversation(service.name, token);
+        // Create new conversation in which we are going to talk to
+        Logger.info("Creating new conversation...");
+        Conversation conversation = API.createConversation(service.name, token);
 
-            API api = new API(conversation.id, token);
+        API api = new API(conversation.id, token);
 
-            String convName = conversation.name;
-            try {
-                // Add this service (Bot) into this conversation
-                Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, convName);
-                User bot = api.addService(service.serviceId, service.providerId);
-                Logger.info("%,d. New Bot  `%s`, id:: %s", i, bot.name, bot.id);
-                Thread.sleep(1000);
+        String convName = conversation.name;
+        try {
+            // Add this service (Bot) into this conversation
+            Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, convName);
+            User bot = api.addService(service.serviceId, service.providerId);
+            Logger.info("New Bot  `%s`, id:: %s", bot.name, bot.id);
+            Thread.sleep(1000);
 
-                // Post some text into this conversation
-                String txt = "Hello";
-                Logger.info("Posting text: `%s`", txt);
-                WireClient wireClient = repo.getWireClient(userId, conversation.id);
-                wireClient.sendText(txt);
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                Logger.error(e.getMessage());
-            } finally {
-                String teamId = api.getTeam();
-//                if (teamId != null && api.deleteConversation(teamId)) {
-//                    Logger.info("Deleted conversation: %s", convName);
-//                }
-            }
+            // Post some text into this conversation
+            String txt = "Hello";
+            Logger.info("Posting text: `%s`", txt);
+            WireClient wireClient = repo.getWireClient(userId, conversation.id);
+            wireClient.sendText(txt);
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            Logger.error(e.getMessage());
+        } finally {
+//            String teamId = api.getTeam();
+//            if (teamId != null && api.deleteConversation(teamId)) {
+//                Logger.info("Deleted conversation: %s", convName);
+//            }
+        }
 
+        ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(12);
+        for (int i = 0; i < 0; i++) {
+            final int count = i;
+            executor.execute(() -> {
+                connectService(service, token, count);
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.MINUTES);
+
+    }
+
+    private static void connectService(SearchClient.Service service, String token, int count) {
+        try {
+            Conversation conv = API.createConversation(service.name, token);
+            API api = new API(conv.id, token);
+            User bot = api.addService(service.serviceId, service.providerId);
+            Logger.info("%,d. New Bot  `%s`, id:: %s", count, bot.name, bot.id);
+        } catch (Exception e) {
+            Logger.error(e.getMessage());
         }
     }
 

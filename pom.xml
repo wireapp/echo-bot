@@ -16,13 +16,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <repository>
-            <id>cryptobox4j</id>
-            <url>https://packagecloud.io/dkovacevic/cryptobox4j/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
     </repositories>
 
     <profiles>
@@ -69,12 +62,7 @@
         <dependency>
             <groupId>com.wire.bots</groupId>
             <artifactId>lithium</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wire.bots</groupId>
-            <artifactId>cryptobox</artifactId>
-            <version>0.1.0</version>
+            <version>2.11.4</version>
         </dependency>
     </dependencies>
 
