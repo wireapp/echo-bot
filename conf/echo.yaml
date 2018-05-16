@@ -15,7 +15,5 @@ ingress: localhost
 
 db:
   host: localhost
-  port: 5432
-  database: postgres
-  user: postgres
+  port: 6379
   password: password

@@ -13,48 +13,16 @@ you send it.
 ## Build the project
  Run:
  ```
- mvn -Plinux package
+ mvn package
  ```
- *linux*, *windows* and *darwin* are supported.
+
+## Storage
+ Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage <br>
+ Redis DB is needed to run this example (comment out overrides for getStorageFactory and getCryptoFactory in Service class <br>
+  in order to use local File System)
 
 ## Run Bot Service
 Run:
 ```
 java -jar /path/to/echo.jar server /path/to/echo.yaml
 ```
-
-# Build Docker images
-	docker build --tag wire/bots.runtime -f Dockerfile.runtime .
-
-	docker build --tag wire/echo -f Dockerfile .
-
-# Tag images (assuming you have created *wire-bot* proj with gcloud already)
-    docker tag wire/bots.runtime:latest eu.gcr.io/wire-bot/bots.runtime
-
-    docker tag wire/echo:latest eu.gcr.io/wire-bot/echo
-
-# Push images
-    gcloud docker -- push eu.gcr.io/wire-bot/bots.runtime
-
-    gcloud docker -- push eu.gcr.io/wire-bot/echo
-
-# Create ConfigMap from files in `conf` folder
-```
-$ kubectl create configmap echo-config --from-file=conf
-```                                                     
-
-# Create GCE secrets
-```
-$ kubectl create secret generic echo-knows --from-literal=token=$AUTH_TOKEN
-```                                                     
-
-# Create GCE Persistent Disk
-```
-$ gcloud compute disks create echo-disk \
->  --zone europe-west1-c \
->  --size 1GB \
->  --type pd-ssd
-```
-
-# Deploy to GCE
-`$ kubectl create -f kubernetes/deployment.yaml`

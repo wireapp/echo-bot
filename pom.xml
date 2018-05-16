@@ -18,46 +18,6 @@
         </repository>
     </repositories>
 
-    <profiles>
-        <profile>
-            <id>darwin</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <properties>
-                <classifier>darwin-x86_64</classifier>
-                <exclude>linux-x86_64</exclude>
-            </properties>
-        </profile>
-        <profile>
-            <id>linux</id>
-            <activation>
-                <os>
-                    <family>Linux</family>
-                </os>
-            </activation>
-            <properties>
-                <classifier>linux-x86_64</classifier>
-                <exclude>darwin-x86_64</exclude>
-            </properties>
-        </profile>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
-            </activation>
-            <properties>
-                <classifier>win-x86_64</classifier>
-                <exclude1>darwin-x86_64</exclude1>
-                <exclude2>linux-x86_64</exclude2>
-            </properties>
-        </profile>
-    </profiles>
-
     <dependencies>
         <dependency>
             <groupId>com.wire.bots</groupId>
@@ -94,7 +54,6 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                         <excludes>
-                            <exclude>com.wire.cryptobox:cryptobox-jni:jar:${exclude}</exclude>
                         </excludes>
                     </artifactSet>
                     <filters>
