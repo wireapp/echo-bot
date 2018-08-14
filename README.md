@@ -17,9 +17,7 @@ you send it.
  ```
 
 ## Storage
- Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage <br>
- Redis DB is needed to run this example (comment out overrides for getStorageFactory and getCryptoFactory in Service class <br>
-  in order to use local File System)
+ Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage. Redis DB is needed to run this example (comment out overrides for `getStorageFactory` and `getCryptoFactory` in the `Service` class in order to use local File System).
 
 ## Run Bot Service
 Run:
