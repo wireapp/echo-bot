@@ -1,4 +1,4 @@
-FROM dejankovacevic/bots.runtime:2.10.0
+FROM dejankovacevic/bots.runtime:2.10.2
 
 COPY libs/libblender.so  /opt/wire/lib/libblender.so
 COPY target/echo.jar     /opt/echo/echo.jar
@@ -6,3 +6,4 @@ COPY conf/echo.yaml      /etc/echo/echo.yaml
 
 WORKDIR /opt/echo
 
+EXPOSE  8080 8081 8082
