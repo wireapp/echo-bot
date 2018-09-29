@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 class SearchClient {
     private final String token;
@@ -26,6 +27,24 @@ class SearchClient {
                 path("services").
                 queryParam("tags", tags).
                 queryParam("start", start).
+                request(MediaType.APPLICATION_JSON).
+                header("Authorization", "Bearer " + token).
+                get();
+
+        if (response.getStatus() != 200) {
+            throw new IOException(response.readEntity(String.class));
+        }
+
+        return response.readEntity(Result.class);
+    }
+
+    Result search(UUID teamId, String prefix) throws IOException {
+        Response response = target.
+                path("teams").
+                path(teamId.toString()).
+                path("services").
+                path("whitelisted").
+                queryParam("prefix", prefix).
                 request(MediaType.APPLICATION_JSON).
                 header("Authorization", "Bearer " + token).
                 get();

@@ -17,9 +17,11 @@ import com.wire.bots.sdk.user.UserClientRepo;
 import com.wire.bots.sdk.user.UserMessageResource;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 
 /*
     Sign in using Wire credentials (email/password).
@@ -41,6 +43,7 @@ public class Test {
         Endpoint ep = new Endpoint(CRYPTO_DIR);
         String userId = ep.signIn(email, password, false);
         String token = ep.getToken();
+        String teamId = new API(null, token).getTeam();
 
         Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
 
@@ -68,9 +71,9 @@ public class Test {
             service.serviceId = providerId;
         } else {
             String tags = "integration";
-
             Logger.info("Searching services starting in: `%s`, tags: %s", keyword, tags);
-            service = search(keyword, tags, token);
+
+            service = search(UUID.fromString(teamId), keyword, token);
             if (service == null) {
                 Logger.info("Cannot find any service starting in: `%s`\n", keyword);
                 return;
@@ -100,7 +103,6 @@ public class Test {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         } finally {
-//            String teamId = api.getTeam();
 //            if (teamId != null && api.deleteConversation(teamId)) {
 //                Logger.info("Deleted conversation: %s", convName);
 //            }
@@ -133,6 +135,22 @@ public class Test {
     private static SearchClient.Service search(String keyword, String tags, String token) throws IOException {
         SearchClient searchClient = new SearchClient(token);
         SearchClient.Result res = searchClient.search(tags, keyword);
+        if (!res.services.isEmpty()) {
+            SearchClient.Service service = res.services.get(0);
+
+            Logger.info("Found service:\nname: %s\nsummary: %s\nserviceId: %s\nproviderId: %s",
+                    service.name,
+                    service.summary,
+                    service.serviceId,
+                    service.providerId);
+            return service;
+        }
+        return null;
+    }
+
+    private static SearchClient.Service search(UUID teamId, String keyword, String token) throws IOException {
+        SearchClient searchClient = new SearchClient(token);
+        SearchClient.Result res = searchClient.search(teamId, keyword);
         if (!res.services.isEmpty()) {
             SearchClient.Service service = res.services.get(0);
 
