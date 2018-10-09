@@ -22,6 +22,8 @@ import com.wire.blender.Blender;
 import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.assets.FileAsset;
+import com.wire.bots.sdk.assets.FileAssetPreview;
 import com.wire.bots.sdk.factories.StorageFactory;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
@@ -30,10 +32,9 @@ import com.wire.bots.sdk.server.model.User;
 import com.wire.bots.sdk.state.State;
 import com.wire.bots.sdk.tools.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
@@ -167,30 +168,43 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
+//            // save it locally
+//            File file = new File(attach.getName());
+//            try (FileOutputStream fos = new FileOutputStream(file)) {
+//                // download file from Wire servers
+//                byte[] bytes = client.downloadAsset(
+//                        attach.getAssetKey(),
+//                        attach.getAssetToken(),
+//                        attach.getSha256(),
+//                        attach.getOtrKey());
+//
+//                fos.write(bytes);
+//
+//                Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
+//                        attach.getName(),
+//                        attach.getMimeType(),
+//                        bytes.length / 1024
+//                );
+//            }
+//
+//            // echo this file back to user
+//            client.sendFile(file, attach.getMimeType());
+//
+//            if (!file.delete())
+//                Logger.warning("Failed to delete file: %s", file.getPath());
+
             Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
                     attach.getName(),
                     attach.getMimeType(),
                     attach.getSize() / 1024
             );
 
-            // download file from Wire servers
-            byte[] bytes = client.downloadAsset(attach.getAssetKey(),
-                    attach.getAssetToken(),
-                    attach.getSha256(),
-                    attach.getOtrKey());
-
-            // save it locally
-            File file = new File(attach.getName());
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(bytes);
-            }
-
             // echo this file back to user
-            client.sendFile(file, attach.getMimeType());
+            String messageId = UUID.randomUUID().toString();
+            FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
+            FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), messageId);
 
-            // we don't need this file anymore.
-            if (!file.delete())
-                Logger.warning("Failed to delete file: %s", file.getPath());
+            client.sendDirectFile(preview, asset, attach.getUserId());
         } catch (Exception e) {
             e.printStackTrace();
         }
