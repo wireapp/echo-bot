@@ -8,6 +8,13 @@ server:
 
 auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
 
+swagger:
+  resourcePackage: com.wire.bots.sdk.server.resources
+  uriPrefix: /echo
+  schemes:
+    - http
+    - https
+
 module: echo
 portMin: 32768
 portMax: 32867

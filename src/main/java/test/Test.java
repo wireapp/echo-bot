@@ -82,7 +82,7 @@ public class Test {
 
         // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        Conversation conversation = API.createConversation(service.name, token);
+        Conversation conversation = API.createConversation(service.name, token, null);
 
         API api = new API(conversation.id, token);
 
@@ -123,7 +123,7 @@ public class Test {
 
     private static void connectService(SearchClient.Service service, String token, int count) {
         try {
-            Conversation conv = API.createConversation(service.name, token);
+            Conversation conv = API.createConversation(service.name, token, null);
             API api = new API(conv.id, token);
             User bot = api.addService(service.serviceId, service.providerId);
             Logger.info("%,d. New Bot  `%s`, id:: %s", count, bot.name, bot.id);
