@@ -23,4 +23,3 @@ ingress: localhost
 db:
   host: localhost
   port: 6379
-  password: ${REDIS_PASSWORD}
