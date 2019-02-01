@@ -133,7 +133,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getDuration());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onAudio: %s", e);
         }
     }
 
@@ -161,38 +161,13 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onVideo: %s", e);
         }
     }
 
     @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
-//            // save it locally
-//            File file = new File(attach.getName());
-//            try (FileOutputStream fos = new FileOutputStream(file)) {
-//                // download file from Wire servers
-//                byte[] bytes = client.downloadAsset(
-//                        attach.getAssetKey(),
-//                        attach.getAssetToken(),
-//                        attach.getSha256(),
-//                        attach.getOtrKey());
-//
-//                fos.write(bytes);
-//
-//                Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
-//                        attach.getName(),
-//                        attach.getMimeType(),
-//                        bytes.length / 1024
-//                );
-//            }
-//
-//            // echo this file back to user
-//            client.sendFile(file, attach.getMimeType());
-//
-//            if (!file.delete())
-//                Logger.warning("Failed to delete file: %s", file.getPath());
-
             Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
                     attach.getName(),
                     attach.getMimeType(),
@@ -206,7 +181,7 @@ public class MessageHandler extends MessageHandlerBase {
 
             client.sendDirectFile(preview, asset, attach.getUserId());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onAttachment: %s", e);
         }
     }
 
