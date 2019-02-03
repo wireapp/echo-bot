@@ -3,8 +3,13 @@ server:
     - type: http
       port: 8080
 
-  requestLog:
-    appenders: []
+#  requestLog:
+#    appenders: []
+
+logging:
+  level: INFO
+  loggers:
+    "com.wire.bots.sdk.tools.logger": INFO
 
 auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
 

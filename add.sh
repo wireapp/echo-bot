@@ -7,21 +7,13 @@ echo "=========================================="
 read -p "| E-mail....: " email
 read -p "| Password..: " -s password
 
-# function needed to bypass curl problems with shell vars
-build_data()
-{
-	cat <<EOF
-	{
-		"email":"${email}","password":"${password}"
-	}
-EOF
-}
+# Authenticate to Wire
+resp=$(curl -s -XPOST "https://prod-nginz-https.wire.com/login" \
+    -H 'Content-Type: application/json' \
+    -d '{"email": "'"$email"'", "password": "'"$password"'"}')
 
-# authenticating in wire
-curl -s -XPOST "https://prod-nginz-https.wire.com/login" -H 'Content-Type: application/json' -d "$(build_data)" | jq -r ".access_token" > .token
-
-token=$(cat .token)
-if [ ${token} == "null" ]; then
+token=$(echo "$resp" | jq -r ".access_token")
+if [ token == "null" ]; then
 	echo " "
 	echo " "
 	echo "Authentication error!!"
