@@ -7,7 +7,7 @@
 This is demo project that uses: [lithium](https://github.com/wireapp/lithium). It creates a Bot that will echo everything
 you send it.
 
-# Documentation
+# Documentation for the SDK:
 [Bot API](https://github.com/wireapp/lithium/wiki)
 
 ## Build the project
@@ -20,7 +20,15 @@ you send it.
  Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage. Redis DB is needed to run this example (comment out overrides for `getStorageFactory` and `getCryptoFactory` in the `Service` class in order to use local File System).
 
 ## Run Bot Service
-Run:
+Runtime libraries can be built/copied from here:
+https://github.com/wireapp/cryptobox4j
+
+On Ubuntu copy:
+ - libsodium.so
+ - libcryptobox.so
+ - libcryptobox-jni.so
+
+to some dir and reference that dir in java run command like:
 ```
-java -jar /path/to/echo.jar server /path/to/echo.yaml
+java -Djava.library.path=$(LD_LIBRARY_PATH) -jar echo.jar server echo.yaml
 ```
