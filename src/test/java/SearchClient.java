@@ -1,10 +1,8 @@
-package test;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wire.bots.sdk.tools.Util;
-import com.wire.bots.sdk.user.TrustedTlsClientBuilder;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,10 +14,10 @@ class SearchClient {
     private final String token;
     private final WebTarget target;
 
-    SearchClient(String token) {
+    SearchClient(Client client, String token) {
         this.token = token;
 
-        target = TrustedTlsClientBuilder.build().target(Util.getHost());
+        target = client.target(Util.getHost());
     }
 
     Result search(String tags, String start) throws IOException {
@@ -75,9 +73,9 @@ class SearchClient {
         @JsonProperty
         public String[] tags;
         @JsonProperty("id")
-        public String serviceId;
+        public UUID serviceId;
         @JsonProperty("provider")
-        public String providerId;
+        public UUID providerId;
         @JsonProperty
         public boolean enabled;
     }

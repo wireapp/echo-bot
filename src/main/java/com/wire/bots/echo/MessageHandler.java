@@ -67,7 +67,7 @@ public class MessageHandler extends MessageHandlerBase {
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
                 Logger.warning("Rejecting NewBot. Provider: %s service: %s",
-                        member.service.provider,
+                        member.service.providerId,
                         member.service.id);
                 return false; // we don't want to be in a conv if other bots are there.
             }
