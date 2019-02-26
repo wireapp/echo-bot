@@ -1,4 +1,4 @@
-FROM dejankovacevic/bots.runtime:2.10.2
+FROM dejankovacevic/bots.runtime:2.10.3
 
 COPY libs/libblender.so  /opt/wire/lib/libblender.so
 COPY target/echo.jar     /opt/echo/echo.jar

@@ -1,6 +1,4 @@
 target/
-certs/
-current.log.lck
 *.iml
 *.log
 data/
