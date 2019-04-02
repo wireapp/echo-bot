@@ -78,10 +78,18 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
-            Logger.info("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId());
+            Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
+                    client.getId(),
+                    msg.getUserId(),
+                    msg.getMessageId());
 
             // send echo back to user
-            client.sendText("You wrote: " + msg.getText());
+            UUID messageId = client.sendText("You wrote: " + msg.getText());
+
+            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
+                    client.getConversationId(),
+                    messageId,
+                    client.getId());
         } catch (Exception e) {
             Logger.error("onText: %s", e);
         }
@@ -175,7 +183,7 @@ public class MessageHandler extends MessageHandlerBase {
             );
 
             // echo this file back to user
-            String messageId = UUID.randomUUID().toString();
+            UUID messageId = UUID.randomUUID();
             FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
             FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), messageId);
 
