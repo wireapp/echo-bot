@@ -76,6 +76,20 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
+    public void onNewConversation(WireClient client) {
+        try {
+            Logger.info("onNewConversation: bot: %s, conv: %s",
+                    client.getId(),
+                    client.getConversationId());
+
+            String label = "Hello! I am Echo. I echo everything you write";
+            client.sendText(label);
+        } catch (Exception e) {
+            Logger.error("onNewConversation: %s", e);
+        }
+    }
+
+    @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
             Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
@@ -190,20 +204,6 @@ public class MessageHandler extends MessageHandlerBase {
             client.sendDirectFile(preview, asset, attach.getUserId());
         } catch (Exception e) {
             Logger.error("onAttachment: %s", e);
-        }
-    }
-
-    @Override
-    public void onNewConversation(WireClient client) {
-        try {
-            Logger.info("onNewConversation: bot: %s, conv: %s",
-                    client.getId(),
-                    client.getConversationId());
-
-            String label = "Hello! I am Echo. I echo everything you write";
-            client.sendText(label);
-        } catch (Exception e) {
-            Logger.error("onNewConversation: %s", e);
         }
     }
 

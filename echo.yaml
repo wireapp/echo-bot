@@ -3,13 +3,14 @@ server:
     - type: http
       port: 8080
 
-#  requestLog:
-#    appenders: []
+# comment out these 2 lines in order to enable HTTP reqs logging
+  requestLog:
+    appenders: []
 
 logging:
   level: INFO
   loggers:
-    "com.wire.bots.sdk.tools.logger": INFO
+    "com.wire.bots.logger": INFO
 
 auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
 
@@ -25,6 +26,7 @@ portMin: 32768
 portMax: 32867
 ingress: localhost
 
+#redis DB
 db:
   host: localhost
-  port: 6379
+  port: 6379    #redis default port
