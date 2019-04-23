@@ -29,4 +29,11 @@ ingress: localhost
 #redis DB
 db:
   host: localhost
+  driver: redis
   port: 6379    #redis default port
+  password:
+
+# To use file system as storage use these settings
+#db:
+#  driver: fs
+#  url: "file:///var/echo/data"

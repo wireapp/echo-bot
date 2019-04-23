@@ -19,12 +19,10 @@
 package com.wire.bots.echo;
 
 import com.wire.blender.Blender;
-import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.assets.FileAsset;
 import com.wire.bots.sdk.assets.FileAssetPreview;
-import com.wire.bots.sdk.factories.StorageFactory;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
@@ -38,14 +36,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
-    private final ClientRepo repo;
-    private final StorageFactory storageFactory;
-
-    MessageHandler(ClientRepo repo, StorageFactory storageFactory) {
-        this.repo = repo;
-        this.storageFactory = storageFactory;
-    }
 
     /**
      * @param newBot Initialization object for new Bot instance
@@ -239,6 +229,9 @@ public class MessageHandler extends MessageHandlerBase {
         Logger.info("Bot: %s got removed from the conversation :(", botId);
     }
 
+    private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
+
+    // ***** Calling *****
     @Override
     public void onCalling(WireClient client, String userId, String clientId, String content) {
         String botId = client.getId();
@@ -249,16 +242,17 @@ public class MessageHandler extends MessageHandlerBase {
     private Blender getBlender(String botId) {
         return blenders.computeIfAbsent(botId, k -> {
             try {
-                String module = Service.CONFIG.getModule();
-                String ingress = Service.CONFIG.getIngress();
-                int portMin = Service.CONFIG.getPortMin();
-                int portMax = Service.CONFIG.getPortMax();
+                Config config = Service.instance.getConfig();
+                String module = config.getModule();
+                String ingress = config.getIngress();
+                int portMin = config.getPortMin();
+                int portMax = config.getPortMax();
 
-                State state = storageFactory.create(botId);
+                State state = Service.instance.getStorageFactory().create(botId);
                 NewBot bot = state.getState();
                 Blender blender = new Blender();
                 blender.init(module, botId, bot.client, ingress, portMin, portMax);
-                blender.registerListener(new CallListener(repo));
+                blender.registerListener(new CallListener(Service.instance.getRepo()));
                 return blender;
             } catch (Exception e) {
                 Logger.error(e.toString());
@@ -266,4 +260,5 @@ public class MessageHandler extends MessageHandlerBase {
             }
         });
     }
+    // ***** Calling ****
 }

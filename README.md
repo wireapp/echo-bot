@@ -17,7 +17,15 @@ you send it.
  ```
 
 ## Storage
- Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage. Redis DB is needed to run this example (comment out overrides for `getStorageFactory` and `getCryptoFactory` in the `Service` class in order to use local File System).
+ Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage. Redis server is needed to run this example.
+ In case you want to use your file system as storage set the `db` section in `echo.yaml` as:
+
+ ```
+ # To use file system as storage use these settings
+ db:
+   driver: fs
+   url: "file:///var/echo/data"
+ ```
 
 ## Run Bot Service
 Runtime libraries can be built/copied from here:
