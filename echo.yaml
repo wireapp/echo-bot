@@ -1,12 +1,12 @@
 server:
-  applicationConnectors:
-    - type: http
-      port: 8080
+  # root path. Remove it if you dont need it
+  rootPath: /echo/*
 
 # comment out these 2 lines in order to enable HTTP reqs logging
-  requestLog:
-    appenders: []
+#  requestLog:
+#    appenders: []
 
+# Log lever: INFO | DEBUG | ERROR
 logging:
   level: INFO
   loggers:
@@ -14,6 +14,7 @@ logging:
 
 auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
 
+# Swagger documentation... useful sometimes
 swagger:
   resourcePackage: com.wire.bots.sdk.server.resources
   uriPrefix: /echo
@@ -21,19 +22,20 @@ swagger:
     - http
     - https
 
+# Calling stuff (optional)
 module: echo
 portMin: 32768
 portMax: 32867
 ingress: localhost
 
-#redis DB
+#redis DB. Primary keys are stored here
 db:
   host: localhost
   driver: redis
   port: 6379    #redis default port
   password:
 
-# To use file system as storage use these settings
+# To use file system as the storage use these settings
 #db:
 #  driver: fs
 #  url: "file:///var/echo/data"

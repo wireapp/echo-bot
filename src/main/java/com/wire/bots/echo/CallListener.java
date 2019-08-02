@@ -5,6 +5,7 @@ import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.tools.Logger;
 
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -35,7 +36,7 @@ public class CallListener implements BlenderListener {
                 trans);
 
         executor.execute(() -> {
-            try (WireClient client = repo.getClient(id)) {
+            try (WireClient client = repo.getClient(UUID.fromString(id))) {
                 client.call(content);
             } catch (Exception e) {
                 Logger.error("onCallingMessage: %s", e);

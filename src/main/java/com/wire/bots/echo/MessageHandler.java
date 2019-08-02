@@ -26,12 +26,11 @@ import com.wire.bots.sdk.assets.FileAssetPreview;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
+import com.wire.bots.sdk.server.model.SystemMessage;
 import com.wire.bots.sdk.server.model.User;
 import com.wire.bots.sdk.state.State;
 import com.wire.bots.sdk.tools.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,13 +65,13 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void onNewConversation(WireClient client) {
+    public void onNewConversation(WireClient client, SystemMessage message) {
         try {
             Logger.info("onNewConversation: bot: %s, conv: %s",
                     client.getId(),
                     client.getConversationId());
 
-            String label = "Hello! I am Echo. I echo everything you write";
+            String label = "Hello! I am Echo. I echo everything you post here";
             client.sendText(label);
         } catch (Exception e) {
             Logger.error("onNewConversation: %s", e);
@@ -82,18 +81,24 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
+            String botId = client.getId();
+            UUID userId = msg.getUserId();
             Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
-                    client.getId(),
-                    msg.getUserId(),
+                    botId,
+                    userId,
                     msg.getMessageId());
 
-            // send echo back to user
-            UUID messageId = client.sendText("You wrote: " + msg.getText());
+            User sender = client.getUser(userId.toString());
+
+            String text = String.format("@%s wrote: _%s_", sender.handle, msg.getText());
+
+            // send echo back to user, mentioning this user
+            UUID messageId = client.sendText(text, userId);
 
             Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
                     client.getConversationId(),
                     messageId,
-                    client.getId());
+                    botId);
         } catch (Exception e) {
             Logger.error("onText: %s", e);
         }
@@ -191,17 +196,17 @@ public class MessageHandler extends MessageHandlerBase {
             FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
             FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), messageId);
 
-            client.sendDirectFile(preview, asset, attach.getUserId());
+            client.sendDirectFile(preview, asset, attach.getUserId().toString());
         } catch (Exception e) {
             Logger.error("onAttachment: %s", e);
         }
     }
 
     @Override
-    public void onMemberJoin(WireClient client, ArrayList<String> userIds) {
+    public void onMemberJoin(WireClient client, SystemMessage msg) {
         try {
-            Collection<User> users = client.getUsers(userIds);
-            for (User user : users) {
+            for (UUID userId : msg.users) {
+                User user = client.getUser(userId.toString());
                 Logger.info("onMemberJoin: bot: %s, user: %s/%s @%s",
                         client.getId(),
                         user.id,
@@ -218,25 +223,28 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
-        Logger.info("onMemberLeave: users: %s, bot: %s",
-                userIds,
-                client.getId());
+    public void onMemberLeave(WireClient client, SystemMessage msg) {
+        for (UUID userId : msg.users) {
+            Logger.info("onMemberLeave: user: %s, bot: %s",
+                    userId,
+                    client.getId());
+        }
     }
 
     @Override
-    public void onBotRemoved(String botId) {
-        Logger.info("Bot: %s got removed from the conversation :(", botId);
+    public void onBotRemoved(UUID botId, SystemMessage msg) {
+        Logger.info("Bot: %s got removed by %s from the conversation :(", botId, msg.from);
     }
+
+    // ***** Calling *****
 
     private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
 
-    // ***** Calling *****
     @Override
-    public void onCalling(WireClient client, String userId, String clientId, String content) {
+    public void onCalling(WireClient client, CallingMessage msg) {
         String botId = client.getId();
         Blender blender = getBlender(botId);
-        blender.recvMessage(botId, userId, clientId, content);
+        blender.recvMessage(botId, msg.getUserId().toString(), msg.getClientId(), msg.getContent());
     }
 
     private Blender getBlender(String botId) {

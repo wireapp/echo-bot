@@ -32,7 +32,6 @@ public class Service extends Server<Config> {
 
     @Override
     protected void initialize(Config config, Environment env) {
-        env.jersey().setUrlPattern("/echo/*");
     }
 
     @Override
