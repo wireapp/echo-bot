@@ -78,31 +78,7 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
-    @Override
-    public void onText(WireClient client, TextMessage msg) {
-        try {
-            String botId = client.getId();
-            UUID userId = msg.getUserId();
-            Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
-                    botId,
-                    userId,
-                    msg.getMessageId());
-
-            User sender = client.getUser(userId.toString());
-
-            String text = String.format("@%s wrote: _%s_", sender.handle, msg.getText());
-
-            // send echo back to user, mentioning this user
-            UUID messageId = client.sendText(text, userId);
-
-            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
-                    client.getConversationId(),
-                    messageId,
-                    botId);
-        } catch (Exception e) {
-            Logger.error("onText: %s", e);
-        }
-    }
+    private final ConcurrentHashMap<UUID, Blender> blenders = new ConcurrentHashMap<>();
 
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
@@ -183,6 +159,32 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
+    public void onText(WireClient client, TextMessage msg) {
+        try {
+            UUID botId = client.getId();
+            UUID userId = msg.getUserId();
+            Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
+                    botId,
+                    userId,
+                    msg.getMessageId());
+
+            User sender = client.getUser(userId);
+
+            String text = String.format("@%s wrote: _%s_", sender.handle, msg.getText());
+
+            // send echo back to user, mentioning this user
+            UUID messageId = client.sendText(text, userId);
+
+            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
+                    client.getConversationId(),
+                    messageId,
+                    botId);
+        } catch (Exception e) {
+            Logger.error("onText: %s", e);
+        }
+    }
+
+    @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
             Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
@@ -196,29 +198,9 @@ public class MessageHandler extends MessageHandlerBase {
             FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
             FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), messageId);
 
-            client.sendDirectFile(preview, asset, attach.getUserId().toString());
+            client.sendDirectFile(preview, asset, attach.getUserId());
         } catch (Exception e) {
             Logger.error("onAttachment: %s", e);
-        }
-    }
-
-    @Override
-    public void onMemberJoin(WireClient client, SystemMessage msg) {
-        try {
-            for (UUID userId : msg.users) {
-                User user = client.getUser(userId.toString());
-                Logger.info("onMemberJoin: bot: %s, user: %s/%s @%s",
-                        client.getId(),
-                        user.id,
-                        user.name,
-                        user.handle
-                );
-
-                // say Hi to new participant
-                client.sendText("Hi there " + user.name);
-            }
-        } catch (Exception e) {
-            Logger.error("onMemberJoin: %s", e);
         }
     }
 
@@ -236,18 +218,46 @@ public class MessageHandler extends MessageHandlerBase {
         Logger.info("Bot: %s got removed by %s from the conversation :(", botId, msg.from);
     }
 
+    @Override
+    public void onMemberJoin(WireClient client, SystemMessage msg) {
+        try {
+            for (UUID userId : msg.users) {
+                User user = client.getUser(userId);
+                Logger.info("onMemberJoin: bot: %s, user: %s/%s @%s",
+                        client.getId(),
+                        user.id,
+                        user.name,
+                        user.handle
+                );
+
+                // say Hi to new participant
+                client.sendText("Hi there " + user.name);
+            }
+        } catch (Exception e) {
+            Logger.error("onMemberJoin: %s", e);
+        }
+    }
+
     // ***** Calling *****
 
-    private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
+    @Override
+    public void onConfirmation(WireClient client, ConfirmationMessage msg) {
+        Logger.info("onConfirmation: bot: %s. Status for message: %s, sent to user: %s:%s is now: %s",
+                client.getId(),
+                msg.getConfirmationMessageId(),
+                msg.getUserId(),
+                msg.getClientId(),
+                msg.getType());
+    }
 
     @Override
     public void onCalling(WireClient client, CallingMessage msg) {
-        String botId = client.getId();
+        UUID botId = client.getId();
         Blender blender = getBlender(botId);
-        blender.recvMessage(botId, msg.getUserId().toString(), msg.getClientId(), msg.getContent());
+        blender.recvMessage(botId.toString(), msg.getUserId().toString(), msg.getClientId(), msg.getContent());
     }
 
-    private Blender getBlender(String botId) {
+    private Blender getBlender(UUID botId) {
         return blenders.computeIfAbsent(botId, k -> {
             try {
                 Config config = Service.instance.getConfig();
@@ -259,7 +269,7 @@ public class MessageHandler extends MessageHandlerBase {
                 State state = Service.instance.getStorageFactory().create(botId);
                 NewBot bot = state.getState();
                 Blender blender = new Blender();
-                blender.init(module, botId, bot.client, ingress, portMin, portMax);
+                blender.init(module, botId.toString(), bot.client, ingress, portMin, portMax);
                 blender.registerListener(new CallListener(Service.instance.getRepo()));
                 return blender;
             } catch (Exception e) {
