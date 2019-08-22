@@ -83,12 +83,11 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
         try {
-            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d, tag: %s",
+            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d",
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
-                    msg.getWidth(),
-                    msg.getTag()
+                    msg.getWidth()
             );
 
             // download this image from Wire server

@@ -14,6 +14,7 @@ import com.wire.bots.sdk.tools.Util;
 import com.wire.bots.sdk.user.API;
 import com.wire.bots.sdk.user.LoginClient;
 import com.wire.bots.sdk.user.UserClientRepo;
+import com.wire.bots.sdk.user.model.Access;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -87,26 +88,26 @@ public class SearchTest {
 
     @Test
     public void addServiceTest() throws Exception {
-        String email = System.getProperty("email");
-        String password = System.getProperty("password");
-        String keyword = System.getProperty("keyword");
+        final String email = System.getProperty("email");
+        final String password = System.getProperty("password");
+        final String keyword = System.getProperty("keyword");
 
-        Config config = app.getConfiguration();
-
+        final Config config = app.getConfiguration();
+        
         client = new JerseyClientBuilder(app.getEnvironment())
                 .using(config.jerseyClient)
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)
                 .build("Test");
 
-        com.wire.bots.sdk.user.model.User login = new LoginClient(client)
-                .login(email, password);
+        LoginClient loginClient = new LoginClient(client);
+        final Access access = loginClient.login(email, password);
 
-        String token = login.getToken();
-        UUID userId = login.getUserId();
+        final String token = access.getToken();
+        final UUID userId = access.getUserId();
 
         API api = new API(client, null, token);
-        UUID teamId = api.getTeam();
+        final UUID teamId = api.getTeam();
 
         Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
 
@@ -139,11 +140,11 @@ public class SearchTest {
 
         // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        Conversation conversation = api.createConversation(service.name, teamId, null, token);
+        final Conversation conversation = api.createConversation(service.name, teamId, null, token);
 
         api = new API(client, conversation.id, token);
 
-        String convName = conversation.name;
+        final String convName = conversation.name;
         try {
             // Add this service (Bot) into this conversation
             Logger.info("Adding service `%s` to conversation: `%s`", service.serviceId, convName);
@@ -174,5 +175,7 @@ public class SearchTest {
         }
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.MINUTES);
+
+        loginClient.logout(access.getToken(), access.getCookie());
     }
 }
