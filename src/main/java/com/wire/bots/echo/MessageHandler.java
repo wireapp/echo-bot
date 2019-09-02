@@ -36,6 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
 
+    /*
+    Only for calling
+     */
+    private final ConcurrentHashMap<UUID, Blender> blenders = new ConcurrentHashMap<>();
+
     /**
      * @param newBot Initialization object for new Bot instance
      *               -  id          : The unique user ID for the bot.
@@ -77,8 +82,6 @@ public class MessageHandler extends MessageHandlerBase {
             Logger.error("onNewConversation: %s", e);
         }
     }
-
-    private final ConcurrentHashMap<UUID, Blender> blenders = new ConcurrentHashMap<>();
 
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
@@ -184,6 +187,15 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
+    public void onText(WireClient client, EphemeralTextMessage msg) {
+        try {
+            client.sendText("You wrote: " + msg.getText(), msg.getExpireAfterMillis());
+        } catch (Exception e) {
+            Logger.error("onEphemeralText: %s", e);
+        }
+    }
+
+    @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
             Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
@@ -237,8 +249,6 @@ public class MessageHandler extends MessageHandlerBase {
         }
     }
 
-    // ***** Calling *****
-
     @Override
     public void onConfirmation(WireClient client, ConfirmationMessage msg) {
         Logger.info("onConfirmation: bot: %s. Status for message: %s, sent to user: %s:%s is now: %s",
@@ -248,6 +258,8 @@ public class MessageHandler extends MessageHandlerBase {
                 msg.getClientId(),
                 msg.getType());
     }
+
+    // ***** Calling *****
 
     @Override
     public void onCalling(WireClient client, CallingMessage msg) {
