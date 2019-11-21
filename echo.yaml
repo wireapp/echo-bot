@@ -3,16 +3,16 @@ server:
   rootPath: /echo/*
 
 # comment out these 2 lines in order to enable HTTP reqs logging
-#  requestLog:
-#    appenders: []
+  requestLog:
+    appenders: []
 
 # Log lever: INFO | DEBUG | ERROR
 logging:
   level: INFO
   loggers:
-    "com.wire.bots.logger": INFO
+    "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
-auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
+auth: ${SERVICE_TOKEN:-}   # Service's auth token
 
 # Swagger documentation... useful sometimes
 swagger:
@@ -22,20 +22,22 @@ swagger:
     - http
     - https
 
+jerseyClient:
+  timeout: 20s
+  connectionTimeout: 4s
+  connectionRequestTimeout: 4s
+  keepAlive: 0ms
+  retries: 3
+
 # Calling stuff (optional)
 module: echo
 portMin: 32768
 portMax: 32867
-ingress: localhost
+ingress: ${INGRESS:-localhost}
 
-#redis DB. Primary keys are stored here
+# File system as default DB. Other drivers supported: redis and postgresql. Primary keys are stored there
 db:
-  host: localhost
-  driver: redis
-  port: 6379    #redis default port
-  password:
-
-# To use file system as the storage use these settings
-#db:
-#  driver: fs
-#  url: "file:///var/echo/data"
+  driver: ${DB_DRIVER:-fs}        # fs (default) | redis | postgresql
+  url: ${DB_URL:-}                # ./data by default or an absolute path like: file:///var/echo/data
+  user: ${DB_USER:-}              # can be null in case of File System
+  password: ${DB_PASSWORD:-}      # can be null in case of File System
