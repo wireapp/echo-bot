@@ -1,10 +1,17 @@
 server:
-  # root path. Remove it if you dont need it
-  rootPath: /echo/*
+  applicationConnectors:
+    - type: http
+      port: ${HTTP_PORT:-8080}
 
-# comment out these 2 lines in order to enable HTTP reqs logging
+  adminConnectors:
+    - type: http
+      port: ${ADMIN_PORT:-8081}
+
   requestLog:
-    appenders: []
+    appenders:
+      - type: console
+        filterFactories:
+          - type: status-filter-factory
 
 # Log lever: INFO | DEBUG | ERROR
 logging:
@@ -12,22 +19,8 @@ logging:
   loggers:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
-auth: ${SERVICE_TOKEN:-}   # Service's auth token
-
-# Swagger documentation... useful sometimes
-swagger:
-  resourcePackage: com.wire.bots.sdk.server.resources
-  uriPrefix: /echo
-  schemes:
-    - http
-    - https
-
-jerseyClient:
-  timeout: 20s
-  connectionTimeout: 4s
-  connectionRequestTimeout: 4s
-  keepAlive: 0ms
-  retries: 3
+apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}
+wsHost:  ${WIRE_WS_HOST:-wss://prod-nginz-ssl.wire.com}
 
 # Calling stuff (optional)
 module: echo
@@ -35,9 +28,31 @@ portMin: 32768
 portMax: 32867
 ingress: ${INGRESS:-localhost}
 
-# File system as default DB. Other drivers supported: redis and postgresql. Primary keys are stored there
-db:
-  driver: ${DB_DRIVER:-fs}        # fs (default) | redis | postgresql
-  url: ${DB_URL:-}                # ./data by default or an absolute path like: file:///var/echo/data
-  user: ${DB_USER:-}              # can be null in case of File System
-  password: ${DB_PASSWORD:-}      # can be null in case of File System
+database:
+  driverClass: ${DB_DRIVER:-org.postgresql.Driver}  # Can be: fs | redis | org.postgresql.Driver (default)
+  url: ${DB_URL:-jdbc:postgresql://localhost/echo}  # for File System it should be absolute path like: file:///var/echo/data or null
+  user: ${DB_USER:-}
+  password: ${DB_PASSWORD:-}
+
+# To run in user mode pass Email and Password. Email/password can be any Wire credentials
+#userMode:
+#  email: ${EMAIL:-}
+#  password: ${PASSWORD:-}
+
+jerseyClient:
+  timeout: 4s
+  connectionTimeout: 2s
+  connectionRequestTimeout: 2s
+  keepAlive: 0ms
+  retries: 3
+  userAgent: Echo
+
+  tls:
+    protocol: TLSv1.2
+    provider: SunJSSE
+    verifyHostname: false
+    keyStoreType: JKS
+    trustSelfSignedCertificates: true
+    supportedProtocols:
+      - TLSv1.1
+      - TLSv1.2

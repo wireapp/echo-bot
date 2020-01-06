@@ -2,18 +2,16 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.wire.bots.echo.Config;
 import com.wire.bots.echo.Service;
 import com.wire.bots.sdk.WireClient;
+import com.wire.bots.sdk.crypto.Crypto;
 import com.wire.bots.sdk.crypto.CryptoDatabase;
 import com.wire.bots.sdk.crypto.storage.RedisStorage;
 import com.wire.bots.sdk.factories.CryptoFactory;
-import com.wire.bots.sdk.factories.StorageFactory;
 import com.wire.bots.sdk.server.model.Conversation;
 import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.state.RedisState;
 import com.wire.bots.sdk.tools.Logger;
-import com.wire.bots.sdk.tools.Util;
 import com.wire.bots.sdk.user.API;
 import com.wire.bots.sdk.user.LoginClient;
-import com.wire.bots.sdk.user.UserClientRepo;
+import com.wire.bots.sdk.user.UserClient;
 import com.wire.bots.sdk.user.model.Access;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -43,7 +41,7 @@ public class SearchTest {
     private static void connectService(UUID teamId, SearchClient.Service service, String token, int count) {
         try {
             API api = new API(client, null, token);
-            Conversation conv = api.createConversation(service.name, teamId, null, token);
+            Conversation conv = api.createConversation(service.name, teamId, null);
             api = new API(client, conv.id, token);
             User bot = api.addService(service.serviceId, service.providerId);
             Logger.info("%,d. New Bot  `%s`, id:: %s", count, bot.name, bot.id);
@@ -52,26 +50,9 @@ public class SearchTest {
         }
     }
 
-    private static SearchClient.Service search(String keyword, String tags, String token)
-            throws IOException {
-        SearchClient searchClient = new SearchClient(client, token);
-        SearchClient.Result res = searchClient.search(tags, keyword);
-        if (!res.services.isEmpty()) {
-            SearchClient.Service service = res.services.get(0);
-
-            Logger.info("Found service:\nname: %s\nsummary: %s\nserviceId: %s\nproviderId: %s",
-                    service.name,
-                    service.summary,
-                    service.serviceId,
-                    service.providerId);
-            return service;
-        }
-        return null;
-    }
-
     private static SearchClient.Service search(UUID teamId, String keyword, String token)
             throws IOException {
-        SearchClient searchClient = new SearchClient(client, token);
+        SearchClient searchClient = new SearchClient(client, app.getConfiguration(), token);
         SearchClient.Result res = searchClient.search(teamId, keyword);
         if (!res.services.isEmpty()) {
             SearchClient.Service service = res.services.get(0);
@@ -88,12 +69,12 @@ public class SearchTest {
 
     @Test
     public void addServiceTest() throws Exception {
-        final String email = System.getProperty("email");
-        final String password = System.getProperty("password");
+        Config config = app.getConfiguration();
+
+        final String email = config.userMode.email;
+        final String password = config.userMode.password;
         final String keyword = System.getProperty("keyword");
 
-        final Config config = app.getConfiguration();
-        
         client = new JerseyClientBuilder(app.getEnvironment())
                 .using(config.jerseyClient)
                 .withProvider(MultiPartFeature.class)
@@ -109,13 +90,11 @@ public class SearchTest {
         API api = new API(client, null, token);
         final UUID teamId = api.getTeam();
 
-        Logger.info("Logged in as: %s, id: %s, domain: %s", email, userId, Util.getDomain());
+        Logger.info("Logged in as: %s, id: %s", email, userId);
 
         RedisStorage storage = new RedisStorage(config.db.host, config.db.port, config.db.password);
-        StorageFactory storageFactory = botId -> new RedisState(botId, config.db);
         CryptoFactory cryptoFactory = botId -> new CryptoDatabase(botId, storage);
-
-        UserClientRepo repo = new UserClientRepo(client, cryptoFactory, storageFactory);
+        Crypto crypto = cryptoFactory.create(userId);
 
         SearchClient.Service service;
 
@@ -140,7 +119,7 @@ public class SearchTest {
 
         // Create new conversation in which we are going to talk to
         Logger.info("Creating new conversation...");
-        final Conversation conversation = api.createConversation(service.name, teamId, null, token);
+        final Conversation conversation = api.createConversation(service.name, teamId, null);
 
         api = new API(client, conversation.id, token);
 
@@ -155,7 +134,7 @@ public class SearchTest {
             // Post some text into this conversation
             String txt = "Hello";
             Logger.info("Posting text: `%s`", txt);
-            WireClient wireClient = repo.getWireClient(userId, conversation.id);
+            WireClient wireClient = new UserClient(userId, "clientId", conversation.id, crypto, api);
             wireClient.sendText(txt);
             Thread.sleep(1000);
         } catch (Exception e) {
@@ -176,6 +155,6 @@ public class SearchTest {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.MINUTES);
 
-        loginClient.logout(access.getToken(), access.getCookie());
+        loginClient.logout(access.getCookie());
     }
 }

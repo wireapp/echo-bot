@@ -17,13 +17,14 @@ you send it.
  ```
 
 ## Storage
- Crypto sessions can be stored locally on HDD or in DB. Current example uses Redis DB as a storage. Redis server is needed to run this example.
- In case you want to use your file system as storage set the `db` section in `echo.yaml` as:
+ Crypto sessions can be stored locally on HDD or in DB. Current example uses Postgres DB as the storage. 
+ Postgres server is needed to run this example.
+ In case you want to use your file system as storage set the `database` section in `echo.yaml` as:
 
  ```
  # To use file system as storage use these settings
- db:
-   driver: fs
+ database:
+   driverClass: fs
    url: "file:///var/echo/data"
  ```
 
@@ -38,5 +39,5 @@ On Ubuntu copy:
 
 to some dir and reference that dir in java run command like:
 ```
-java -Djava.library.path=$(LD_LIBRARY_PATH) -jar echo.jar server echo.yaml
+java -jar echo.jar server echo.yaml
 ```

@@ -1,6 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wire.bots.sdk.tools.Util;
+import com.wire.bots.echo.Config;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 class SearchClient {
-    private final String token;
     private final WebTarget target;
+    private final String token;
 
-    SearchClient(Client client, String token) {
+    SearchClient(Client client, Config config, String token) {
         this.token = token;
-
-        target = client.target(Util.getHost());
+        target = client.target(config.apiHost);
     }
 
     Result search(String tags, String start) throws IOException {

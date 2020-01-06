@@ -53,7 +53,7 @@ public class MessageHandler extends MessageHandlerBase {
      * If FALSE is returned this service declines to create new bot instance for this conversation
      */
     @Override
-    public boolean onNewBot(NewBot newBot) {
+    public boolean onNewBot(NewBot newBot, String token) {
         Logger.info(String.format("onNewBot: bot: %s, username: %s",
                 newBot.id,
                 newBot.origin.handle));
@@ -80,6 +80,33 @@ public class MessageHandler extends MessageHandlerBase {
             client.sendText(label);
         } catch (Exception e) {
             Logger.error("onNewConversation: %s", e);
+        }
+    }
+
+    @Override
+    public void onText(WireClient client, TextMessage msg) {
+        try {
+            UUID botId = client.getId();
+            UUID userId = msg.getUserId();
+            Logger.info("Received Text '%s' from: %s, conv: %s, msg: %s @%s",
+                    msg.getText(),
+                    userId,
+                    msg.getConversationId(),
+                    msg.getMessageId(),
+                    msg.getTime());
+
+            String text = String.format("You wrote: _%s_", msg.getText());
+
+            // send echo back to user, mentioning this user
+            UUID messageId = client.sendText(text, userId);
+
+            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
+                    client.getConversationId(),
+                    messageId,
+                    botId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.error("onText: %s", e);
         }
     }
 
@@ -157,32 +184,6 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getWidth());
         } catch (Exception e) {
             Logger.error("onVideo: %s", e);
-        }
-    }
-
-    @Override
-    public void onText(WireClient client, TextMessage msg) {
-        try {
-            UUID botId = client.getId();
-            UUID userId = msg.getUserId();
-            Logger.info("Received Text. bot: %s, from: %s, messageId: %s",
-                    botId,
-                    userId,
-                    msg.getMessageId());
-
-            User sender = client.getUser(userId);
-
-            String text = String.format("@%s wrote: _%s_", sender.handle, msg.getText());
-
-            // send echo back to user, mentioning this user
-            UUID messageId = client.sendText(text, userId);
-
-            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
-                    client.getConversationId(),
-                    messageId,
-                    botId);
-        } catch (Exception e) {
-            Logger.error("onText: %s", e);
         }
     }
 
