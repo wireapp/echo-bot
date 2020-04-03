@@ -23,6 +23,7 @@ import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.assets.FileAsset;
 import com.wire.bots.sdk.assets.FileAssetPreview;
+import com.wire.bots.sdk.assets.MessageText;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
@@ -95,14 +96,19 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMessageId(),
                     msg.getTime());
 
-            String text = String.format("You wrote: _%s_", msg.getText());
+            final User user = client.getUser(msg.getUserId());
+
+            String text = String.format("@%s _%s_", user.handle, msg.getText());
 
             // send echo back to user, mentioning this user
-            UUID messageId = client.sendText(text, userId);
+            MessageText t = new MessageText(text);
+            t.addMention(userId, 0, user.handle.length() + 1);
+
+            client.send(t);
 
             Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
                     client.getConversationId(),
-                    messageId,
+                    t.getMessageId(),
                     botId);
         } catch (Exception e) {
             e.printStackTrace();

@@ -76,7 +76,7 @@ public class SearchTest {
         final String keyword = System.getProperty("keyword");
 
         client = new JerseyClientBuilder(app.getEnvironment())
-                .using(config.jerseyClient)
+                .using(config.getJerseyClient())
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)
                 .build("Test");
@@ -155,6 +155,6 @@ public class SearchTest {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.MINUTES);
 
-        loginClient.logout(access.getCookie());
+        loginClient.logout(access.getCookie(), token);
     }
 }
