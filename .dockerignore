@@ -1,0 +1,7 @@
+target/
+.github/
+.idea/
+Dockerfile
+echo.iml
+LICENCE
+README.md

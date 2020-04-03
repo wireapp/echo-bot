@@ -1,0 +1,43 @@
+name: Release Pipeline
+
+on:
+  release:
+    types: published
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set envs
+        # use latest tag as release version
+        run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
+
+      - name: Build and publish docker image with git tag
+        uses: docker/build-push-action@v1
+        with:
+          repository: wire-bot/echo-bot
+          # login to repo
+          registry: eu.gcr.io
+          # see https://github.com/marketplace/actions/docker-build-push#google-container-registry-gcr
+          username: _json_key
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          # pass release_version
+          build_args: release_version=${{ env.RELEASE_VERSION }}
+          # tag the image with latest git tag
+          tag_with_ref: true
+          # add labels based on the build - see https://github.com/opencontainers/image-spec/blob/master/annotations.md
+          add_git_labels: true
+          # push only if this is tagged release
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
+
+      # Send webhook to Wire using Slack Bot
+      - name: Webhook to Wire
+        uses: 8398a7/action-slack@v2
+        with:
+          status: ${{ job.status }}
+          author_name: Echo Bot Release Pipeline
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.WEBHOOK_RELEASE }}
+        # Notify every release
+        if: always()
