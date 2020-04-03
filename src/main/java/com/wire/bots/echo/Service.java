@@ -31,6 +31,11 @@ public class Service extends Server<Config> {
     }
 
     @Override
+    protected void onRun(Config config, Environment env) {
+        addResource(new VersionResource());
+    }
+
+    @Override
     protected void initialize(Config config, Environment env) {
     }
 
