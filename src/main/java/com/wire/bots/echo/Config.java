@@ -18,7 +18,9 @@
 
 package com.wire.bots.echo;
 
-public class Config extends com.wire.bots.sdk.Configuration {
+import com.wire.bots.sdk.Configuration;
+
+public class Config extends Configuration {
     public String ingress;
     public int portMin;
     public int portMax;
@@ -39,4 +41,5 @@ public class Config extends com.wire.bots.sdk.Configuration {
     public String getModule() {
         return module;
     }
+
 }

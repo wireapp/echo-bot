@@ -26,6 +26,7 @@ new                 Register a new provider.
 auth                Authenticate as a provider.
 get-self            Get the provider profile.
 update-self         Update the provider profile.
+reset-password      Reset your provider password.
 delete-self         Delete the provider.
 list-services       List services.
 new-service         Add a new service.
@@ -70,11 +71,15 @@ authenticate() {
     fi
     auth_email=$(< "$auth_ident/.email")
     auth_password=$(< "$auth_ident/.password")
-    curl -s -XPOST "$zapi/provider/login" \
+    resp=$(curl -s -X POST "$zapi/provider/login" \
         -H 'Content-Type: application/json' \
         -d '{"email":"'"$auth_email"'"
             ,"password":"'"$auth_password"'"}' \
-        -c ./.cookie
+        -c ./.cookie)
+    if [ "$resp" != "" ]; then
+        echo "$resp" | jq .
+        exit 1
+    fi
     echo "$auth_ident" > .current
     echo "Authenticated as $auth_email"
 }
@@ -95,24 +100,29 @@ new_provider() {
     read -p "Provider description: " provider_descr
 
     echo "Creating directory $provider_ident ..."
-    mkdir $provider_ident
+    mkdir "${provider_ident}"
     echo "Registering $provider_name ..."
-    curl -XPOST "$zapi/provider/register" \
+    resp=$(curl -s -X POST "$zapi/provider/register" \
         -H 'Content-Type: application/json' \
         -d '{"name": "'"$provider_name"'",
              "email": "'"$provider_email"'",
              "url": "'"$provider_url"'",
              "description": "'"$provider_descr"'"
-            }' \
-        | jq -r '.password' \
-        > $provider_ident/.password
-    echo "$provider_email" > $provider_ident/.email
+            }')
+    echo "$resp"
+    echo "$resp" | jq -r '.password' > "${provider_ident}/.password"
+    echo "$provider_email" > "${provider_ident}/.email"
     echo "Done. Please check your e-mail."
 }
 
 get_self() {
     check_auth
-    curl -s -XGET "$zapi/provider" -b ./.cookie | jq .
+    resp=$(curl -s -X GET "$zapi/provider" -b ./.cookie)
+    if [[ "$resp" == \{* ]]; then
+        echo "$resp" | jq .
+    else
+        echo "$resp"
+    fi
 }
 
 update_self() {
@@ -136,13 +146,49 @@ update_self() {
         new_descr="\"$new_descr\""
     fi
     echo "Updating provider profile ..."
-    curl -s -XPUT "$zapi/provider" \
+    resp=$(curl -s -X PUT "$zapi/provider" \
         -H 'Content-Type: application/json' \
-        -d '{"name": '"$new_name"',
-             "url": '"$new_url"',
-             "description": '"$new_descr"'
+        -d '{
+             "name": "'"$new_name"'",
+             "url": "'"$new_url"'",
+             "description": "'"$new_descr"'"
             }' \
-        -b ./.cookie
+        -b ./.cookie)
+    if [ "$resp" != "" ]; then
+        echo "$resp" | jq .
+    fi
+    echo "Done"
+}
+
+reset_password() {
+    check_auth
+    auth_ident=$(read_ident)
+    echo "Requesting password reset ..."
+    resp=$(curl -s -X POST "$zapi/provider/password-reset" \
+        -H 'Content-Type: application/json' \
+        -d '{"email": "'"$auth_ident"'"}')
+    label=$(echo "$resp" | jq -r '.label')
+    if [ "$resp" != "" ] && [ "$label" != "code-exists" ]; then
+        echo "$resp" | jq .
+        exit 1
+    fi
+    echo "You should have received an email."
+    read -p "Received password reset key: " reset_key
+    read -p "Received password reset code: " reset_code
+    read -s -p "New password: " new_password
+    echo
+    echo "Completing password reset ..."
+    resp=$(curl -s -X POST "$zapi/provider/password-reset/complete" \
+        -H 'Content-Type: application/json' \
+        -d '{
+             "key": "'"$reset_key"'",
+             "code": "'"$reset_code"'",
+             "password": "'"$new_password"'"
+            }')
+    if [ "$resp" != "" ]; then
+        echo "$resp" | jq .
+        exit 1
+    fi
     echo "Done"
 }
 
@@ -153,7 +199,7 @@ delete_self() {
     read -p "Are you sure (yN)? " yn
     if [ "$yn" == "y" ] ; then
         echo "Deleting provider ..."
-        curl -s -XDELETE "$zapi/provider" \
+        curl -s -X DELETE "$zapi/provider" \
             -H 'Content-Type: application/json' \
             -d '{"password": "'"$auth_password"'"}' \
             -b ./.cookie
@@ -177,7 +223,7 @@ new_service() {
     service_tags=$(echo "$service_tags_str" | sed 's/,/","/g')
 
     echo "Registering service $service_name ..."
-    curl -s -XPOST "$zapi/provider/services" \
+    curl -s -X POST "$zapi/provider/services" \
         -H 'Content-Type: application/json' \
         -d '{"name": "'"$service_name"'",
              "description": "'"$service_descr"'",
@@ -194,12 +240,12 @@ new_service() {
 get_service() {
     check_auth
     read -p "Service ID: " service_id
-    curl -s -XGET "$zapi/provider/services/$service_id" -b ./.cookie | jq .
+    curl -s -X GET "$zapi/provider/services/$service_id" -b ./.cookie | jq .
 }
 
 list_services() {
     check_auth
-    curl -s -XGET "$zapi/provider/services" -b ./.cookie | jq .
+    curl -s -X GET "$zapi/provider/services" -b ./.cookie | jq .
 }
 
 update_service() {
@@ -225,7 +271,7 @@ update_service() {
         new_tags="[\"$new_tags_tmp\"]"
     fi
     echo "Updating service profile ..."
-    curl -s -XPUT "$zapi/provider/services/$service_id" \
+    curl -s -X PUT "$zapi/provider/services/$service_id" \
         -H 'Content-Type: application/json' \
         -d '{"name": '"$new_name"',
              "description": '"$new_descr"',
@@ -263,7 +309,7 @@ update_service_conn() {
     fi
     auth_password=$(read_password)
     echo "Updating service connection data ..."
-    curl -s -XPUT "$zapi/provider/services/$service_id/connection" \
+    curl -s -X PUT "$zapi/provider/services/$service_id/connection" \
         -H 'Content-Type: application/json' \
         -d '{"base_url": '"$new_base_url"',
              "auth_tokens": '"$new_auth_tokens"',
@@ -281,7 +327,7 @@ delete_service() {
     read -p "Service ID: " service_id
     auth_password=$(read_password)
     echo "Deleting service $service_id ..."
-    curl -s -XDELETE "$zapi/provider/services/$service_id" \
+    curl -s -X DELETE "$zapi/provider/services/$service_id" \
         -H 'Content-Type: application/json' \
         -d '{"password": "'"$auth_password"'"}' \
         -b ./.cookie
@@ -296,7 +342,7 @@ new_cert() {
     echo "Writing CSR to $cert_dir/csr.pem"
     openssl req -new -key "$cert_dir/key.pem" -out "$cert_dir/csr.pem"
     echo "Writing self-signed certificate to $cert_dir/cert.pem"
-    openssl x509 -req -days 7300 -in "$cert_dir/csr.pem "-signkey "$cert_dir/key.pem" -out "$cert_dir/cert.pem"
+    openssl x509 -req -days 7300 -in "$cert_dir/csr.pem" -signkey "$cert_dir/key.pem" -out "$cert_dir/cert.pem"
     echo "Writing RSA public key to $cert_dir/pubkey.pem"
     openssl rsa -in "$cert_dir/key.pem" -pubout -out "$cert_dir/pubkey.pem"
 }
@@ -353,6 +399,7 @@ case "$zcmd" in
     "auth") authenticate ;;
     "get-self") get_self ;;
     "update-self") update_self ;;
+    "reset-password") reset_password ;;
     "delete-self") delete_self ;;
     "new-service") new_service ;;
     "list-services") list_services ;;

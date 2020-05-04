@@ -19,32 +19,28 @@
 package com.wire.bots.echo;
 
 import com.wire.blender.Blender;
-import com.wire.bots.sdk.ClientRepo;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.factories.StorageFactory;
+import com.wire.bots.sdk.assets.FileAsset;
+import com.wire.bots.sdk.assets.FileAssetPreview;
+import com.wire.bots.sdk.assets.MessageText;
 import com.wire.bots.sdk.models.*;
 import com.wire.bots.sdk.server.model.Member;
 import com.wire.bots.sdk.server.model.NewBot;
+import com.wire.bots.sdk.server.model.SystemMessage;
 import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.storage.Storage;
+import com.wire.bots.sdk.state.State;
 import com.wire.bots.sdk.tools.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
-    private final ConcurrentHashMap<String, Blender> blenders = new ConcurrentHashMap<>();
-    private final ClientRepo repo;
-    private final StorageFactory storageFactory;
 
-    MessageHandler(ClientRepo repo, StorageFactory storageFactory) {
-        this.repo = repo;
-        this.storageFactory = storageFactory;
-    }
+    /*
+    Only for calling
+     */
+    private final ConcurrentHashMap<UUID, Blender> blenders = new ConcurrentHashMap<>();
 
     /**
      * @param newBot Initialization object for new Bot instance
@@ -58,7 +54,7 @@ public class MessageHandler extends MessageHandlerBase {
      * If FALSE is returned this service declines to create new bot instance for this conversation
      */
     @Override
-    public boolean onNewBot(NewBot newBot) {
+    public boolean onNewBot(NewBot newBot, String token) {
         Logger.info(String.format("onNewBot: bot: %s, username: %s",
                 newBot.id,
                 newBot.origin.handle));
@@ -66,7 +62,7 @@ public class MessageHandler extends MessageHandlerBase {
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
                 Logger.warning("Rejecting NewBot. Provider: %s service: %s",
-                        member.service.provider,
+                        member.service.providerId,
                         member.service.id);
                 return false; // we don't want to be in a conv if other bots are there.
             }
@@ -75,26 +71,59 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
+    public void onNewConversation(WireClient client, SystemMessage message) {
+        try {
+            Logger.info("onNewConversation: bot: %s, conv: %s",
+                    client.getId(),
+                    client.getConversationId());
+
+            String label = "Hello! I am Echo. I echo everything you post here";
+            client.sendText(label);
+        } catch (Exception e) {
+            Logger.error("onNewConversation: %s", e);
+        }
+    }
+
+    @Override
     public void onText(WireClient client, TextMessage msg) {
         try {
-            Logger.info("Received Text. bot: %s, from: %s", client.getId(), msg.getUserId());
+            UUID botId = client.getId();
+            UUID userId = msg.getUserId();
+            Logger.info("Received Text '%s' from: %s, conv: %s, msg: %s @%s",
+                    msg.getText(),
+                    userId,
+                    msg.getConversationId(),
+                    msg.getMessageId(),
+                    msg.getTime());
 
-            // send echo back to user
-            client.sendText("You wrote: " + msg.getText());
+            final User user = client.getUser(msg.getUserId());
+
+            String text = String.format("@%s _%s_", user.handle, msg.getText());
+
+            // send echo back to user, mentioning this user
+            MessageText t = new MessageText(text);
+            t.addMention(userId, 0, user.handle.length() + 1);
+
+            client.send(t);
+
+            Logger.info("Text sent back in conversation: %s, messageId: %s, bot: %s",
+                    client.getConversationId(),
+                    t.getMessageId(),
+                    botId);
         } catch (Exception e) {
             e.printStackTrace();
+            Logger.error("onText: %s", e);
         }
     }
 
     @Override
     public void onImage(WireClient client, ImageMessage msg) {
         try {
-            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d, tag: %s",
+            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d",
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
-                    msg.getWidth(),
-                    msg.getTag()
+                    msg.getWidth()
             );
 
             // download this image from Wire server
@@ -106,7 +135,7 @@ public class MessageHandler extends MessageHandlerBase {
             // echo this image back to user
             client.sendPicture(img, msg.getMimeType());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onImage: %s", e);
         }
     }
 
@@ -132,7 +161,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getDuration());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onAudio: %s", e);
         }
     }
 
@@ -160,7 +189,16 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onVideo: %s", e);
+        }
+    }
+
+    @Override
+    public void onText(WireClient client, EphemeralTextMessage msg) {
+        try {
+            client.sendText("You wrote: " + msg.getText(), msg.getExpireAfterMillis());
+        } catch (Exception e) {
+            Logger.error("onEphemeralText: %s", e);
         }
     }
 
@@ -173,49 +211,36 @@ public class MessageHandler extends MessageHandlerBase {
                     attach.getSize() / 1024
             );
 
-            // download file from Wire servers
-            byte[] bytes = client.downloadAsset(attach.getAssetKey(),
-                    attach.getAssetToken(),
-                    attach.getSha256(),
-                    attach.getOtrKey());
-
-            // save it locally
-            File file = new File(attach.getName());
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                fos.write(bytes);
-            }
-
             // echo this file back to user
-            client.sendFile(file, attach.getMimeType());
+            UUID messageId = UUID.randomUUID();
+            FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
+            FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), messageId);
 
-            // we don't need this file anymore.
-            if (!file.delete())
-                Logger.warning("Failed to delete file: %s", file.getPath());
+            client.sendDirectFile(preview, asset, attach.getUserId());
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("onAttachment: %s", e);
         }
     }
 
     @Override
-    public void onNewConversation(WireClient client) {
-        try {
-            Logger.info("onNewConversation: bot: %s, conv: %s",
-                    client.getId(),
-                    client.getConversationId());
-
-            String label = "Hello! I am Echo. I echo everything you write";
-            client.sendText(label);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
+    public void onMemberLeave(WireClient client, SystemMessage msg) {
+        for (UUID userId : msg.users) {
+            Logger.info("onMemberLeave: user: %s, bot: %s",
+                    userId,
+                    client.getId());
         }
     }
 
     @Override
-    public void onMemberJoin(WireClient client, ArrayList<String> userIds) {
+    public void onBotRemoved(UUID botId, SystemMessage msg) {
+        Logger.info("Bot: %s got removed by %s from the conversation :(", botId, msg.from);
+    }
+
+    @Override
+    public void onMemberJoin(WireClient client, SystemMessage msg) {
         try {
-            Collection<User> users = client.getUsers(userIds);
-            for (User user : users) {
+            for (UUID userId : msg.users) {
+                User user = client.getUser(userId);
                 Logger.info("onMemberJoin: bot: %s, user: %s/%s @%s",
                         client.getId(),
                         user.id,
@@ -227,43 +252,43 @@ public class MessageHandler extends MessageHandlerBase {
                 client.sendText("Hi there " + user.name);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error(e.getMessage());
+            Logger.error("onMemberJoin: %s", e);
         }
     }
 
     @Override
-    public void onMemberLeave(WireClient client, ArrayList<String> userIds) {
-        Logger.info("onMemberLeave: users: %s, bot: %s",
-                userIds,
-                client.getId());
+    public void onConfirmation(WireClient client, ConfirmationMessage msg) {
+        Logger.info("onConfirmation: bot: %s. Status for message: %s, sent to user: %s:%s is now: %s",
+                client.getId(),
+                msg.getConfirmationMessageId(),
+                msg.getUserId(),
+                msg.getClientId(),
+                msg.getType());
     }
 
-    @Override
-    public void onBotRemoved(String botId) {
-        Logger.info("Bot: %s got removed from the conversation :(", botId);
-    }
+    // ***** Calling *****
 
     @Override
-    public void onCalling(WireClient client, String userId, String clientId, String content) {
-        String botId = client.getId();
+    public void onCalling(WireClient client, CallingMessage msg) {
+        UUID botId = client.getId();
         Blender blender = getBlender(botId);
-        blender.recvMessage(botId, userId, clientId, content);
+        blender.recvMessage(botId.toString(), msg.getUserId().toString(), msg.getClientId(), msg.getContent());
     }
 
-    private Blender getBlender(String botId) {
+    private Blender getBlender(UUID botId) {
         return blenders.computeIfAbsent(botId, k -> {
             try {
-                String module = Service.CONFIG.getModule();
-                String ingress = Service.CONFIG.getIngress();
-                int portMin = Service.CONFIG.getPortMin();
-                int portMax = Service.CONFIG.getPortMax();
+                Config config = Service.instance.getConfig();
+                String module = config.getModule();
+                String ingress = config.getIngress();
+                int portMin = config.getPortMin();
+                int portMax = config.getPortMax();
 
-                Storage storage = storageFactory.create(botId);
-                NewBot state = storage.getState();
+                State state = Service.instance.getStorageFactory().create(botId);
+                NewBot bot = state.getState();
                 Blender blender = new Blender();
-                blender.init(module, botId, state.client, ingress, portMin, portMax);
-                blender.registerListener(new CallListener(repo));
+                blender.init(module, botId.toString(), bot.client, ingress, portMin, portMax);
+                blender.registerListener(new CallListener(Service.instance.getRepo()));
                 return blender;
             } catch (Exception e) {
                 Logger.error(e.toString());
@@ -271,4 +296,5 @@ public class MessageHandler extends MessageHandlerBase {
             }
         });
     }
+    // ***** Calling ****
 }

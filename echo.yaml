@@ -1,0 +1,58 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${HTTP_PORT:-8080}
+
+  adminConnectors:
+    - type: http
+      port: ${ADMIN_PORT:-8081}
+
+  requestLog:
+    appenders:
+      - type: console
+        filterFactories:
+          - type: status-filter-factory
+
+# Log lever: INFO | DEBUG | ERROR
+logging:
+  level: INFO
+  loggers:
+    "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
+
+apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}
+wsHost:  ${WIRE_WS_HOST:-wss://prod-nginz-ssl.wire.com}
+
+# Calling stuff (optional)
+module: echo
+portMin: 32768
+portMax: 32867
+ingress: ${INGRESS:-localhost}
+
+database:
+  driverClass: ${DB_DRIVER:-org.postgresql.Driver}  # Can be: fs | redis | org.postgresql.Driver (default)
+  url: ${DB_URL:-jdbc:postgresql://localhost/echo}  # for File System it should be absolute path like: file:///var/echo/data or null
+  user: ${DB_USER:-}
+  password: ${DB_PASSWORD:-}
+
+# To run in user mode pass Email and Password. Email/password can be any Wire credentials
+#userMode:
+#  email: ${EMAIL:-}
+#  password: ${PASSWORD:-}
+
+jerseyClient:
+  timeout: 4s
+  connectionTimeout: 2s
+  connectionRequestTimeout: 2s
+  keepAlive: 0ms
+  retries: 3
+  userAgent: Echo
+
+  tls:
+    protocol: TLSv1.2
+    provider: SunJSSE
+    verifyHostname: false
+    keyStoreType: JKS
+    trustSelfSignedCertificates: true
+    supportedProtocols:
+      - TLSv1.1
+      - TLSv1.2

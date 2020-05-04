@@ -5,9 +5,12 @@ language: java
 services:
 - docker
 
+install: true
+script: mvn package -DskipTests=true
+
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
       docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-      docker build -t dejankovacevic/echo-bot:latest . ;
-      docker push dejankovacevic/echo-bot ;
+      docker build -t $DOCKER_USERNAME/echo-bot:latest . ;
+      docker push $DOCKER_USERNAME/echo-bot ;
     fi
