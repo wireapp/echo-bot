@@ -30,15 +30,15 @@ portMax: 32867
 ingress: ${INGRESS:-localhost}
 
 database:
-  driverClass: ${DB_DRIVER:-org.postgresql.Driver}
+  driverClass: ${DB_DRIVER:-org.postgresql.Driver}    # Other RDB can used also
   url: ${DB_URL:-jdbc:postgresql://localhost/echo}
   user: ${DB_USER:-}
   password: ${DB_PASSWORD:-}
 
-# To run in user mode pass Email and Password. Email/password can be any Wire credentials
-#userMode:
-#  email: ${EMAIL:-}
-#  password: ${PASSWORD:-}
+  # To run in user mode pass Email and Password. Email/password can be any Wire credentials
+  #userMode:
+  #  email: ${EMAIL:-}
+  #  password: ${PASSWORD:-}
   #  sync: false
 
 jerseyClient:
