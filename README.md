@@ -38,6 +38,7 @@ On Ubuntu copy:
  - libcryptobox-jni.so
 
 to some dir and reference that dir in java run command like:
-```
-java -jar echo.jar server echo.yaml -Ddw.auth=<YOUR SERVICE TOKEN>
+```               
+export SERVICE_TOKEN=<YOUR SERVICE TOKEN>
+java -jar echo.jar server echo.yaml 
 ```

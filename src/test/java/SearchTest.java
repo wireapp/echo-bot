@@ -14,6 +14,7 @@ import com.wire.bots.sdk.user.LoginClient;
 import com.wire.bots.sdk.user.UserClient;
 import com.wire.bots.sdk.user.model.Access;
 import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.junit.ClassRule;
@@ -35,7 +36,8 @@ import java.util.concurrent.TimeUnit;
 */
 public class SearchTest {
     @ClassRule
-    public static final DropwizardAppRule<Config> app = new DropwizardAppRule<>(Service.class, "echo.yaml");
+    public static final DropwizardAppRule<Config> app = new DropwizardAppRule<>(Service.class, "echo.yaml",
+            ConfigOverride.config("token", "dummy"));
     private static Client client;
 
     private static void connectService(UUID teamId, SearchClient.Service service, String token, int count) {

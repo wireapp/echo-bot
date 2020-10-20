@@ -19,7 +19,7 @@ logging:
   loggers:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
-auth: ${SERVICE_TOKEN:-}
+token: ${SERVICE_TOKEN:-}
 apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}
 wsHost:  ${WIRE_WS_HOST:-wss://prod-nginz-ssl.wire.com}
 
