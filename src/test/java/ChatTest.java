@@ -5,6 +5,7 @@ import com.wire.bots.sdk.tools.Logger;
 import com.wire.bots.sdk.user.API;
 import com.wire.bots.sdk.user.LoginClient;
 import com.wire.bots.sdk.user.model.Access;
+import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -17,7 +18,9 @@ import java.util.UUID;
 
 public class ChatTest {
     @ClassRule
-    public static final DropwizardAppRule<Config> role = new DropwizardAppRule<>(Service.class, "echo.yaml");
+    public static final DropwizardAppRule<Config> role = new DropwizardAppRule<>(Service.class,
+            "echo.yaml",
+            ConfigOverride.config("token", "dummy"));
 
     @Test
     public void addServiceTest() throws Exception {
