@@ -3,9 +3,6 @@ import com.wire.bots.echo.Config;
 import com.wire.bots.echo.Service;
 import com.wire.bots.sdk.WireClient;
 import com.wire.bots.sdk.crypto.Crypto;
-import com.wire.bots.sdk.crypto.CryptoDatabase;
-import com.wire.bots.sdk.crypto.storage.RedisStorage;
-import com.wire.bots.sdk.factories.CryptoFactory;
 import com.wire.bots.sdk.server.model.Conversation;
 import com.wire.bots.sdk.server.model.User;
 import com.wire.bots.sdk.tools.Logger;
@@ -30,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 /*
     Sign in using Wire credentials (email/password).
-    Search for service named: args[0]
+    Search for service named: System.getProperty("keyword")
     Create new conversation and add this service
     Send some text in this conversation
 */
@@ -72,6 +69,10 @@ public class SearchTest {
     @Test
     public void addServiceTest() throws Exception {
         Config config = app.getConfiguration();
+        Service application = app.getApplication();
+
+        if (!config.isUserMode())
+            throw new RuntimeException("This test needs to be run in User Mode. Check your config");
 
         final String email = config.userMode.email;
         final String password = config.userMode.password;
@@ -94,9 +95,7 @@ public class SearchTest {
 
         Logger.info("Logged in as: %s, id: %s", email, userId);
 
-        RedisStorage storage = new RedisStorage(config.db.host, config.db.port, config.db.password);
-        CryptoFactory cryptoFactory = botId -> new CryptoDatabase(botId, storage);
-        Crypto crypto = cryptoFactory.create(userId);
+        Crypto crypto = application.getCryptoFactory().create(userId);
 
         SearchClient.Service service;
 

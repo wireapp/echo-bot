@@ -25,11 +25,13 @@ public class ChatTest {
     @Test
     public void addServiceTest() throws Exception {
         final Config config = role.getConfiguration();
+        Service service = role.getApplication();
+
+        if (!config.isUserMode())
+            throw new RuntimeException("This test needs to be run in User Mode. Check your config");
 
         final String email = config.userMode.email;
         final String password = config.userMode.password;
-
-        Service service = role.getApplication();
 
         Client client = service.getClient();
 
