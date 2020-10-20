@@ -21,6 +21,8 @@ package com.wire.bots.echo;
 import com.wire.bots.sdk.Configuration;
 
 public class Config extends Configuration {
+    public String auth;
+
     public String ingress;
     public int portMin;
     public int portMax;

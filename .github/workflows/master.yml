@@ -1,0 +1,50 @@
+name: Docker Latest build
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  DOCKER_IMAGE: wire-bot/echo-bot
+
+jobs:
+  publish:
+    name: Build and publish docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set Release Version
+        # use latest tag as release version
+        run: echo ::set-env name=RELEASE_VERSION::${GITHUB_SHA}
+
+      - name: Build docker image, push
+        uses: docker/build-push-action@v1
+        with:
+          # set docker image
+          repository: ${{ env.DOCKER_IMAGE }}
+          # use GCR repository
+          registry: eu.gcr.io
+          # see https://github.com/marketplace/actions/docker-build-push#google-container-registry-gcr
+          username: _json_key
+          password: ${{ secrets.GCR_ACCESS_JSON }}
+          # pass release_version
+          build_args: release_version=${{ env.RELEASE_VERSION }}
+          # tag the image with name of the branch - latest as this is master
+          tag_with_ref: true
+          # add labels based on the build - see https://github.com/opencontainers/image-spec/blob/master/annotations.md
+          add_git_labels: true
+          # push
+          push: true
+
+      # Send webhook to Wire using Slack Bot
+      - name: Webhook to Wire
+        uses: 8398a7/action-slack@v2
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ env.DOCKER_IMAGE }} master branch build
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.WEBHOOK_CI }}
+        # Send message only if previous step failed
+        if: failure()

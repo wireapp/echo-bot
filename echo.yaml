@@ -19,6 +19,7 @@ logging:
   loggers:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
+auth: ${SERVICE_TOKEN:-}
 apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}
 wsHost:  ${WIRE_WS_HOST:-wss://prod-nginz-ssl.wire.com}
 
@@ -29,8 +30,8 @@ portMax: 32867
 ingress: ${INGRESS:-localhost}
 
 database:
-  driverClass: ${DB_DRIVER:-org.postgresql.Driver}  # Can be: fs | redis | org.postgresql.Driver (default)
-  url: ${DB_URL:-jdbc:postgresql://localhost/echo}  # for File System it should be absolute path like: file:///var/echo/data or null
+  driverClass: ${DB_DRIVER:-org.postgresql.Driver}
+  url: ${DB_URL:-jdbc:postgresql://localhost/echo}
   user: ${DB_USER:-}
   password: ${DB_PASSWORD:-}
 
@@ -38,14 +39,15 @@ database:
 #userMode:
 #  email: ${EMAIL:-}
 #  password: ${PASSWORD:-}
+  #  sync: false
 
 jerseyClient:
-  timeout: 4s
-  connectionTimeout: 2s
-  connectionRequestTimeout: 2s
+  timeout: 20s
+  connectionTimeout: 10s
+  connectionRequestTimeout: 10s
   keepAlive: 0ms
   retries: 3
-  userAgent: Echo
+  userAgent: echo bot
 
   tls:
     protocol: TLSv1.2
