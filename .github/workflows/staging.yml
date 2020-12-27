@@ -6,7 +6,9 @@ on:
       - staging
 
 env:
+  # set docker image for the service - i.e. "wire-bot/poll"
   DOCKER_IMAGE: wire-bot/echo-bot
+  # name of the service in the Dagobah - the value for label name, i.e. "polls"
   SERVICE_NAME: echo
 
 jobs:
@@ -67,7 +69,7 @@ jobs:
       # Get the GKE credentials so we can deploy to the cluster
       - name: Obtain k8s credentials
         env:
-          GKE_CLUSTER: anayotto
+          GKE_CLUSTER: dagobah
           GKE_ZONE: europe-west1-c
         run: |
           gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
@@ -77,8 +79,8 @@ jobs:
         env:
           SERVICE: ${{ env.SERVICE_NAME }}
         run: |
-          kubectl delete pod -l name=$SERVICE -n staging
-          kubectl describe pod -l name=$SERVICE -n staging
+          kubectl delete pod -l app=$SERVICE -n staging
+          kubectl describe pod -l app=$SERVICE -n staging
 
       # Send webhook to Wire using Slack Bot
       - name: Webhook to Wire
