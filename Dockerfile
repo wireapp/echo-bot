@@ -1,4 +1,4 @@
-FROM docker.io/maven AS build-env
+FROM maven:3.6.3-jdk-8-slim AS build-env
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . ./
 RUN mvn -Dmaven.test.skip=true package
 
 # runtime stage
-FROM dejankovacevic/bots.runtime:2.10.3
+FROM dejankovacevic/bots.runtime:2.10.5
 
 WORKDIR /opt/echo
 

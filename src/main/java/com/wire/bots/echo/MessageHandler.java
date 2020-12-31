@@ -19,18 +19,16 @@
 package com.wire.bots.echo;
 
 import com.wire.blender.Blender;
-import com.wire.bots.sdk.MessageHandlerBase;
-import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.assets.FileAsset;
-import com.wire.bots.sdk.assets.FileAssetPreview;
-import com.wire.bots.sdk.assets.MessageText;
-import com.wire.bots.sdk.models.*;
-import com.wire.bots.sdk.server.model.Member;
-import com.wire.bots.sdk.server.model.NewBot;
-import com.wire.bots.sdk.server.model.SystemMessage;
-import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.state.State;
-import com.wire.bots.sdk.tools.Logger;
+import com.wire.xenon.MessageHandlerBase;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.assets.*;
+import com.wire.xenon.backend.models.Member;
+import com.wire.xenon.backend.models.NewBot;
+import com.wire.xenon.backend.models.SystemMessage;
+import com.wire.xenon.backend.models.User;
+import com.wire.xenon.models.*;
+import com.wire.xenon.state.State;
+import com.wire.xenon.tools.Logger;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,7 +76,7 @@ public class MessageHandler extends MessageHandlerBase {
                     client.getConversationId());
 
             String label = "Hello! I am Echo. I echo everything you post here";
-            client.sendText(label);
+            client.send(new MessageText(label));
         } catch (Exception e) {
             Logger.error("onNewConversation: %s", e);
         }
@@ -133,7 +131,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // echo this image back to user
-            client.sendPicture(img, msg.getMimeType());
+            client.send(new Picture(img, msg.getMimeType()));
         } catch (Exception e) {
             Logger.error("onImage: %s", e);
         }
@@ -156,10 +154,9 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // echo this audio back to user
-            client.sendAudio(audio,
-                    msg.getName(),
-                    msg.getMimeType(),
-                    msg.getDuration());
+            final AudioPreview preview = new AudioPreview(audio, msg.getName(), msg.getMimeType(), msg.getDuration());
+            final AudioAsset audioAsset = new AudioAsset(audio, preview);
+            client.send(audioAsset);
         } catch (Exception e) {
             Logger.error("onAudio: %s", e);
         }
@@ -181,13 +178,16 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSha256(),
                     msg.getOtrKey());
 
+            // TODO check that this actually work
             // echo this video back to user
-            client.sendVideo(video,
-                    msg.getName(),
-                    msg.getMimeType(),
-                    msg.getDuration(),
-                    msg.getHeight(),
-                    msg.getWidth());
+            final VideoAsset videoAsset = new VideoAsset(video, msg.getMimeType(), msg.getMessageId());
+            client.send(videoAsset);
+            // echo preview
+            final VideoPreview preview = new VideoPreview(
+                    msg.getName(), msg.getMimeType(), msg.getDuration(), msg.getHeight(),
+                    msg.getWidth(), (int) msg.getSize(), msg.getMessageId()
+            );
+            client.send(preview);
         } catch (Exception e) {
             Logger.error("onVideo: %s", e);
         }
@@ -196,7 +196,9 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onText(WireClient client, EphemeralTextMessage msg) {
         try {
-            client.sendText("You wrote: " + msg.getText(), msg.getExpireAfterMillis());
+            final MessageEphemeral message = new MessageEphemeral(msg.getExpireAfterMillis());
+            message.setText("You wrote: " + msg.getText());
+            client.send(message);
         } catch (Exception e) {
             Logger.error("onEphemeralText: %s", e);
         }
@@ -251,7 +253,7 @@ public class MessageHandler extends MessageHandlerBase {
                 );
 
                 // say Hi to new participant
-                client.sendText("Hi there " + user.name);
+                client.send(new MessageText("Hi there " + user.name));
             }
         } catch (Exception e) {
             Logger.error("onMemberJoin: %s", e);

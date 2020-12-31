@@ -18,7 +18,8 @@
 
 package com.wire.bots.echo;
 
-import com.wire.bots.sdk.Configuration;
+
+import com.wire.lithium.Configuration;
 
 public class Config extends Configuration {
     // Optional: Used only for calling feature

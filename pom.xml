@@ -9,7 +9,7 @@
     <version>1.7.0</version>
 
     <properties>
-        <lithium.version>2.37.1</lithium.version>
+        <lithium.version>3.0.1</lithium.version>
         <dropwizard.version>2.0.11</dropwizard.version>
         <maven.test.skip>true</maven.test.skip>
     </properties>
@@ -26,7 +26,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.wire.bots</groupId>
+            <groupId>com.wire</groupId>
             <artifactId>lithium</artifactId>
             <version>${lithium.version}</version>
         </dependency>
