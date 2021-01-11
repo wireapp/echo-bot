@@ -10,8 +10,6 @@
 
     <properties>
         <lithium.version>3.0.3</lithium.version>
-        <dropwizard.version>2.0.17</dropwizard.version>
-        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <repositories>
@@ -29,17 +27,6 @@
             <groupId>com.wire</groupId>
             <artifactId>lithium</artifactId>
             <version>${lithium.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-testing</artifactId>
-            <version>${dropwizard.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
