@@ -178,7 +178,6 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSha256(),
                     msg.getOtrKey());
 
-            // TODO check that this actually work
             // echo this video back to user
             final VideoAsset videoAsset = new VideoAsset(video, msg.getMimeType(), msg.getMessageId());
             client.send(videoAsset);
