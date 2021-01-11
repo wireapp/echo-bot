@@ -9,8 +9,8 @@
     <version>1.7.0</version>
 
     <properties>
-        <lithium.version>3.0.1</lithium.version>
-        <dropwizard.version>2.0.11</dropwizard.version>
+        <lithium.version>3.0.3</lithium.version>
+        <dropwizard.version>2.0.17</dropwizard.version>
         <maven.test.skip>true</maven.test.skip>
     </properties>
 
