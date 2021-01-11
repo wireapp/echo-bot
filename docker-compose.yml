@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - release_version=docker-compose
+    image: eu.gcr.io/wire-bot/echo-bot
+    ports:
+      - 8080:8080
+      - 8081:8081
+      - 8082:8082
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/echo-bot
+      - DB_USER=echo-bot
+      - DB_PASSWORD=echo-bot
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13.1
+    # just for local development
+    environment:
+      - POSTGRES_USER=echo-bot
+      - POSTGRES_PASSWORD=echo-bot
+      - POSTGRES_DB=echo-bot
+    ports:
+      - 5432:5432
+    volumes:
+      - echo-bot-db:/var/lib/postgresql/data/
+
+volumes:
+  echo-bot-db:

@@ -1,9 +1,10 @@
 package com.wire.bots.echo;
 
 import com.wire.blender.BlenderListener;
-import com.wire.bots.sdk.ClientRepo;
-import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.tools.Logger;
+import com.wire.lithium.ClientRepo;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.assets.Calling;
+import com.wire.xenon.tools.Logger;
 
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +38,7 @@ public class CallListener implements BlenderListener {
 
         executor.execute(() -> {
             try (WireClient client = repo.getClient(UUID.fromString(id))) {
-                client.call(content);
+                client.send(new Calling(content));
             } catch (Exception e) {
                 Logger.error("onCallingMessage: %s", e);
             }

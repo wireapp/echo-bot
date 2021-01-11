@@ -22,8 +22,7 @@ logging:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
 token: ${SERVICE_TOKEN:-}
-apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}
-wsHost:  ${WIRE_WS_HOST:-wss://prod-nginz-ssl.wire.com}
+apiHost: ${WIRE_API_HOST:-https://staging-nginz-https.zinfra.io}
 
 # Calling stuff (optional)
 module: echo
@@ -36,12 +35,6 @@ database:
   url: ${DB_URL:-jdbc:postgresql://localhost/echo}
   user: ${DB_USER:-}
   password: ${DB_PASSWORD:-}
-
-  # To run in user mode pass Email and Password. Email/password can be any Wire credentials
-  #userMode:
-  #  email: ${EMAIL:-}
-  #  password: ${PASSWORD:-}
-  #  sync: false
 
 jerseyClient:
   timeout: 20s
