@@ -165,6 +165,11 @@ public class MessageHandler extends MessageHandlerBase {
             // echo this audio back to user
             final AudioPreview preview = new AudioPreview(audio, msg.getName(), msg.getMimeType(), msg.getDuration());
             final AudioAsset audioAsset = new AudioAsset(audio, preview);
+
+            final AssetKey assetKey = client.uploadAsset(audioAsset);
+            audioAsset.setAssetKey(assetKey.key);
+            audioAsset.setAssetToken(assetKey.token);
+
             client.send(audioAsset);
         } catch (Exception e) {
             Logger.error("onAudio: %s", e);
@@ -189,12 +194,23 @@ public class MessageHandler extends MessageHandlerBase {
 
             // echo this video back to user
             final VideoAsset videoAsset = new VideoAsset(video, msg.getMimeType(), msg.getMessageId());
+            final AssetKey assetKey = client.uploadAsset(videoAsset);
+            videoAsset.setAssetKey(assetKey.key);
+            videoAsset.setAssetToken(assetKey.token);
+
             client.send(videoAsset);
+
             // echo preview
             final VideoPreview preview = new VideoPreview(
-                    msg.getName(), msg.getMimeType(), msg.getDuration(), msg.getHeight(),
-                    msg.getWidth(), (int) msg.getSize(), msg.getMessageId()
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration(),
+                    msg.getHeight(),
+                    msg.getWidth(),
+                    (int) msg.getSize(),
+                    msg.getMessageId()
             );
+
             client.send(preview);
         } catch (Exception e) {
             Logger.error("onVideo: %s", e);
@@ -226,8 +242,12 @@ public class MessageHandler extends MessageHandlerBase {
             FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
             FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), attach.getOtrKey(), messageId);
 
-            client.send(preview, attach.getUserId());
-            client.send(asset, attach.getUserId());
+            final AssetKey assetKey = client.uploadAsset(asset);
+            asset.setAssetKey(assetKey.key);
+            asset.setAssetToken(assetKey.token);
+
+            client.send(preview);
+            client.send(asset);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error("onAttachment: %s", e);
