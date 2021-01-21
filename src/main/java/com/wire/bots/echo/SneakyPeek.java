@@ -19,28 +19,15 @@
 package com.wire.bots.echo;
 
 import com.waz.model.Messages;
-import com.wire.xenon.assets.IAsset;
 import com.wire.xenon.assets.IGeneric;
-import com.wire.xenon.tools.Util;
 
-import java.security.SecureRandom;
 import java.util.UUID;
 
-public class SneakyPeek implements IGeneric, IAsset {
-    static private final SecureRandom random = new SecureRandom();
-
+public class SneakyPeek implements IGeneric {
     private final UUID messageId;
-    private final byte[] encrypt;
 
-    public SneakyPeek(UUID messageId) throws Exception {
+    public SneakyPeek(UUID messageId) {
         this.messageId = messageId;
-        this.encrypt = encrypt(newOtrKey(), newOtrKey());
-    }
-
-    private static byte[] newOtrKey() {
-        byte[] otrKey = new byte[32];
-        random.nextBytes(otrKey);
-        return otrKey;
     }
 
     @Override
@@ -56,33 +43,8 @@ public class SneakyPeek implements IGeneric, IAsset {
     }
 
     @Override
-    public String getMimeType() {
-        return "image/jpeg";
-    }
-
-    @Override
-    public String getRetention() {
-        return "expiring";
-    }
-
-    @Override
-    public byte[] getEncryptedData() {
-        return encrypt;
-    }
-
-    @Override
-    public boolean isPublic() {
-        return false;
-    }
-
-    @Override
     public UUID getMessageId() {
         return messageId;
     }
 
-    private byte[] encrypt(byte[] bytes, byte[] otrKey) throws Exception {
-        byte[] iv = new byte[16];
-        random.nextBytes(iv);
-        return Util.encrypt(otrKey, bytes, iv);
-    }
 }

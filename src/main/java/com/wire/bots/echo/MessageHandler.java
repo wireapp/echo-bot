@@ -309,7 +309,12 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getTime());
 
             final UUID messageId = UUID.randomUUID();
-            client.send(new SneakyPeek(messageId), userId);
+            final FileAssetPreview preview = new FileAssetPreview("SneakyPeeky", "application/octet-stream", 123, messageId);
+
+            final SneakyPeek sneakyPeek = new SneakyPeek(messageId);
+
+            client.send(preview);
+            client.send(sneakyPeek);
 
             Logger.info("Sent Sneak peek to user: %s, conv: %s, msgId: %s",
                     userId,
