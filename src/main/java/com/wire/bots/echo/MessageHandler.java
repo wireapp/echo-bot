@@ -309,25 +309,14 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getTime());
 
             final UUID messageId = UUID.randomUUID();
-            final FileAssetPreview preview = new FileAssetPreview("SneakyPeeky", "application/octet-stream", 123, messageId);
-
             final SneakyPeek sneakyPeek = new SneakyPeek(messageId);
 
-            client.send(preview);
             client.send(sneakyPeek);
 
             Logger.info("Sent Sneak peek to user: %s, conv: %s, msgId: %s",
                     userId,
                     msg.getConversationId(),
                     messageId);
-
-            Ping ping = new Ping(true);
-            client.send(ping);
-            Logger.info("Sent Ping to user: %s, conv: %s, msgId: %s",
-                    userId,
-                    msg.getConversationId(),
-                    ping.getMessageId());
-
         } catch (Exception e) {
             Logger.error("onPing: %s", e);
         }
