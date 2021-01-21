@@ -22,7 +22,7 @@ logging:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
 
 token: ${SERVICE_TOKEN:-}
-apiHost: ${WIRE_API_HOST:-https://staging-nginz-https.zinfra.io}
+apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}  # For staging env: https://staging-nginz-https.zinfra.io
 
 # Calling stuff (optional)
 module: echo

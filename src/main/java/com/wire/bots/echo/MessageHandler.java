@@ -125,13 +125,22 @@ public class MessageHandler extends MessageHandlerBase {
             );
 
             // download this image from Wire server
-            byte[] img = client.downloadAsset(msg.getAssetKey(),
+            byte[] img = client.downloadAsset(
+                    msg.getAssetKey(),
                     msg.getAssetToken(),
                     msg.getSha256(),
                     msg.getOtrKey());
 
             // echo this image back to user
-            client.send(new Picture(img, msg.getMimeType()));
+            final Picture picture = new Picture(img, msg.getMimeType());
+
+            // first we upload this picture
+            final AssetKey assetKey = client.uploadAsset(picture);
+            picture.setAssetKey(assetKey.key);
+            picture.setAssetToken(assetKey.token);
+
+            // post this picture on Wire
+            client.send(picture);
         } catch (Exception e) {
             Logger.error("onImage: %s", e);
         }
