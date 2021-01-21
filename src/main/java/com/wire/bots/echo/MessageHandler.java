@@ -298,6 +298,21 @@ public class MessageHandler extends MessageHandlerBase {
                 msg.getType());
     }
 
+    @Override
+    public void onPing(WireClient client, PingMessage msg) {
+        try {
+            UUID userId = msg.getUserId();
+            Logger.info("Received a Ping from: %s, conv: %s, msgId: %s @%s",
+                    userId,
+                    msg.getConversationId(),
+                    msg.getMessageId(),
+                    msg.getTime());
+
+            client.send(new SneakyPeek(UUID.randomUUID()));
+        } catch (Exception e) {
+            Logger.error("onPing: %s", e);
+        }
+    }
     // ***** Calling *****
 
     @Override
