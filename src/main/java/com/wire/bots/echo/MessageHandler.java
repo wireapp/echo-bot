@@ -57,6 +57,7 @@ public class MessageHandler extends MessageHandlerBase {
                 newBot.id,
                 newBot.origin.handle));
 
+        // Assure there are no other bots in this conversation. If yes then refuse to join
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
                 Logger.warning("Rejecting NewBot. Provider: %s service: %s",
@@ -121,8 +122,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
-                    msg.getWidth()
-            );
+                    msg.getWidth());
 
             // download this image from Wire server
             byte[] img = client.downloadAsset(
@@ -208,8 +208,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth(),
                     (int) msg.getSize(),
-                    msg.getMessageId()
-            );
+                    msg.getMessageId());
 
             client.send(preview);
         } catch (Exception e) {
@@ -231,22 +230,34 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
-            Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
+            final String mimeType = attach.getMimeType();
+
+            Logger.info("Received Attachment: filename: %s, type: %s, size: %,d KB",
                     attach.getName(),
-                    attach.getMimeType(),
-                    attach.getSize() / 1024
-            );
+                    mimeType,
+                    attach.getSize() / 1024);
+
+            // download this attachment
+            final byte[] bytes = client.downloadAsset(
+                    attach.getAssetKey(),
+                    attach.getAssetToken(),
+                    attach.getSha256(),
+                    attach.getOtrKey());
 
             // echo this file back to user
-            UUID messageId = UUID.randomUUID();
-            FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
-            FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), attach.getOtrKey(), messageId);
+            FileAsset asset = new FileAsset(bytes, mimeType, UUID.randomUUID());
 
+            // upload the content of the file
             final AssetKey assetKey = client.uploadAsset(asset);
             asset.setAssetKey(assetKey.key);
             asset.setAssetToken(assetKey.token);
 
+            // send the preview
+            String filename = String.format("echo_%s", attach.getName());
+            FileAssetPreview preview = new FileAssetPreview(filename, mimeType, bytes.length, asset.getMessageId());
             client.send(preview);
+
+            // send the file
             client.send(asset);
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,8 +288,7 @@ public class MessageHandler extends MessageHandlerBase {
                         client.getId(),
                         user.id,
                         user.name,
-                        user.handle
-                );
+                        user.handle);
 
                 // say Hi to new participant
                 client.send(new MessageText("Hi there " + user.name));
@@ -308,15 +318,8 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMessageId(),
                     msg.getTime());
 
-            final UUID messageId = UUID.randomUUID();
-            final SneakyPeek sneakyPeek = new SneakyPeek(messageId);
-
-            client.send(sneakyPeek);
-
-            Logger.info("Sent Sneak peek to user: %s, conv: %s, msgId: %s",
-                    userId,
-                    msg.getConversationId(),
-                    messageId);
+            // send Ping back
+            client.send(new Ping());
         } catch (Exception e) {
             Logger.error("onPing: %s", e);
         }
