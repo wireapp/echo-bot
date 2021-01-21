@@ -320,6 +320,14 @@ public class MessageHandler extends MessageHandlerBase {
                     userId,
                     msg.getConversationId(),
                     messageId);
+
+            Ping ping = new Ping(true);
+            client.send(ping);
+            Logger.info("Sent Ping to user: %s, conv: %s, msgId: %s",
+                    userId,
+                    msg.getConversationId(),
+                    ping.getMessageId());
+
         } catch (Exception e) {
             Logger.error("onPing: %s", e);
         }
