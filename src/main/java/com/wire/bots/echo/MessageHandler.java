@@ -308,7 +308,13 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMessageId(),
                     msg.getTime());
 
-            client.send(new SneakyPeek(UUID.randomUUID()));
+            final UUID messageId = UUID.randomUUID();
+            client.send(new SneakyPeek(messageId), userId);
+
+            Logger.info("Sent Sneak peek to user: %s, conv: %s, msgId: %s",
+                    userId,
+                    msg.getConversationId(),
+                    messageId);
         } catch (Exception e) {
             Logger.error("onPing: %s", e);
         }
