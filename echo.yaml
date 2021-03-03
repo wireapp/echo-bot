@@ -20,6 +20,7 @@ logging:
     - type: ${APPENDER_TYPE:-console}
   loggers:
     "com.wire.bots.logger": ${LOG_LEVEL:-INFO}
+    "org.reflections.Reflections": ERROR
 
 token: ${SERVICE_TOKEN:-}
 apiHost: ${WIRE_API_HOST:-https://prod-nginz-https.wire.com}  # For staging env: https://staging-nginz-https.zinfra.io
