@@ -18,15 +18,16 @@
 
 package com.wire.bots.echo;
 
-import com.wire.bots.sdk.Configuration;
+
+import com.wire.lithium.Configuration;
 
 public class Config extends Configuration {
-    public String auth;
-
+    // Optional: Used only for calling feature
     public String ingress;
     public int portMin;
     public int portMax;
     public String module;
+    // Optional: Used only for calling feature
 
     public String getIngress() {
         return ingress;

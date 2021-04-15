@@ -19,18 +19,16 @@
 package com.wire.bots.echo;
 
 import com.wire.blender.Blender;
-import com.wire.bots.sdk.MessageHandlerBase;
-import com.wire.bots.sdk.WireClient;
-import com.wire.bots.sdk.assets.FileAsset;
-import com.wire.bots.sdk.assets.FileAssetPreview;
-import com.wire.bots.sdk.assets.MessageText;
-import com.wire.bots.sdk.models.*;
-import com.wire.bots.sdk.server.model.Member;
-import com.wire.bots.sdk.server.model.NewBot;
-import com.wire.bots.sdk.server.model.SystemMessage;
-import com.wire.bots.sdk.server.model.User;
-import com.wire.bots.sdk.state.State;
-import com.wire.bots.sdk.tools.Logger;
+import com.wire.xenon.MessageHandlerBase;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.assets.*;
+import com.wire.xenon.backend.models.Member;
+import com.wire.xenon.backend.models.NewBot;
+import com.wire.xenon.backend.models.SystemMessage;
+import com.wire.xenon.backend.models.User;
+import com.wire.xenon.models.*;
+import com.wire.xenon.state.State;
+import com.wire.xenon.tools.Logger;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,6 +57,7 @@ public class MessageHandler extends MessageHandlerBase {
                 newBot.id,
                 newBot.origin.handle));
 
+        // Assure there are no other bots in this conversation. If yes then refuse to join
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
                 Logger.warning("Rejecting NewBot. Provider: %s service: %s",
@@ -78,7 +77,7 @@ public class MessageHandler extends MessageHandlerBase {
                     client.getConversationId());
 
             String label = "Hello! I am Echo. I echo everything you post here";
-            client.sendText(label);
+            client.send(new MessageText(label));
         } catch (Exception e) {
             Logger.error("onNewConversation: %s", e);
         }
@@ -123,17 +122,25 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
-                    msg.getWidth()
-            );
+                    msg.getWidth());
 
             // download this image from Wire server
-            byte[] img = client.downloadAsset(msg.getAssetKey(),
+            byte[] img = client.downloadAsset(
+                    msg.getAssetKey(),
                     msg.getAssetToken(),
                     msg.getSha256(),
                     msg.getOtrKey());
 
             // echo this image back to user
-            client.sendPicture(img, msg.getMimeType());
+            final Picture picture = new Picture(img, msg.getMimeType());
+
+            // first we upload this picture
+            final AssetKey assetKey = client.uploadAsset(picture);
+            picture.setAssetKey(assetKey.key);
+            picture.setAssetToken(assetKey.token);
+
+            // post this picture on Wire
+            client.send(picture);
         } catch (Exception e) {
             Logger.error("onImage: %s", e);
         }
@@ -156,10 +163,21 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // echo this audio back to user
-            client.sendAudio(audio,
+            final AudioPreview preview = new AudioPreview(audio,
                     msg.getName(),
                     msg.getMimeType(),
-                    msg.getDuration());
+                    msg.getDuration(),
+                    msg.getLevels());
+
+            client.send(preview);
+
+            final AudioAsset audioAsset = new AudioAsset(audio, preview);
+
+            final AssetKey assetKey = client.uploadAsset(audioAsset);
+            audioAsset.setAssetKey(assetKey.key);
+            audioAsset.setAssetToken(assetKey.token);
+
+            client.send(audioAsset);
         } catch (Exception e) {
             Logger.error("onAudio: %s", e);
         }
@@ -182,12 +200,24 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // echo this video back to user
-            client.sendVideo(video,
+            final VideoAsset videoAsset = new VideoAsset(video, msg.getMimeType(), msg.getMessageId());
+            final AssetKey assetKey = client.uploadAsset(videoAsset);
+            videoAsset.setAssetKey(assetKey.key);
+            videoAsset.setAssetToken(assetKey.token);
+
+            client.send(videoAsset);
+
+            // echo preview
+            final VideoPreview preview = new VideoPreview(
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getDuration(),
                     msg.getHeight(),
-                    msg.getWidth());
+                    msg.getWidth(),
+                    (int) msg.getSize(),
+                    msg.getMessageId());
+
+            client.send(preview);
         } catch (Exception e) {
             Logger.error("onVideo: %s", e);
         }
@@ -196,7 +226,9 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onText(WireClient client, EphemeralTextMessage msg) {
         try {
-            client.sendText("You wrote: " + msg.getText(), msg.getExpireAfterMillis());
+            final MessageEphemeral message = new MessageEphemeral(msg.getExpireAfterMillis());
+            message.setText("You wrote: " + msg.getText());
+            client.send(message);
         } catch (Exception e) {
             Logger.error("onEphemeralText: %s", e);
         }
@@ -205,19 +237,36 @@ public class MessageHandler extends MessageHandlerBase {
     @Override
     public void onAttachment(WireClient client, AttachmentMessage attach) {
         try {
-            Logger.info("Received Attachment: name: %s, type: %s, size: %,d KB",
+            final String mimeType = attach.getMimeType();
+
+            Logger.info("Received Attachment: filename: %s, type: %s, size: %,d KB",
                     attach.getName(),
-                    attach.getMimeType(),
-                    attach.getSize() / 1024
-            );
+                    mimeType,
+                    attach.getSize() / 1024);
+
+            // download this attachment
+            final byte[] bytes = client.downloadAsset(
+                    attach.getAssetKey(),
+                    attach.getAssetToken(),
+                    attach.getSha256(),
+                    attach.getOtrKey());
 
             // echo this file back to user
-            UUID messageId = UUID.randomUUID();
-            FileAssetPreview preview = new FileAssetPreview(attach.getName(), attach.getMimeType(), attach.getSize(), messageId);
-            FileAsset asset = new FileAsset(attach.getAssetKey(), attach.getAssetToken(), attach.getSha256(), attach.getOtrKey(), messageId);
+            FileAsset asset = new FileAsset(bytes, mimeType, UUID.randomUUID());
 
-            client.send(preview, attach.getUserId());
-            client.send(asset, attach.getUserId());
+            // upload the content of the file
+            final AssetKey assetKey = client.uploadAsset(asset);
+            asset.setAssetKey(assetKey.key);
+            asset.setAssetToken(assetKey.token);
+
+            // send the preview
+            String filename = String.format("echo_%s", attach.getName());
+            FileAssetPreview preview = new FileAssetPreview(filename, mimeType, bytes.length, asset.getMessageId());
+            client.send(preview);
+
+            // send the file
+            client.send(asset);
+
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error("onAttachment: %s", e);
@@ -247,11 +296,10 @@ public class MessageHandler extends MessageHandlerBase {
                         client.getId(),
                         user.id,
                         user.name,
-                        user.handle
-                );
+                        user.handle);
 
                 // say Hi to new participant
-                client.sendText("Hi there " + user.name);
+                client.send(new MessageText("Hi there " + user.name));
             }
         } catch (Exception e) {
             Logger.error("onMemberJoin: %s", e);
@@ -268,6 +316,22 @@ public class MessageHandler extends MessageHandlerBase {
                 msg.getType());
     }
 
+    @Override
+    public void onPing(WireClient client, PingMessage msg) {
+        try {
+            UUID userId = msg.getUserId();
+            Logger.info("Received a Ping from: %s, conv: %s, msgId: %s @%s",
+                    userId,
+                    msg.getConversationId(),
+                    msg.getMessageId(),
+                    msg.getTime());
+
+            // send Ping back
+            client.send(new Ping());
+        } catch (Exception e) {
+            Logger.error("onPing: %s", e);
+        }
+    }
     // ***** Calling *****
 
     @Override

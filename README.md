@@ -7,7 +7,7 @@
 This is demo project that uses: [lithium](https://github.com/wireapp/lithium). It creates a Bot that will echo everything
 you send it.
 
-# Documentation for the SDK:
+## Documentation for the SDK:
 [Bot API](https://github.com/wireapp/lithium/wiki)
 
 ## Build the project
@@ -28,7 +28,7 @@ you send it.
    url: "file:///var/echo/data"
  ```
 
-## Run Bot Service
+## How to run as Bot Service
 Runtime libraries can be built/copied from here:
 https://github.com/wireapp/cryptobox4j
 
@@ -37,7 +37,17 @@ On Ubuntu copy:
  - libcryptobox.so
  - libcryptobox-jni.so
 
-to some dir and reference that dir in java run command like:
+to some dir and reference that dir in java run command using `-Djava.library.path=path/to/your/libs`
+
+- run command:
+```               
+export SERVICE_TOKEN=<YOUR SERVICE TOKEN>
+java -jar echo.jar server echo.yaml 
 ```
-java -jar echo.jar server echo.yaml
+
+You can also override config values from your echo.yaml file like:
 ```
+java -jar echo.jar -Ddw.token=<your service token> server echo.yaml 
+```     
+
+Note: *Service Token* is obtained from Wire when registered as bot provider and created new bot service

@@ -18,8 +18,8 @@
 
 package com.wire.bots.echo;
 
-import com.wire.bots.sdk.MessageHandlerBase;
-import com.wire.bots.sdk.Server;
+import com.wire.lithium.Server;
+import com.wire.xenon.MessageHandlerBase;
 import io.dropwizard.setup.Environment;
 
 public class Service extends Server<Config> {
@@ -32,6 +32,7 @@ public class Service extends Server<Config> {
 
     @Override
     protected void initialize(Config config, Environment env) {
+
     }
 
     @Override
