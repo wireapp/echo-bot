@@ -3,7 +3,7 @@ name: Release Pipeline
 on:
   release:
     types: [ published ]
-
+    
 env:
   DOCKER_IMAGE: wire-bot/echo-bot
   SERVICE_NAME: echo

@@ -30,4 +30,6 @@ ENV RELEASE_FILE_PATH=/opt/echo/release.txt
 RUN echo $release_version > $RELEASE_FILE_PATH
 
 EXPOSE  8080 8081 8082
+
 ENTRYPOINT ["java", "-javaagent:/opt/wire/lib/prometheus-agent.jar=8082:/opt/wire/lib/metrics.yaml", "-jar", "echo.jar", "server", "echo.yaml"]
+

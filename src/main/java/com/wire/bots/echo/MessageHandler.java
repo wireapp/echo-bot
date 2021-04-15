@@ -266,6 +266,7 @@ public class MessageHandler extends MessageHandlerBase {
 
             // send the file
             client.send(asset);
+
         } catch (Exception e) {
             e.printStackTrace();
             Logger.error("onAttachment: %s", e);
