@@ -6,10 +6,10 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.7.2</version>
+    <version>1.7.3</version>
 
     <properties>
-        <lithium.version>3.0.5</lithium.version>
+        <lithium.version>3.0.11</lithium.version>
     </properties>
 
     <repositories>

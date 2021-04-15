@@ -163,7 +163,14 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getOtrKey());
 
             // echo this audio back to user
-            final AudioPreview preview = new AudioPreview(audio, msg.getName(), msg.getMimeType(), msg.getDuration());
+            final AudioPreview preview = new AudioPreview(audio,
+                    msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration(),
+                    msg.getLevels());
+
+            client.send(preview);
+
             final AudioAsset audioAsset = new AudioAsset(audio, preview);
 
             final AssetKey assetKey = client.uploadAsset(audioAsset);
