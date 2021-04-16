@@ -87,7 +87,7 @@ jobs:
         uses: 8398a7/action-slack@v2
         with:
           status: ${{ job.status }}
-          author_name: ${{ env.SERVICE_NAME }} staging pipeline
+          author_name: ${{ env.SERVICE_NAME }} Staging Pipeline
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.WEBHOOK_CI }}
         # Send message only if previous step failed

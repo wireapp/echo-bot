@@ -3,7 +3,7 @@ name: Release Pipeline
 on:
   release:
     types: [ published ]
-    
+
 env:
   DOCKER_IMAGE: wire-bot/echo-bot
   SERVICE_NAME: echo
@@ -124,7 +124,7 @@ jobs:
         uses: 8398a7/action-slack@v2
         with:
           status: ${{ job.status }}
-          author_name: ${{ env.SERVICE_NAME }} release pipeline
+          author_name: ${{ env.SERVICE_NAME }} Production Pipeline
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.WEBHOOK_RELEASE }}
         # Notify every release
