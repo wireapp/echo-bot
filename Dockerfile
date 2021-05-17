@@ -1,4 +1,6 @@
-FROM maven:3.6.3-jdk-8-slim AS build-env
+FROM maven:3-openjdk-11 AS build
+LABEL description="Wire Echo Bot"
+LABEL project="wire-bots:echo-bot"
 
 WORKDIR /app
 
@@ -22,7 +24,7 @@ COPY libs/libblender.so /opt/wire/lib/
 COPY echo.yaml /opt/echo/
 
 # Copy built target
-COPY --from=build-env /app/target/echo.jar /opt/echo/
+COPY --from=build /app/target/echo.jar /opt/echo/
 
 # create version file
 ARG release_version=development

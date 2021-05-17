@@ -6,22 +6,27 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.7.3</version>
+    <version>1.8.0</version>
+
+    <name>Echo Bot</name>
+    <description>A demo project for Lithium.</description>
+    <url>https://wire.com/</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
-        <lithium.version>3.0.11</lithium.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <lithium.version>3.3.1</lithium.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>lithium</id>
-            <url>https://packagecloud.io/dkovacevic/lithium/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.wire</groupId>
@@ -35,16 +40,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <forceCreation>true</forceCreation>
                 </configuration>
@@ -52,7 +57,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.2.4</version>
                 <configuration>
                     <finalName>echo</finalName>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
