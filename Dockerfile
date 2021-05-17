@@ -24,7 +24,7 @@ COPY libs/libblender.so /opt/wire/lib/
 COPY echo.yaml /opt/echo/
 
 # Copy built target
-COPY --from=build-env /app/target/echo.jar /opt/echo/
+COPY --from=build /app/target/echo.jar /opt/echo/
 
 # create version file
 ARG release_version=development
