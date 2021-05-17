@@ -21,7 +21,10 @@ package com.wire.bots.echo;
 import com.wire.blender.Blender;
 import com.wire.xenon.MessageHandlerBase;
 import com.wire.xenon.WireClient;
-import com.wire.xenon.assets.*;
+import com.wire.xenon.assets.FileAsset;
+import com.wire.xenon.assets.FileAssetPreview;
+import com.wire.xenon.assets.MessageText;
+import com.wire.xenon.assets.Ping;
 import com.wire.xenon.backend.models.Member;
 import com.wire.xenon.backend.models.NewBot;
 import com.wire.xenon.backend.models.SystemMessage;
@@ -116,159 +119,95 @@ public class MessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void onImage(WireClient client, ImageMessage msg) {
+    public void onPhotoPreview(WireClient client, PhotoPreviewMessage msg) {
         try {
-            Logger.info("Received Image: type: %s, size: %,d KB, h: %d, w: %d",
+            Logger.info("Received an Image preview: msg: %s, type: %s, size: %,d KB, h: %d, w: %d",
+                    msg.getMessageId(),
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getHeight(),
                     msg.getWidth());
-
-            // download this image from Wire server
-            byte[] img = client.downloadAsset(
-                    msg.getAssetKey(),
-                    msg.getAssetToken(),
-                    msg.getSha256(),
-                    msg.getOtrKey());
-
-            // echo this image back to user
-            final Picture picture = new Picture(img, msg.getMimeType());
-
-            // first we upload this picture
-            final AssetKey assetKey = client.uploadAsset(picture);
-            picture.setAssetKey(assetKey.key);
-            picture.setAssetToken(assetKey.token);
-
-            // post this picture on Wire
-            client.send(picture);
         } catch (Exception e) {
-            Logger.error("onImage: %s", e);
+            Logger.error("onPhotoPreview: %s", e);
         }
     }
 
     @Override
-    public void onAudio(WireClient client, AudioMessage msg) {
+    public void onAudioPreview(WireClient client, AudioPreviewMessage msg) {
         try {
-            Logger.info("Received Audio: name: %s, type: %s, size: %,d KB, duration: %,d sec",
+            Logger.info("Received a Audio preview: msg: %s, name: %s, type: %s, size: %,d KB, duration: %,d sec",
+                    msg.getMessageId(),
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getDuration() / 1000
             );
-
-            // download this audio from Wire Server
-            byte[] audio = client.downloadAsset(msg.getAssetKey(),
-                    msg.getAssetToken(),
-                    msg.getSha256(),
-                    msg.getOtrKey());
-
-            // echo this audio back to user
-            final AudioPreview preview = new AudioPreview(audio,
-                    msg.getName(),
-                    msg.getMimeType(),
-                    msg.getDuration(),
-                    msg.getLevels());
-
-            client.send(preview);
-
-            final AudioAsset audioAsset = new AudioAsset(audio, preview);
-
-            final AssetKey assetKey = client.uploadAsset(audioAsset);
-            audioAsset.setAssetKey(assetKey.key);
-            audioAsset.setAssetToken(assetKey.token);
-
-            client.send(audioAsset);
         } catch (Exception e) {
-            Logger.error("onAudio: %s", e);
+            Logger.error("onAudioPreview: %s", e);
         }
     }
 
     @Override
-    public void onVideo(WireClient client, VideoMessage msg) {
+    public void onVideoPreview(WireClient client, VideoPreviewMessage msg) {
         try {
-            Logger.info("Received Video: name: %s, type: %s, size: %,d KB, duration: %,d sec",
+            Logger.info("Received a Video preview: msg: %s, name: %s, type: %s, size: %,d KB, duration: %,d sec",
+                    msg.getMessageId(),
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getSize() / 1024,
                     msg.getDuration() / 1000
             );
+        } catch (Exception e) {
+            Logger.error("onVideoPreview: %s", e);
+        }
+    }
 
-            // download this video from Wire Server
-            byte[] video = client.downloadAsset(msg.getAssetKey(),
-                    msg.getAssetToken(),
-                    msg.getSha256(),
-                    msg.getOtrKey());
-
-            // echo this video back to user
-            final VideoAsset videoAsset = new VideoAsset(video, msg.getMimeType(), msg.getMessageId());
-            final AssetKey assetKey = client.uploadAsset(videoAsset);
-            videoAsset.setAssetKey(assetKey.key);
-            videoAsset.setAssetToken(assetKey.token);
-
-            client.send(videoAsset);
-
-            // echo preview
-            final VideoPreview preview = new VideoPreview(
+    @Override
+    public void onFilePreview(WireClient client, FilePreviewMessage msg) {
+        try {
+            Logger.info("Received a File preview: msg: %s, filename: %s, type: %s, size: %,d KB",
+                    msg.getMessageId(),
                     msg.getName(),
                     msg.getMimeType(),
-                    msg.getDuration(),
-                    msg.getHeight(),
-                    msg.getWidth(),
-                    (int) msg.getSize(),
-                    msg.getMessageId());
-
-            client.send(preview);
+                    msg.getSize() / 1024);
         } catch (Exception e) {
-            Logger.error("onVideo: %s", e);
+            e.printStackTrace();
+            Logger.error("onFilePreview: %s", e);
         }
     }
 
     @Override
-    public void onText(WireClient client, EphemeralTextMessage msg) {
+    public void onAssetData(WireClient client, RemoteMessage msg) {
         try {
-            final MessageEphemeral message = new MessageEphemeral(msg.getExpireAfterMillis());
-            message.setText("You wrote: " + msg.getText());
-            client.send(message);
-        } catch (Exception e) {
-            Logger.error("onEphemeralText: %s", e);
-        }
-    }
-
-    @Override
-    public void onAttachment(WireClient client, AttachmentMessage attach) {
-        try {
-            final String mimeType = attach.getMimeType();
-
-            Logger.info("Received Attachment: filename: %s, type: %s, size: %,d KB",
-                    attach.getName(),
-                    mimeType,
-                    attach.getSize() / 1024);
+            Logger.info("Received an Asset: msg: %s, assetId: %s",
+                    msg.getMessageId(),
+                    msg.getAssetId());
 
             // download this attachment
             final byte[] bytes = client.downloadAsset(
-                    attach.getAssetKey(),
-                    attach.getAssetToken(),
-                    attach.getSha256(),
-                    attach.getOtrKey());
+                    msg.getAssetId(),
+                    msg.getAssetToken(),
+                    msg.getSha256(),
+                    msg.getOtrKey());
 
             // echo this file back to user
-            FileAsset asset = new FileAsset(bytes, mimeType, UUID.randomUUID());
+            FileAsset asset = new FileAsset(bytes, "application/octet-stream", UUID.randomUUID());
 
             // upload the content of the file
             final AssetKey assetKey = client.uploadAsset(asset);
-            asset.setAssetKey(assetKey.key);
+            asset.setAssetKey(assetKey.id);
             asset.setAssetToken(assetKey.token);
 
             // send the preview
-            String filename = String.format("echo_%s", attach.getName());
-            FileAssetPreview preview = new FileAssetPreview(filename, mimeType, bytes.length, asset.getMessageId());
+            String filename = String.format("echo_%s", assetKey.id);
+            FileAssetPreview preview = new FileAssetPreview(filename, "application/octet-stream", bytes.length, asset.getMessageId());
             client.send(preview);
 
             // send the file
             client.send(asset);
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.error("onAttachment: %s", e);
+            Logger.error("onAssetData: %s", e);
         }
     }
 
@@ -331,8 +270,8 @@ public class MessageHandler extends MessageHandlerBase {
             Logger.error("onPing: %s", e);
         }
     }
-    // ***** Calling *****
 
+    // ***** Calling *****
     @Override
     public void onCalling(WireClient client, CallingMessage msg) {
         UUID botId = client.getId();

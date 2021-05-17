@@ -6,22 +6,11 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.7.3</version>
+    <version>1.8.0</version>
 
     <properties>
-        <lithium.version>3.0.11</lithium.version>
+        <lithium.version>3.3.1</lithium.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>lithium</id>
-            <url>https://packagecloud.io/dkovacevic/lithium/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.wire</groupId>
