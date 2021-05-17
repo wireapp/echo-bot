@@ -82,7 +82,7 @@ public class MessageHandler extends MessageHandlerBase {
             String label = "Hello! I am Echo. I echo everything you post here";
             client.send(new MessageText(label));
         } catch (Exception e) {
-            Logger.exception("onNewConversation: %s", e);
+            Logger.exception("onNewConversation:", e);
         }
     }
 
@@ -113,7 +113,7 @@ public class MessageHandler extends MessageHandlerBase {
                     t.getMessageId(),
                     botId);
         } catch (Exception e) {
-            Logger.exception("onText: %s", e);
+            Logger.exception("onText:", e);
         }
     }
 
@@ -127,7 +127,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth());
         } catch (Exception e) {
-            Logger.exception("onPhotoPreview: %s", e);
+            Logger.exception("onPhotoPreview:", e);
         }
     }
 
@@ -142,7 +142,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.exception("onAudioPreview: %s", e);
+            Logger.exception("onAudioPreview:", e);
         }
     }
 
@@ -157,7 +157,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.exception("onVideoPreview: %s", e);
+            Logger.exception("onVideoPreview:", e);
         }
     }
 
@@ -170,7 +170,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getSize() / 1024);
         } catch (Exception e) {
-            Logger.exception("onFilePreview: %s", e);
+            Logger.exception("onFilePreview:", e);
         }
     }
 
@@ -205,7 +205,7 @@ public class MessageHandler extends MessageHandlerBase {
             // send the file
             client.send(asset);
         } catch (Exception e) {
-            Logger.exception("onAssetData: %s", e);
+            Logger.exception("onAssetData:", e);
         }
     }
 
