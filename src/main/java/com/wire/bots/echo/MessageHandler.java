@@ -82,7 +82,7 @@ public class MessageHandler extends MessageHandlerBase {
             String label = "Hello! I am Echo. I echo everything you post here";
             client.send(new MessageText(label));
         } catch (Exception e) {
-            Logger.error("onNewConversation: %s", e);
+            Logger.exception("onNewConversation: %s", e);
         }
     }
 
@@ -113,8 +113,7 @@ public class MessageHandler extends MessageHandlerBase {
                     t.getMessageId(),
                     botId);
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error("onText: %s", e);
+            Logger.exception("onText: %s", e);
         }
     }
 
@@ -128,7 +127,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth());
         } catch (Exception e) {
-            Logger.error("onPhotoPreview: %s", e);
+            Logger.exception("onPhotoPreview: %s", e);
         }
     }
 
@@ -143,7 +142,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.error("onAudioPreview: %s", e);
+            Logger.exception("onAudioPreview: %s", e);
         }
     }
 
@@ -158,7 +157,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.error("onVideoPreview: %s", e);
+            Logger.exception("onVideoPreview: %s", e);
         }
     }
 
@@ -171,8 +170,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getSize() / 1024);
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error("onFilePreview: %s", e);
+            Logger.exception("onFilePreview: %s", e);
         }
     }
 
@@ -184,31 +182,30 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getAssetId());
 
             // download this attachment
-            final byte[] bytes = client.downloadAsset(
+            final byte[] attachment = client.downloadAsset(
                     msg.getAssetId(),
                     msg.getAssetToken(),
                     msg.getSha256(),
                     msg.getOtrKey());
 
-            // echo this file back to user
-            FileAsset asset = new FileAsset(bytes, "application/octet-stream", UUID.randomUUID());
+            // echo this attachment back to user (create a new attachment)
+
+            // send the preview
+            final UUID messageId = UUID.randomUUID();
+            FileAssetPreview preview = new FileAssetPreview("echo-file", "application/octet-stream", attachment.length, messageId);
+            client.send(preview);
+
+            FileAsset asset = new FileAsset(attachment, "application/octet-stream", messageId);
 
             // upload the content of the file
             final AssetKey assetKey = client.uploadAsset(asset);
             asset.setAssetKey(assetKey.id);
             asset.setAssetToken(assetKey.token);
 
-            // send the preview
-            String filename = String.format("echo_%s", assetKey.id);
-            FileAssetPreview preview = new FileAssetPreview(filename, "application/octet-stream", bytes.length, asset.getMessageId());
-            client.send(preview);
-
             // send the file
             client.send(asset);
-
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.error("onAssetData: %s", e);
+            Logger.exception("onAssetData: %s", e);
         }
     }
 
