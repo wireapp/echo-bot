@@ -1,4 +1,6 @@
-FROM maven:3.6.3-jdk-8-slim AS build-env
+FROM maven:3-openjdk-11 AS build
+LABEL description="Wire Echo Bot"
+LABEL project="wire-bots:echo-bot"
 
 WORKDIR /app
 
