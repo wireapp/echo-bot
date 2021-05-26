@@ -82,7 +82,7 @@ public class MessageHandler extends MessageHandlerBase {
             String label = "Hello! I am Echo. I echo everything you post here";
             client.send(new MessageText(label));
         } catch (Exception e) {
-            Logger.exception("onNewConversation:", e);
+            Logger.exception("onNewConversation: %s", e, e.getMessage());
         }
     }
 
@@ -113,8 +113,13 @@ public class MessageHandler extends MessageHandlerBase {
                     t.getMessageId(),
                     botId);
         } catch (Exception e) {
-            Logger.exception("onText:", e);
+            Logger.exception("onText: %s", e, e.getMessage());
         }
+    }
+
+    @Override
+    public void onText(WireClient client, EphemeralTextMessage msg) {
+        onText(client, (TextMessage) msg);
     }
 
     @Override
@@ -127,7 +132,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getHeight(),
                     msg.getWidth());
         } catch (Exception e) {
-            Logger.exception("onPhotoPreview:", e);
+            Logger.exception("onPhotoPreview: %s", e, e.getMessage());
         }
     }
 
@@ -142,7 +147,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.exception("onAudioPreview:", e);
+            Logger.exception("onAudioPreview: %s", e, e.getMessage());
         }
     }
 
@@ -157,7 +162,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getDuration() / 1000
             );
         } catch (Exception e) {
-            Logger.exception("onVideoPreview:", e);
+            Logger.exception("onVideoPreview: %s", e, e.getMessage());
         }
     }
 
@@ -170,7 +175,7 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getMimeType(),
                     msg.getSize() / 1024);
         } catch (Exception e) {
-            Logger.exception("onFilePreview:", e);
+            Logger.exception("onFilePreview: %s", e, e.getMessage());
         }
     }
 
@@ -205,7 +210,7 @@ public class MessageHandler extends MessageHandlerBase {
             // send the file
             client.send(asset);
         } catch (Exception e) {
-            Logger.exception("onAssetData:", e);
+            Logger.exception("onAssetData: %s", e, e.getMessage());
         }
     }
 
