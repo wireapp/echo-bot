@@ -54,7 +54,7 @@ jobs:
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           service_account_email: kubernetes-deployment-agent@wire-bot.iam.gserviceaccount.com
           service_account_key: ${{ secrets.GKE_SA_KEY }}
