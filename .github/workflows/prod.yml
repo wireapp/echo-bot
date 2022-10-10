@@ -3,7 +3,7 @@ name: Release Pipeline
 on:
   release:
     types: [ published ]
-    
+
 env:
   DOCKER_IMAGE: wire-bot/echo-bot
   SERVICE_NAME: echo
@@ -79,7 +79,7 @@ jobs:
 
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           service_account_email: kubernetes-deployment-agent@wire-bot.iam.gserviceaccount.com
           service_account_key: ${{ secrets.GKE_SA_KEY }}
@@ -124,7 +124,7 @@ jobs:
         uses: 8398a7/action-slack@v2
         with:
           status: ${{ job.status }}
-          author_name: ${{ env.SERVICE_NAME }} release pipeline
+          author_name: ${{ env.SERVICE_NAME }} Production Pipeline
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.WEBHOOK_RELEASE }}
         # Notify every release
