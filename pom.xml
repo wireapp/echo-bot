@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
 
     <name>Echo Bot</name>
     <description>A demo project for Lithium.</description>
@@ -25,7 +25,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lithium.version>3.4.4</lithium.version>
+        <lithium.version>3.4.5</lithium.version>
     </properties>
     <dependencies>
         <dependency>
