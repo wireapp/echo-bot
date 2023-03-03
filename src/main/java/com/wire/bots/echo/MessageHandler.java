@@ -206,6 +206,7 @@ public class MessageHandler extends MessageHandlerBase {
             final AssetKey assetKey = client.uploadAsset(asset);
             asset.setAssetKey(assetKey.id);
             asset.setAssetToken(assetKey.token);
+            asset.setDomain(assetKey.domain);
 
             // send the file
             client.send(asset);
