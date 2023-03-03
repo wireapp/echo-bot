@@ -6,15 +6,15 @@ services:
       dockerfile: Dockerfile
       args:
         - release_version=docker-compose
-    image: eu.gcr.io/wire-bot/echo-bot
+    image: echo-bot
     ports:
       - 8080:8080
       - 8081:8081
       - 8082:8082
     environment:
-      - DB_URL=jdbc:postgresql://db:5432/echo-bot
-      - DB_USER=echo-bot
-      - DB_PASSWORD=echo-bot
+      - DB_URL=jdbc:postgresql://db:5432/echodb
+      - DB_USER=echo-user
+      - DB_PASSWORD=db-s3cret!
       - SERVICE_TOKEN=this_is_some_secret
       - WIRE_API_HOST=https://prod-nginz-https.wire.com
     depends_on:
@@ -24,9 +24,9 @@ services:
     image: postgres:13.1
     # just for local development
     environment:
-      - POSTGRES_USER=echo-bot
-      - POSTGRES_PASSWORD=echo-bot
-      - POSTGRES_DB=echo-bot
+      - POSTGRES_USER=echo-user
+      - POSTGRES_PASSWORD=db-s3cret!
+      - POSTGRES_DB=echodb
     ports:
       - 5432:5432
     volumes:
