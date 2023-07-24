@@ -211,7 +211,7 @@ public class MessageHandler extends MessageHandlerBase {
             // send the file
             client.send(asset);
         } catch (Exception e) {
-            Logger.exception("onAssetData: %s", e, e.getMessage());
+            Logger.exception(e, "onAssetData");
         }
     }
 
