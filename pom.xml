@@ -25,26 +25,13 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lithium.version>3.5.2</lithium.version>
-        <xenon.version>1.5.3</xenon.version>
+        <lithium.version>3.5.4</lithium.version>
     </properties>
-<!--    <repositories>-->
-<!--        <repository>-->
-<!--            <id>central</id>-->
-<!--            <name>Maven Central Repository</name>-->
-<!--            <url>https://repo1.maven.org/maven2</url>-->
-<!--        </repository>-->
-<!--    </repositories>-->
     <dependencies>
         <dependency>
             <groupId>com.wire</groupId>
             <artifactId>lithium</artifactId>
             <version>${lithium.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.wire</groupId>
-            <artifactId>xenon</artifactId>
-            <version>${xenon.version}</version>
         </dependency>
     </dependencies>
     <build>
