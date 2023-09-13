@@ -21,10 +21,7 @@ package com.wire.bots.echo;
 import com.wire.blender.Blender;
 import com.wire.xenon.MessageHandlerBase;
 import com.wire.xenon.WireClient;
-import com.wire.xenon.assets.FileAsset;
-import com.wire.xenon.assets.FileAssetPreview;
-import com.wire.xenon.assets.MessageText;
-import com.wire.xenon.assets.Ping;
+import com.wire.xenon.assets.*;
 import com.wire.xenon.backend.models.Member;
 import com.wire.xenon.backend.models.NewBot;
 import com.wire.xenon.backend.models.SystemMessage;
@@ -131,9 +128,23 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSize() / 1024,
                     msg.getHeight(),
                     msg.getWidth());
+
+            // Echo back the image preview
+            UUID messageId = newMessageId(msg.getMessageId());
+            ImagePreview imgPreview = new ImagePreview(messageId, msg.getMimeType());
+            imgPreview.setSize((int) msg.getSize());
+            imgPreview.setHeight(msg.getHeight());
+            imgPreview.setWidth(msg.getWidth());
+
+            client.send(imgPreview);
+
         } catch (Exception e) {
             Logger.exception("onPhotoPreview: %s", e, e.getMessage());
         }
+    }
+
+    private UUID newMessageId(UUID messageId) {
+        return new UUID(messageId.getMostSignificantBits(), messageId.getLeastSignificantBits() & 0x0f);
     }
 
     @Override
@@ -196,20 +207,24 @@ public class MessageHandler extends MessageHandlerBase {
             // echo this attachment back to user (create a new attachment)
 
             // send the preview
-            final UUID messageId = UUID.randomUUID();
-            FileAssetPreview preview = new FileAssetPreview("echo-file", "application/octet-stream", attachment.length, messageId);
-            client.send(preview);
+//            final UUID messageId = UUID.randomUUID();
+//            FileAssetPreview preview = new FileAssetPreview("echo-file", "application/octet-stream", attachment.length, messageId);
+//            client.send(preview);
 
-            FileAsset asset = new FileAsset(attachment, "application/octet-stream", messageId);
+            UUID messageId = newMessageId(msg.getMessageId());
+
+            String mime = "image/jpeg";
+            AssetBase asset = new ImageAsset(messageId, attachment, mime);
 
             // upload the content of the file
-            final AssetKey assetKey = client.uploadAsset(asset);
+            AssetKey assetKey = client.uploadAsset(asset);
             asset.setAssetKey(assetKey.id);
             asset.setAssetToken(assetKey.token);
             asset.setDomain(assetKey.domain);
 
             // send the file
             client.send(asset);
+
         } catch (Exception e) {
             Logger.exception(e, "onAssetData");
         }
