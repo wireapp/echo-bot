@@ -10,8 +10,6 @@ server:
   requestLog:
     appenders:
       - type: ${APPENDER_TYPE:-console}
-        filterFactories:
-          - type: status-filter-factory
 
 # Log lever: INFO | DEBUG | ERROR
 logging:
