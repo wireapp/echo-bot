@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
 
     <name>Echo Bot</name>
     <description>A demo project for Lithium.</description>
