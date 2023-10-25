@@ -134,15 +134,16 @@ public class MessageHandler extends MessageHandlerBase {
             UUID messageId = UUID.randomUUID();
 
             // Store the preview message for later use. Will be needed when the data message arrives
-            previewMessages.put(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+            Pair old = previewMessages.putIfAbsent(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+            if (old == null) {
+                // Echo back the image preview
+                ImagePreview imgPreview = new ImagePreview(messageId, msg.getMimeType());
+                imgPreview.setSize((int) msg.getSize());
+                imgPreview.setHeight(msg.getHeight());
+                imgPreview.setWidth(msg.getWidth());
 
-            // Echo back the image preview
-            ImagePreview imgPreview = new ImagePreview(messageId, msg.getMimeType());
-            imgPreview.setSize((int) msg.getSize());
-            imgPreview.setHeight(msg.getHeight());
-            imgPreview.setWidth(msg.getWidth());
-
-            client.send(imgPreview);
+                client.send(imgPreview);
+            }
         } catch (Exception e) {
             Logger.exception(e, "onPhotoPreview: %s", e.getMessage());
         }
@@ -260,13 +261,13 @@ public class MessageHandler extends MessageHandlerBase {
                     asset = new ImageAsset(messageId, attachment, mime);
                     break;
                 case "audio/mpeg":
-                    asset = new AudioAsset(messageId, mime);
-                    break;
-//                case "video/mp4":
-//                    asset = new VideoAsset(messageId, mime);
-//                    break;
+                    //asset = new AudioAsset(messageId, mime, attachment);
+                    //break;
+                case "video/mp4":
+                    //asset = new VideoAsset(messageId, mime, attachment);
+                    //break;
                 default:
-                    asset = new FileAsset(messageId, mime);
+                    asset = new FileAsset(attachment, mime, messageId);
                     break;
             }
 
