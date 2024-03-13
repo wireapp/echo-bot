@@ -50,6 +50,11 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>4.0.0-1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
