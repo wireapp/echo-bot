@@ -25,7 +25,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lithium.version>3.6.3</lithium.version>
+        <lithium.version>3.6.4</lithium.version>
         <dropwizard.version>4.0.0</dropwizard.version>
     </properties>
     <dependencyManagement>
