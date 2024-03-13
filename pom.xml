@@ -6,7 +6,7 @@
 
     <artifactId>echo</artifactId>
     <groupId>com.wire.bots</groupId>
-    <version>1.9.4</version>
+    <version>1.9.5</version>
 
     <name>Echo Bot</name>
     <description>A demo project for Lithium.</description>
@@ -51,9 +51,12 @@
             <artifactId>dropwizard-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.smoketurner</groupId>
-            <artifactId>dropwizard-swagger</artifactId>
-            <version>4.0.0-1</version>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jdbi3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
         </dependency>
     </dependencies>
     <build>
