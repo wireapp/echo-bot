@@ -77,18 +77,26 @@ jobs:
           # delete bakup file
           rm "$SERVICE.yaml.bak"
 
+      - name: Enable auth plugin
+        run: |
+          echo "USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+      # Auth to GKE
+      - name: Authenticate to GKE
+        uses: google-github-actions/auth@v1
+        with:
+          project_id: wire-bot
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+          service_account: kubernetes-deployment-agent@wire-bot.iam.gserviceaccount.com
+
       # Setup gcloud CLI
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          service_account_email: kubernetes-deployment-agent@wire-bot.iam.gserviceaccount.com
-          service_account_key: ${{ secrets.GKE_SA_KEY }}
-          project_id: wire-bot
-          export_default_credentials: true
+        uses: google-github-actions/setup-gcloud@v1
 
-      # Configure Docker to use the gcloud command-line tool
-      - name: Configure Docker Google cloud
+      # Prepare components
+      - name: Prepare gcloud components
         run: |
+          gcloud components install gke-gcloud-auth-plugin
+          gcloud components update
           gcloud --quiet auth configure-docker
 
       # Get the GKE credentials so we can deploy to the cluster

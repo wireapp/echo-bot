@@ -13,7 +13,7 @@ COPY . ./
 RUN mvn -Dmaven.test.skip=true package
 
 # runtime stage
-FROM wirebot/runtime
+FROM wirebot/runtime:1.4.0
 
 WORKDIR /opt/echo
 

@@ -21,10 +21,7 @@ package com.wire.bots.echo;
 import com.wire.blender.Blender;
 import com.wire.xenon.MessageHandlerBase;
 import com.wire.xenon.WireClient;
-import com.wire.xenon.assets.FileAsset;
-import com.wire.xenon.assets.FileAssetPreview;
-import com.wire.xenon.assets.MessageText;
-import com.wire.xenon.assets.Ping;
+import com.wire.xenon.assets.*;
 import com.wire.xenon.backend.models.Member;
 import com.wire.xenon.backend.models.NewBot;
 import com.wire.xenon.backend.models.SystemMessage;
@@ -37,6 +34,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler extends MessageHandlerBase {
+
+    private final ConcurrentHashMap<UUID, Pair> previewMessages = new ConcurrentHashMap<>();
 
     /*
     Only for calling
@@ -82,7 +81,7 @@ public class MessageHandler extends MessageHandlerBase {
             String label = "Hello! I am Echo. I echo everything you post here";
             client.send(new MessageText(label));
         } catch (Exception e) {
-            Logger.exception("onNewConversation: %s", e, e.getMessage());
+            Logger.exception(e, "onNewConversation: %s", e.getMessage());
         }
     }
 
@@ -113,7 +112,7 @@ public class MessageHandler extends MessageHandlerBase {
                     t.getMessageId(),
                     botId);
         } catch (Exception e) {
-            Logger.exception("onText: %s", e, e.getMessage());
+            Logger.exception(e, "onText: %s", e.getMessage());
         }
     }
 
@@ -131,8 +130,22 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSize() / 1024,
                     msg.getHeight(),
                     msg.getWidth());
+
+            UUID messageId = UUID.randomUUID();
+
+            // Store the preview message for later use. Will be needed when the data message arrives
+            Pair old = previewMessages.putIfAbsent(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+            if (old == null) {
+                // Echo back the image preview
+                ImagePreview imgPreview = new ImagePreview(messageId, msg.getMimeType());
+                imgPreview.setSize((int) msg.getSize());
+                imgPreview.setHeight(msg.getHeight());
+                imgPreview.setWidth(msg.getWidth());
+
+                client.send(imgPreview);
+            }
         } catch (Exception e) {
-            Logger.exception("onPhotoPreview: %s", e, e.getMessage());
+            Logger.exception(e, "onPhotoPreview: %s", e.getMessage());
         }
     }
 
@@ -146,8 +159,21 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSize() / 1024,
                     msg.getDuration() / 1000
             );
+            // Echo back the audio preview
+            AudioPreview audioPreview = new AudioPreview(msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration(),
+                    (int) msg.getSize());
+
+            client.send(audioPreview);
+
+            UUID messageId = audioPreview.getMessageId();
+
+            // Store the preview message for later use. Will be needed when the data message arrives
+            previewMessages.put(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+
         } catch (Exception e) {
-            Logger.exception("onAudioPreview: %s", e, e.getMessage());
+            Logger.exception(e, "onAudioPreview: %s", e.getMessage());
         }
     }
 
@@ -161,8 +187,23 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSize() / 1024,
                     msg.getDuration() / 1000
             );
+            UUID messageId = UUID.randomUUID();
+
+            // Store the preview message for later use. Will be needed when the data message arrives
+            previewMessages.put(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+
+            // Echo back the video preview
+            VideoPreview videoPreview = new VideoPreview(msg.getName(),
+                    msg.getMimeType(),
+                    msg.getDuration(),
+                    msg.getHeight(),
+                    msg.getWidth(),
+                    (int) msg.getSize(),
+                    messageId);
+
+            client.send(videoPreview);
         } catch (Exception e) {
-            Logger.exception("onVideoPreview: %s", e, e.getMessage());
+            Logger.exception(e, "onVideoPreview: %s", e.getMessage());
         }
     }
 
@@ -174,8 +215,21 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getName(),
                     msg.getMimeType(),
                     msg.getSize() / 1024);
+
+            UUID messageId = UUID.randomUUID();
+
+            // Store the preview message for later use. Will be needed when the data message arrives
+            previewMessages.put(msg.getMessageId(), new Pair(messageId, msg.getMimeType()));
+
+            // Echo back the file preview
+            FileAssetPreview filePreview = new FileAssetPreview(msg.getName(),
+                    msg.getMimeType(),
+                    msg.getSize(),
+                    messageId);
+
+            client.send(filePreview);
         } catch (Exception e) {
-            Logger.exception("onFilePreview: %s", e, e.getMessage());
+            Logger.exception(e, "onFilePreview: %s", e.getMessage());
         }
     }
 
@@ -193,17 +247,32 @@ public class MessageHandler extends MessageHandlerBase {
                     msg.getSha256(),
                     msg.getOtrKey());
 
-            // echo this attachment back to user (create a new attachment)
+            // echo this media back to user (create a new attachment)
 
-            // send the preview
-            final UUID messageId = UUID.randomUUID();
-            FileAssetPreview preview = new FileAssetPreview("echo-file", "application/octet-stream", attachment.length, messageId);
-            client.send(preview);
+            Pair pair = previewMessages.get(msg.getMessageId());
 
-            FileAsset asset = new FileAsset(attachment, "application/octet-stream", messageId);
+            UUID messageId = pair.messageId;
+            String mime = pair.mimetype;
+
+            AssetBase asset;
+
+            switch (mime) {
+                case "image/jpeg":
+                    asset = new ImageAsset(messageId, attachment, mime);
+                    break;
+                case "audio/mpeg":
+                    //asset = new AudioAsset(messageId, mime, attachment);
+                    //break;
+                case "video/mp4":
+                    //asset = new VideoAsset(messageId, mime, attachment);
+                    //break;
+                default:
+                    asset = new FileAsset(attachment, mime, messageId);
+                    break;
+            }
 
             // upload the content of the file
-            final AssetKey assetKey = client.uploadAsset(asset);
+            AssetKey assetKey = client.uploadAsset(asset);
             asset.setAssetKey(assetKey.id);
             asset.setAssetToken(assetKey.token);
             asset.setDomain(assetKey.domain);
@@ -211,7 +280,7 @@ public class MessageHandler extends MessageHandlerBase {
             // send the file
             client.send(asset);
         } catch (Exception e) {
-            Logger.exception("onAssetData: %s", e, e.getMessage());
+            Logger.exception(e, "onAssetData: %s", e);
         }
     }
 
@@ -305,4 +374,14 @@ public class MessageHandler extends MessageHandlerBase {
         });
     }
     // ***** Calling ****
+
+    static class Pair {
+        public Pair(UUID messageId, String mimetype) {
+            this.messageId = messageId;
+            this.mimetype = mimetype;
+        }
+
+        UUID messageId;
+        String mimetype;
+    }
 }

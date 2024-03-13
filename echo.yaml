@@ -10,8 +10,6 @@ server:
   requestLog:
     appenders:
       - type: ${APPENDER_TYPE:-console}
-        filterFactories:
-          - type: status-filter-factory
 
 # Log lever: INFO | DEBUG | ERROR
 logging:
@@ -46,11 +44,11 @@ jerseyClient:
   userAgent: echo bot
 
   tls:
-    protocol: TLSv1.2
+    protocol: TLSv1.3
     provider: SunJSSE
     verifyHostname: false
     keyStoreType: JKS
     trustSelfSignedCertificates: true
     supportedProtocols:
-      - TLSv1.1
+      - TLSv1.3
       - TLSv1.2

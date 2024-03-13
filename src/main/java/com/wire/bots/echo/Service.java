@@ -20,7 +20,7 @@ package com.wire.bots.echo;
 
 import com.wire.lithium.Server;
 import com.wire.xenon.MessageHandlerBase;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 
 public class Service extends Server<Config> {
     static Service instance;
